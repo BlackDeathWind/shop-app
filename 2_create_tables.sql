@@ -46,7 +46,8 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'DanhMuc')
 BEGIN
     CREATE TABLE DanhMuc (
         MaDanhMuc INT IDENTITY(1,1) PRIMARY KEY,
-        TenDanhMuc NVARCHAR(100) NOT NULL
+        TenDanhMuc NVARCHAR(100) NOT NULL,
+        HinhAnh NVARCHAR(255)
     );
 END;
 GO

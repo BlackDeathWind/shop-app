@@ -30,7 +30,8 @@ export default class CategoryService {
   public async createCategory(categoryData: IDanhMuc) {
     try {
       const category = await DanhMuc.create({
-        TenDanhMuc: categoryData.TenDanhMuc
+        TenDanhMuc: categoryData.TenDanhMuc,
+        HinhAnh: categoryData.HinhAnh
       });
       return category;
     } catch (error) {
@@ -47,7 +48,8 @@ export default class CategoryService {
       }
 
       await category.update({
-        TenDanhMuc: categoryData.TenDanhMuc
+        TenDanhMuc: categoryData.TenDanhMuc,
+        HinhAnh: categoryData.HinhAnh
       });
       return category;
     } catch (error) {

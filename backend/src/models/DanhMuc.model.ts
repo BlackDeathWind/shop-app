@@ -9,6 +9,7 @@ interface DanhMucCreationAttributes extends Optional<IDanhMuc, 'MaDanhMuc'> {}
 class DanhMuc extends Model<IDanhMuc, DanhMucCreationAttributes> implements IDanhMuc {
   public MaDanhMuc!: number;
   public TenDanhMuc!: string;
+  public HinhAnh!: string;
   
   // Các mối quan hệ sẽ được định nghĩa trong file index.ts
 }
@@ -24,6 +25,10 @@ DanhMuc.init(
     TenDanhMuc: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    HinhAnh: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

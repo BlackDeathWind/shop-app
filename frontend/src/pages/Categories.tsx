@@ -8,22 +8,13 @@ import { API_ENDPOINTS } from '../constants/api';
 interface Category {
   MaDanhMuc: number;
   TenDanhMuc: string;
+  HinhAnh?: string;
 }
 
 const Categories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Hình ảnh mẫu cho các danh mục
-  const categoryImages: { [key: string]: string } = {
-    'Hoa sinh nhật': 'https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-    'Hoa khai trương': 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-    'Hoa cưới': 'https://images.unsplash.com/photo-1533616688419-b7a585564566?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-    'Hoa tang lễ': 'https://images.unsplash.com/photo-1518709414768-a88981a4515d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-    'Quà tặng lưu niệm': 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-    'Gấu bông': 'https://images.unsplash.com/photo-1588156979401-db3dc31817cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-  };
 
   // Hình ảnh mặc định cho danh mục không có ảnh
   const defaultImage = 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
@@ -45,8 +36,8 @@ const Categories = () => {
     fetchCategories();
   }, []);
 
-  const getCategoryImage = (categoryName: string) => {
-    return categoryImages[categoryName] || defaultImage;
+  const getCategoryImage = (category: Category) => {
+    return category.HinhAnh || defaultImage;
   };
 
   return (
@@ -90,7 +81,7 @@ const Categories = () => {
                 >
                   <div className="h-64 overflow-hidden">
                     <img 
-                      src={getCategoryImage(category.TenDanhMuc)} 
+                      src={getCategoryImage(category)} 
                       alt={category.TenDanhMuc}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     />

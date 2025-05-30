@@ -26,27 +26,27 @@ VALUES
 GO
 
 -- Thêm dữ liệu cho bảng DanhMuc
-INSERT INTO DanhMuc (TenDanhMuc)
+INSERT INTO DanhMuc (TenDanhMuc, HinhAnh)
 VALUES 
-    (N'Hoa sinh nhật'),
-    (N'Hoa khai trương'),
-    (N'Hoa cưới'),
-    (N'Hoa tang lễ'),
-    (N'Quà tặng lưu niệm'),
-    (N'Gấu bông');
+    (N'Hoa sinh nhật', 'https://media.loveitopcdn.com/1219/thumb/gio-hoa-tang-chuc-mung-16.jpg'),
+    (N'Hoa khai trương', 'https://hoatuoi9x.com/wp-content/uploads/2021/08/125-3.jpg'),
+    (N'Hoa cưới', 'https://sansan.vn/wp-content/uploads/2020/07/hoa-baby.jpg'),
+    (N'Hoa tang lễ', 'https://hoatuoidatviet.vn/upload/sanpham/ke-tang-hinh-thanh-gia-1798.jpg'),
+    (N'Quà tặng lưu niệm', 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
+    (N'Gấu bông', 'https://bizweb.dktcdn.net/thumb/1024x1024/100/450/808/products/439447444-454697126956015-2933455761937038741-n-1714744059531.jpg?v=1714744063193');
 GO
 
 -- Thêm dữ liệu cho bảng SanPham
 INSERT INTO SanPham (TenSanPham, MaDanhMuc, MoTa, SoLuong, GiaSanPham, HinhAnh)
 VALUES
-    (N'Bó hoa hồng đỏ', 1, N'Bó hoa gồm 20 bông hồng đỏ tươi thắm, tượng trưng cho tình yêu mãnh liệt', 50, 500000, 'hoahongdo.jpg'),
-    (N'Lẵng hoa khai trương', 2, N'Lẵng hoa gồm các loại hoa tươi đa sắc, phù hợp tặng dịp khai trương', 30, 850000, 'hoakhaitruong.jpg'),
-    (N'Hoa cầm tay cô dâu', 3, N'Bó hoa cầm tay dành cho cô dâu trong ngày cưới, gồm hoa hồng trắng và baby', 20, 650000, 'hoacuoi.jpg'),
-    (N'Vòng hoa chia buồn', 4, N'Vòng hoa tang lễ thể hiện lòng thành kính với người đã khuất', 15, 750000, 'hoatangle.jpg'),
-    (N'Gấu bông Teddy', 6, N'Gấu bông Teddy size lớn, chất liệu mềm mại, an toàn', 40, 350000, 'teddybear.jpg'),
-    (N'Khung ảnh lưu niệm', 5, N'Khung ảnh để bàn làm từ gỗ tự nhiên, thiết kế sang trọng', 60, 180000, 'khunganhgo.jpg'),
-    (N'Hoa lan hồ điệp', 1, N'Chậu hoa lan hồ điệp sang trọng, phù hợp làm quà tặng sinh nhật', 25, 1200000, 'lanhodiep.jpg'),
-    (N'Gấu bông Panda', 6, N'Gấu bông hình gấu trúc Panda ngộ nghĩnh', 35, 280000, 'panda.jpg');
+    (N'Bó hoa hồng đỏ', 1, N'Bó hoa gồm 20 bông hồng đỏ tươi thắm, tượng trưng cho tình yêu mãnh liệt', 50, 500000, 'https://hoatuoihuythao.com/upload/sanpham/bohoahongdodepnhat1401.jpg'),
+    (N'Lẵng hoa khai trương', 2, N'Lẵng hoa gồm các loại hoa tươi đa sắc, phù hợp tặng dịp khai trương', 30, 850000, 'https://hoatuoihuythao.com/upload/sanpham/langhoakhaitruongdepgiare015.jpg'),
+    (N'Hoa cầm tay cô dâu', 3, N'Bó hoa cầm tay dành cho cô dâu trong ngày cưới, gồm hoa hồng trắng và baby', 20, 650000, 'https://hoatuoi360.vn/uploads/file/Baiviet2023/hoa-cuoi-cam-tay-hoa-hong-7.jpg'),
+    (N'Vòng hoa chia buồn', 4, N'Vòng hoa tang lễ thể hiện lòng thành kính với người đã khuất', 15, 750000, 'https://cdn.litiflorist.com/upload/1660277850187.png'),
+    (N'Gấu bông Teddy', 6, N'Gấu bông Teddy size lớn, chất liệu mềm mại, an toàn', 40, 350000, 'https://bizweb.dktcdn.net/100/459/249/products/02.jpg?v=1657252163400'),
+    (N'Khung ảnh lưu niệm', 5, N'Khung ảnh để bàn làm từ gỗ tự nhiên, thiết kế sang trọng', 60, 180000, 'https://shopquatructuyen.com/wp-content/uploads/2019/05/khung-anh-co-dien-5.jpg'),
+    (N'Hoa lan hồ điệp', 1, N'Chậu hoa lan hồ điệp sang trọng, phù hợp làm quà tặng sinh nhật', 25, 1200000, 'https://storage.googleapis.com/cdn_dlhf_vn/public/products/OWC0/OWC05HP037/IMG_8126_800x800.png'),
+    (N'Gấu bông Panda', 6, N'Gấu bông hình gấu trúc Panda ngộ nghĩnh', 35, 280000, 'https://salt.tikicdn.com/cache/w300/ts/product/8b/a1/1a/35be10558729eae4722a3181cca79913.jpg');
 GO
 
 -- Thêm dữ liệu cho bảng HoaDon

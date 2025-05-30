@@ -28,6 +28,7 @@ export interface IKhachHang {
 export interface IDanhMuc {
   MaDanhMuc?: number;
   TenDanhMuc: string;
+  HinhAnh?: string;
 }
 
 // Interface cho SanPham

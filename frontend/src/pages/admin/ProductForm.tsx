@@ -56,7 +56,7 @@ const ProductForm = () => {
           });
           
           if (product.HinhAnh) {
-            setImagePreview(`${API_BASE_URL}${product.HinhAnh}`);
+            setImagePreview(product.HinhAnh.startsWith('http') ? product.HinhAnh : `${API_BASE_URL}${product.HinhAnh}`);
           }
         }
         

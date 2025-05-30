@@ -83,6 +83,13 @@ const Home = () => {
     }).format(price);
   };
 
+  // Hình ảnh mặc định cho danh mục không có ảnh
+  const defaultImage = 'https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
+
+  const getCategoryImage = (category: CategoryResponse) => {
+    return category.HinhAnh || defaultImage;
+  };
+
   return (
     <MainLayout>
       {/* Hero Banner Slider */}
@@ -152,7 +159,7 @@ const Home = () => {
                 >
                   <div className="h-40 overflow-hidden">
                     <img
-                      src={`https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80`}
+                      src={getCategoryImage(category)}
                       alt={category.TenDanhMuc}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     />
@@ -188,7 +195,7 @@ const Home = () => {
                   <div key={product.MaSanPham} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
                     <div className="relative h-64 overflow-hidden group">
                       <img
-                        src={product.HinhAnh ? `http://localhost:5000${product.HinhAnh}` : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'}
+                        src={product.HinhAnh ? (product.HinhAnh.startsWith('http') ? product.HinhAnh : `http://localhost:5000${product.HinhAnh}`) : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'}
                         alt={product.TenSanPham}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                       />
