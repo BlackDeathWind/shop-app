@@ -38,12 +38,13 @@ export default class AuthService {
 
       const token = this.generateToken(tokenData);
       
-      // Không trả về mật khẩu
-      const { MatKhau: _, ...userWithoutPassword } = user.toJSON();
+      // Tạo đối tượng mới từ user và loại bỏ thuộc tính MatKhau
+      const userObject: any = user.get({ plain: true });
+      delete userObject.MatKhau;
 
       return {
         token,
-        user: userWithoutPassword
+        user: userObject
       };
     } catch (error) {
       throw error;
@@ -52,7 +53,7 @@ export default class AuthService {
 
   public async register(registerDto: IRegisterDto): Promise<{ token: string; user: any }> {
     try {
-      const { SoDienThoai, MatKhau, DiaChi, isNhanVien = false } = registerDto;
+      const { SoDienThoai, MatKhau, DiaChi, TenKhachHang, isNhanVien = false } = registerDto;
 
       // Kiểm tra số điện thoại đã tồn tại chưa
       const existingUser = isNhanVien
@@ -73,10 +74,10 @@ export default class AuthService {
       } else {
         // Đăng ký khách hàng
         user = await KhachHang.create({
-          TenKhachHang: registerDto.TenKhachHang,
+          TenKhachHang,
           SoDienThoai,
           MatKhau: hashedPassword,
-          DiaChi,
+          DiaChi: DiaChi || '',
           MaVaiTro: 2 // Mã vai trò khách hàng
         });
       }
@@ -88,12 +89,13 @@ export default class AuthService {
 
       const token = this.generateToken(tokenData);
 
-      // Không trả về mật khẩu
-      const { MatKhau: _, ...userWithoutPassword } = user.toJSON();
+      // Tạo đối tượng mới từ user và loại bỏ thuộc tính MatKhau
+      const userObject: any = user.get({ plain: true });
+      delete userObject.MatKhau;
 
       return {
         token,
-        user: userWithoutPassword
+        user: userObject
       };
     } catch (error) {
       throw error;
@@ -101,10 +103,9 @@ export default class AuthService {
   }
 
   private generateToken(data: ITokenData): string {
-    return jwt.sign(
-      data,
-      process.env.JWT_SECRET || 'shopapp_secret_key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    );
+    const secret = process.env.JWT_SECRET || 'shopapp_secret_key';
+    const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
+    
+    return jwt.sign(data, secret, { expiresIn } as any);
   }
 } 

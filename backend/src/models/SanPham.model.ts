@@ -1,46 +1,86 @@
-import { Model, Table, Column, PrimaryKey, ForeignKey, BelongsTo, HasMany, AutoIncrement, DataType } from 'sequelize-typescript';
+import { Model, DataTypes, Optional } from 'sequelize';
 import { ISanPham } from '../interfaces/models.interface';
+import { sequelize } from '../config/db.config';
 import DanhMuc from './DanhMuc.model';
 import ChiTietHoaDon from './ChiTietHoaDon.model';
 
-@Table({
-  tableName: 'SanPham',
-  timestamps: false
-})
-export default class SanPham extends Model implements ISanPham {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  MaSanPham!: number;
+// Interface cho các thuộc tính SanPham khi tạo mới
+interface SanPhamCreationAttributes extends Optional<ISanPham, 'MaSanPham' | 'Ngaytao' | 'NgayCapNhat' | 'HinhAnh'> {}
 
-  @Column
-  TenSanPham!: string;
+// Model SanPham kế thừa từ Model Sequelize
+class SanPham extends Model<ISanPham, SanPhamCreationAttributes> implements ISanPham {
+  public MaSanPham!: number;
+  public TenSanPham!: string;
+  public MaDanhMuc!: number;
+  public MoTa?: string;
+  public SoLuong!: number;
+  public GiaSanPham!: number;
+  public Ngaytao?: Date;
+  public NgayCapNhat?: Date;
+  public HinhAnh?: string;
+}
 
-  @ForeignKey(() => DanhMuc)
-  @Column
-  MaDanhMuc!: number;
+// Khởi tạo model
+SanPham.init(
+  {
+    MaSanPham: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    TenSanPham: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    MaDanhMuc: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'DanhMuc',
+        key: 'MaDanhMuc',
+      },
+    },
+    MoTa: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    SoLuong: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    GiaSanPham: {
+      type: DataTypes.DECIMAL(18, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    Ngaytao: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
+    NgayCapNhat: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    HinhAnh: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+  },
+  {
+    sequelize,
+    tableName: 'SanPham',
+    timestamps: false,
+    hooks: {
+      beforeCreate: (sanPham: SanPham) => {
+        sanPham.Ngaytao = new Date();
+      },
+      beforeUpdate: (sanPham: SanPham) => {
+        sanPham.NgayCapNhat = new Date();
+      },
+    },
+  }
+);
 
-  @Column(DataType.TEXT)
-  MoTa?: string;
-
-  @Column
-  SoLuong!: number;
-
-  @Column(DataType.DECIMAL(18, 2))
-  GiaSanPham!: number;
-
-  @Column(DataType.DATE)
-  Ngaytao?: Date;
-
-  @Column(DataType.DATE)
-  NgayCapNhat?: Date;
-
-  @Column
-  HinhAnh?: string;
-
-  @BelongsTo(() => DanhMuc)
-  DanhMuc?: DanhMuc;
-
-  @HasMany(() => ChiTietHoaDon)
-  ChiTietHoaDons?: ChiTietHoaDon[];
-} 
+export default SanPham; 

@@ -1,20 +1,36 @@
-import { Model, Table, Column, PrimaryKey, HasMany, AutoIncrement } from 'sequelize-typescript';
+import { Model, DataTypes, Optional } from 'sequelize';
 import { IDanhMuc } from '../interfaces/models.interface';
-import SanPham from './SanPham.model';
+import { sequelize } from '../config/db.config';
 
-@Table({
-  tableName: 'DanhMuc',
-  timestamps: false
-})
-export default class DanhMuc extends Model implements IDanhMuc {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  MaDanhMuc!: number;
+// Interface cho các thuộc tính DanhMuc khi tạo mới
+interface DanhMucCreationAttributes extends Optional<IDanhMuc, 'MaDanhMuc'> {}
 
-  @Column
-  TenDanhMuc!: string;
+// Model DanhMuc kế thừa từ Model Sequelize
+class DanhMuc extends Model<IDanhMuc, DanhMucCreationAttributes> implements IDanhMuc {
+  public MaDanhMuc!: number;
+  public TenDanhMuc!: string;
+  
+  // Các mối quan hệ sẽ được định nghĩa trong file index.ts
+}
 
-  @HasMany(() => SanPham)
-  SanPhams?: SanPham[];
-} 
+// Khởi tạo model
+DanhMuc.init(
+  {
+    MaDanhMuc: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    TenDanhMuc: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize,
+    tableName: 'DanhMuc',
+    timestamps: false,
+  }
+);
+
+export default DanhMuc; 

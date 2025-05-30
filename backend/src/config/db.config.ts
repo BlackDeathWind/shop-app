@@ -1,17 +1,17 @@
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from 'sequelize';
 import * as dotenv from 'dotenv';
-import * as path from 'path';
+import { logger } from '../utils/logger';
 
 dotenv.config();
 
 const dbConfig = {
-  host: process.env.DB_HOST || 'DELL5580\\SQLEXPRESS',
+  server: process.env.DB_HOST || 'DELL5580\\SQLEXPRESS',
   port: parseInt(process.env.DB_PORT || '1433'),
   database: process.env.DB_NAME || 'shop',
   username: process.env.DB_USER || 'sa',
   password: process.env.DB_PASSWORD || '21050043',
   dialect: 'mssql',
-  logging: process.env.NODE_ENV === 'development',
+  logging: process.env.NODE_ENV === 'development' ? (sql: string) => logger.db.query(sql) : false,
   pool: {
     max: 5,
     min: 0,
@@ -21,29 +21,28 @@ const dbConfig = {
 };
 
 const sequelize = new Sequelize({
-  host: dbConfig.host,
   dialect: 'mssql',
   username: dbConfig.username,
   password: dbConfig.password,
   database: dbConfig.database,
-  port: dbConfig.port,
-  logging: dbConfig.logging,
-  pool: dbConfig.pool,
-  models: [path.join(__dirname, '..', 'models')],
   dialectOptions: {
     options: {
       encrypt: false,
-      trustServerCertificate: true
+      trustServerCertificate: true,
+      server: dbConfig.server
     }
-  }
+  },
+  logging: dbConfig.logging,
+  pool: dbConfig.pool
 });
 
 const testConnection = async (): Promise<void> => {
   try {
+    logger.db.connecting();
     await sequelize.authenticate();
-    console.log('Connection to database established successfully.');
+    logger.db.connected();
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    logger.db.error(error);
   }
 };
 

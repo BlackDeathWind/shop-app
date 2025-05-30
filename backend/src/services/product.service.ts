@@ -93,16 +93,29 @@ export default class ProductService {
     }
   }
 
-  public async createProduct(productData: Record<string, any>) {
+  public async createProduct(productData: Partial<ISanPham>) {
     try {
-      const product = await SanPham.create(productData);
+      // Kiểm tra các trường bắt buộc
+      if (!productData.TenSanPham || !productData.MaDanhMuc || productData.SoLuong === undefined || productData.GiaSanPham === undefined) {
+        throw new Error('Thiếu thông tin sản phẩm bắt buộc');
+      }
+      
+      const product = await SanPham.create({
+        TenSanPham: productData.TenSanPham,
+        MaDanhMuc: productData.MaDanhMuc,
+        MoTa: productData.MoTa,
+        SoLuong: productData.SoLuong,
+        GiaSanPham: productData.GiaSanPham,
+        HinhAnh: productData.HinhAnh
+      });
+      
       return product;
     } catch (error) {
       throw error;
     }
   }
 
-  public async updateProduct(id: number, productData: Record<string, any>) {
+  public async updateProduct(id: number, productData: Partial<ISanPham>) {
     try {
       const product = await SanPham.findByPk(id);
       
@@ -110,7 +123,15 @@ export default class ProductService {
         throw new Error('Sản phẩm không tồn tại');
       }
 
-      await product.update(productData);
+      await product.update({
+        TenSanPham: productData.TenSanPham !== undefined ? productData.TenSanPham : product.TenSanPham,
+        MaDanhMuc: productData.MaDanhMuc !== undefined ? productData.MaDanhMuc : product.MaDanhMuc,
+        MoTa: productData.MoTa !== undefined ? productData.MoTa : product.MoTa,
+        SoLuong: productData.SoLuong !== undefined ? productData.SoLuong : product.SoLuong,
+        GiaSanPham: productData.GiaSanPham !== undefined ? productData.GiaSanPham : product.GiaSanPham,
+        HinhAnh: productData.HinhAnh !== undefined ? productData.HinhAnh : product.HinhAnh
+      });
+      
       return product;
     } catch (error) {
       throw error;

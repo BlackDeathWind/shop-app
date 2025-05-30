@@ -1,38 +1,82 @@
-import { Model, Table, Column, PrimaryKey, ForeignKey, BelongsTo, HasMany, AutoIncrement, Unique, DataType } from 'sequelize-typescript';
+import { Model, DataTypes, Optional } from 'sequelize';
 import { INhanVien } from '../interfaces/models.interface';
-import VaiTro from './VaiTro.model';
-import HoaDon from './HoaDon.model';
+import { sequelize } from '../config/db.config';
+import bcrypt from 'bcrypt';
 
-@Table({
-  tableName: 'NhanVien',
-  timestamps: false
-})
-export default class NhanVien extends Model implements INhanVien {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  MaNhanVien!: number;
+// Interface cho các thuộc tính NhanVien khi tạo mới
+interface NhanVienCreationAttributes extends Optional<INhanVien, 'MaNhanVien'> {}
 
-  @ForeignKey(() => VaiTro)
-  @Column
-  MaVaiTro!: number;
+// Model NhanVien kế thừa từ Model Sequelize
+class NhanVien extends Model<INhanVien, NhanVienCreationAttributes> implements INhanVien {
+  public MaNhanVien!: number;
+  public MaVaiTro!: number;
+  public TenNhanVien!: string;
+  public SoDienThoai!: string;
+  public MatKhau!: string;
+  public DiaChi?: string;
 
-  @Column
-  TenNhanVien!: string;
+  // Phương thức kiểm tra mật khẩu
+  public async comparePassword(candidatePassword: string): Promise<boolean> {
+    return await bcrypt.compare(candidatePassword, this.MatKhau);
+  }
+}
 
-  @Unique
-  @Column
-  SoDienThoai!: string;
+// Khởi tạo model
+NhanVien.init(
+  {
+    MaNhanVien: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    MaVaiTro: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'VaiTro',
+        key: 'MaVaiTro',
+      },
+    },
+    TenNhanVien: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    SoDienThoai: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    MatKhau: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    DiaChi: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+  },
+  {
+    sequelize,
+    tableName: 'NhanVien',
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['SoDienThoai']
+      }
+    ],
+    hooks: {
+      beforeCreate: async (nhanVien: NhanVien) => {
+        if (nhanVien.MatKhau) {
+          nhanVien.MatKhau = await bcrypt.hash(nhanVien.MatKhau, 10);
+        }
+      },
+      beforeUpdate: async (nhanVien: NhanVien) => {
+        if (nhanVien.changed('MatKhau')) {
+          nhanVien.MatKhau = await bcrypt.hash(nhanVien.MatKhau, 10);
+        }
+      },
+    },
+  }
+);
 
-  @Column
-  MatKhau!: string;
-
-  @Column(DataType.STRING)
-  DiaChi?: string;
-
-  @BelongsTo(() => VaiTro)
-  VaiTro?: VaiTro;
-
-  @HasMany(() => HoaDon)
-  HoaDons?: HoaDon[];
-} 
+export default NhanVien; 

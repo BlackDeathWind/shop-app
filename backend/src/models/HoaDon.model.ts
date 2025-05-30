@@ -1,48 +1,83 @@
-import { Model, Table, Column, PrimaryKey, ForeignKey, BelongsTo, HasMany, AutoIncrement, DataType } from 'sequelize-typescript';
+import { Model, DataTypes, Optional } from 'sequelize';
 import { IHoaDon } from '../interfaces/models.interface';
+import { sequelize } from '../config/db.config';
 import KhachHang from './KhachHang.model';
 import NhanVien from './NhanVien.model';
 import ChiTietHoaDon from './ChiTietHoaDon.model';
 
-@Table({
-  tableName: 'HoaDon',
-  timestamps: false
-})
-export default class HoaDon extends Model implements IHoaDon {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  MaHoaDon!: number;
+// Interface cho các thuộc tính HoaDon khi tạo mới
+interface HoaDonCreationAttributes extends Optional<IHoaDon, 'MaHoaDon' | 'NgayLap' | 'TrangThai'> {}
 
-  @ForeignKey(() => KhachHang)
-  @Column
-  MaKhachHang!: number;
+// Model HoaDon kế thừa từ Model Sequelize
+class HoaDon extends Model<IHoaDon, HoaDonCreationAttributes> implements IHoaDon {
+  public MaHoaDon!: number;
+  public MaKhachHang!: number;
+  public MaNhanVien?: number | null;
+  public NgayLap?: Date;
+  public TongTien!: number;
+  public PhuongThucTT!: string;
+  public DiaChi!: string;
+  public TrangThai?: string;
+}
 
-  @ForeignKey(() => NhanVien)
-  @Column
-  MaNhanVien?: number | null;
+// Khởi tạo model
+HoaDon.init(
+  {
+    MaHoaDon: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    MaKhachHang: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'KhachHang',
+        key: 'MaKhachHang',
+      },
+    },
+    MaNhanVien: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'NhanVien',
+        key: 'MaNhanVien',
+      },
+    },
+    NgayLap: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
+    TongTien: {
+      type: DataTypes.DECIMAL(18, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    PhuongThucTT: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    DiaChi: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    TrangThai: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'Đang xử lý',
+    },
+  },
+  {
+    sequelize,
+    tableName: 'HoaDon',
+    timestamps: false,
+    hooks: {
+      beforeCreate: (hoaDon: HoaDon) => {
+        hoaDon.NgayLap = new Date();
+      },
+    },
+  }
+);
 
-  @Column(DataType.DATE)
-  NgayLap?: Date;
-
-  @Column(DataType.DECIMAL(18, 2))
-  TongTien!: number;
-
-  @Column
-  PhuongThucTT!: string;
-
-  @Column
-  DiaChi!: string;
-
-  @Column
-  TrangThai?: string;
-
-  @BelongsTo(() => KhachHang)
-  KhachHang?: KhachHang;
-
-  @BelongsTo(() => NhanVien)
-  NhanVien?: NhanVien;
-
-  @HasMany(() => ChiTietHoaDon)
-  ChiTietHoaDons?: ChiTietHoaDon[];
-} 
+export default HoaDon; 

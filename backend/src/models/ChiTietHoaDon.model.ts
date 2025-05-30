@@ -1,38 +1,71 @@
-import { Model, Table, Column, PrimaryKey, ForeignKey, BelongsTo, AutoIncrement, DataType } from 'sequelize-typescript';
+import { Model, DataTypes, Optional } from 'sequelize';
 import { IChiTietHoaDon } from '../interfaces/models.interface';
-import HoaDon from './HoaDon.model';
-import SanPham from './SanPham.model';
+import { sequelize } from '../config/db.config';
 
-@Table({
-  tableName: 'ChiTietHoaDon',
-  timestamps: false
-})
-export default class ChiTietHoaDon extends Model implements IChiTietHoaDon {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  MaChiTiet!: number;
+// Interface cho các thuộc tính ChiTietHoaDon khi tạo mới
+interface ChiTietHoaDonCreationAttributes extends Optional<IChiTietHoaDon, 'MaChiTiet'> {}
 
-  @ForeignKey(() => HoaDon)
-  @Column
-  MaHoaDon!: number;
+// Model ChiTietHoaDon kế thừa từ Model Sequelize
+class ChiTietHoaDon extends Model<IChiTietHoaDon, ChiTietHoaDonCreationAttributes> implements IChiTietHoaDon {
+  public MaChiTiet!: number;
+  public MaHoaDon!: number;
+  public MaSanPham!: number;
+  public SoLuong!: number;
+  public DonGia!: number;
+  public ThanhTien!: number;
+}
 
-  @ForeignKey(() => SanPham)
-  @Column
-  MaSanPham!: number;
+// Khởi tạo model
+ChiTietHoaDon.init(
+  {
+    MaChiTiet: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    MaHoaDon: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'HoaDon',
+        key: 'MaHoaDon',
+      },
+    },
+    MaSanPham: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'SanPham',
+        key: 'MaSanPham',
+      },
+    },
+    SoLuong: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
+    DonGia: {
+      type: DataTypes.DECIMAL(18, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    ThanhTien: {
+      type: DataTypes.DECIMAL(18, 2),
+      allowNull: false,
+      defaultValue: 0,
+    },
+  },
+  {
+    sequelize,
+    tableName: 'ChiTietHoaDon',
+    timestamps: false,
+    hooks: {
+      beforeValidate: (chiTietHoaDon: ChiTietHoaDon) => {
+        // Tự động tính thành tiền = số lượng * đơn giá
+        chiTietHoaDon.ThanhTien = chiTietHoaDon.SoLuong * Number(chiTietHoaDon.DonGia);
+      },
+    },
+  }
+);
 
-  @Column
-  SoLuong!: number;
-
-  @Column(DataType.DECIMAL(18, 2))
-  DonGia!: number;
-
-  @Column(DataType.DECIMAL(18, 2))
-  ThanhTien!: number;
-
-  @BelongsTo(() => HoaDon)
-  HoaDon?: HoaDon;
-
-  @BelongsTo(() => SanPham)
-  SanPham?: SanPham;
-} 
+export default ChiTietHoaDon; 

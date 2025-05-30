@@ -5,7 +5,7 @@ export interface ILoginDto {
 }
 
 export interface IRegisterDto {
-  TenKhachHang?: string;
+  TenKhachHang: string;
   TenNhanVien?: string;
   SoDienThoai: string;
   MatKhau: string;

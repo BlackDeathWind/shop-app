@@ -167,8 +167,8 @@ export default class AdminService {
       await t.commit();
       
       // Trả về người dùng không kèm mật khẩu
-      const userWithoutPassword = newUser.get();
-      delete userWithoutPassword.MatKhau;
+      const userObj = newUser.get({ plain: true });
+      const { MatKhau: _, ...userWithoutPassword } = userObj;
       
       return userWithoutPassword;
     } catch (error) {
@@ -196,8 +196,8 @@ export default class AdminService {
         await user.update(updateData);
         
         // Trả về user không kèm mật khẩu
-        const userWithoutPassword = user.get();
-        delete userWithoutPassword.MatKhau;
+        const userObj = user.get({ plain: true });
+        const { MatKhau: _, ...userWithoutPassword } = userObj;
         return userWithoutPassword;
       } else {
         // Nhân viên hoặc Admin
@@ -210,8 +210,8 @@ export default class AdminService {
         await user.update(updateData);
         
         // Trả về user không kèm mật khẩu
-        const userWithoutPassword = user.get();
-        delete userWithoutPassword.MatKhau;
+        const userObj = user.get({ plain: true });
+        const { MatKhau: _, ...userWithoutPassword } = userObj;
         return userWithoutPassword;
       }
     } catch (error) {

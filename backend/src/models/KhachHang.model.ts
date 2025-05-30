@@ -1,38 +1,82 @@
-import { Model, Table, Column, PrimaryKey, ForeignKey, BelongsTo, HasMany, AutoIncrement, Unique, DataType } from 'sequelize-typescript';
+import { Model, DataTypes, Optional } from 'sequelize';
 import { IKhachHang } from '../interfaces/models.interface';
-import VaiTro from './VaiTro.model';
-import HoaDon from './HoaDon.model';
+import { sequelize } from '../config/db.config';
+import bcrypt from 'bcrypt';
 
-@Table({
-  tableName: 'KhachHang',
-  timestamps: false
-})
-export default class KhachHang extends Model implements IKhachHang {
-  @PrimaryKey
-  @AutoIncrement
-  @Column
-  MaKhachHang!: number;
+// Interface cho các thuộc tính KhachHang khi tạo mới
+interface KhachHangCreationAttributes extends Optional<IKhachHang, 'MaKhachHang'> {}
 
-  @ForeignKey(() => VaiTro)
-  @Column
-  MaVaiTro!: number;
+// Model KhachHang kế thừa từ Model Sequelize
+class KhachHang extends Model<IKhachHang, KhachHangCreationAttributes> implements IKhachHang {
+  public MaKhachHang!: number;
+  public MaVaiTro!: number;
+  public TenKhachHang!: string;
+  public SoDienThoai!: string;
+  public MatKhau!: string;
+  public DiaChi?: string;
 
-  @Column
-  TenKhachHang!: string;
+  // Phương thức kiểm tra mật khẩu
+  public async comparePassword(candidatePassword: string): Promise<boolean> {
+    return await bcrypt.compare(candidatePassword, this.MatKhau);
+  }
+}
 
-  @Unique
-  @Column
-  SoDienThoai!: string;
+// Khởi tạo model
+KhachHang.init(
+  {
+    MaKhachHang: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    MaVaiTro: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'VaiTro',
+        key: 'MaVaiTro',
+      },
+    },
+    TenKhachHang: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    SoDienThoai: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    MatKhau: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    DiaChi: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+  },
+  {
+    sequelize,
+    tableName: 'KhachHang',
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['SoDienThoai']
+      }
+    ],
+    hooks: {
+      beforeCreate: async (khachHang: KhachHang) => {
+        if (khachHang.MatKhau) {
+          khachHang.MatKhau = await bcrypt.hash(khachHang.MatKhau, 10);
+        }
+      },
+      beforeUpdate: async (khachHang: KhachHang) => {
+        if (khachHang.changed('MatKhau')) {
+          khachHang.MatKhau = await bcrypt.hash(khachHang.MatKhau, 10);
+        }
+      },
+    },
+  }
+);
 
-  @Column
-  MatKhau!: string;
-
-  @Column(DataType.STRING)
-  DiaChi?: string;
-
-  @BelongsTo(() => VaiTro)
-  VaiTro?: VaiTro;
-
-  @HasMany(() => HoaDon)
-  HoaDons?: HoaDon[];
-} 
+export default KhachHang; 

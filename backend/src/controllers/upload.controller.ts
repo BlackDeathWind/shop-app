@@ -1,24 +1,11 @@
 import { Request, Response } from 'express';
 import * as path from 'path';
-
-interface MulterFile {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  destination: string;
-  filename: string;
-  path: string;
-  size: number;
-}
+import * as multer from 'multer';
 
 // Extend Express Request type
 declare global {
   namespace Express {
-    interface Request {
-      file?: MulterFile;
-      files?: MulterFile[] | { [fieldname: string]: MulterFile[] };
-    }
+    // Không định nghĩa lại các thuộc tính của Request
   }
 }
 
@@ -61,7 +48,7 @@ export default class UploadController {
       }
 
       // Chuyển đổi req.files thành mảng
-      let files: MulterFile[] = [];
+      let files: Express.Multer.File[] = [];
       if (Array.isArray(req.files)) {
         files = req.files;
       } else {

@@ -7,6 +7,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { testConnection } from './config/db.config';
 import { initializeModels } from './models';
+import { logger } from './utils/logger';
 
 // Routes
 import authRoutes from './routes/auth.routes';
@@ -36,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 const uploadDir = path.join(__dirname, '../public/uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
+  logger.info('Thư mục uploads đã được tạo thành công');
 }
 
 // Serve static files
@@ -73,13 +75,14 @@ app.use((_req: Request, res: Response) => {
 
 // Error handler middleware
 app.use((err: any, _req: Request, res: Response, _next: any) => {
-  console.error(err.stack);
+  logger.error('Lỗi server:', err.stack);
   res.status(500).json({
     message: 'Đã xảy ra lỗi trên máy chủ'
   });
 });
 
 // Start server
+logger.server.starting();
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.server.started(Number(PORT));
 }); 
