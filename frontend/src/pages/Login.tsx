@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,7 +8,6 @@ import MainLayout from '../layouts/MainLayout';
 const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
-  const [isStaff, setIsStaff] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -22,10 +22,26 @@ const Login = () => {
     try {
       await login({
         SoDienThoai: phoneNumber,
-        MatKhau: password,
-        isNhanVien: isStaff
+        MatKhau: password
       });
-      navigate('/');
+      
+      // Navigate dựa vào vai trò được quản lý bởi AuthContext
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user.MaVaiTro === 0) {
+          // Admin
+          navigate('/admin/dashboard');
+        } else if (user.MaVaiTro === 1) {
+          // Nhân viên
+          navigate('/employee/dashboard');
+        } else {
+          // Khách hàng hoặc mặc định
+          navigate('/');
+        }
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Đăng nhập thất bại');
     } finally {
@@ -89,18 +105,6 @@ const Login = () => {
                       required
                     />
                   </div>
-                </div>
-
-                <div className="mb-6">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-5 w-5 text-pink-500"
-                      checked={isStaff}
-                      onChange={() => setIsStaff(!isStaff)}
-                    />
-                    <span className="ml-2 text-gray-700">Đăng nhập với tư cách nhân viên</span>
-                  </label>
                 </div>
 
                 <button

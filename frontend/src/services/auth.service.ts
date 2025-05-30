@@ -4,7 +4,6 @@ import { API_ENDPOINTS } from '../constants/api';
 export interface LoginRequest {
   SoDienThoai: string;
   MatKhau: string;
-  isNhanVien?: boolean;
 }
 
 export interface RegisterRequest {

@@ -7,39 +7,60 @@ import NhanVien from '../models/NhanVien.model';
 export default class AuthService {
   public async login(loginDto: ILoginDto): Promise<{ token: string; user: any }> {
     try {
-      const { SoDienThoai, MatKhau, isNhanVien = false } = loginDto;
+      const { SoDienThoai, MatKhau } = loginDto;
       
-      let user;
-      if (isNhanVien) {
-        user = await NhanVien.findOne({ 
-          where: { SoDienThoai },
-          include: ['VaiTro']
-        });
-      } else {
-        user = await KhachHang.findOne({ 
-          where: { SoDienThoai },
-          include: ['VaiTro']
-        });
-      }
+      // Kiểm tra số điện thoại trong cả hai bảng NhanVien và KhachHang
+      let nhanVienUser = await NhanVien.findOne({ 
+        where: { SoDienThoai },
+        include: ['VaiTro']
+      });
 
-      if (!user) {
+      // Nếu tìm thấy trong bảng NhanVien
+      if (nhanVienUser) {
+        const isPasswordValid = await bcrypt.compare(MatKhau, nhanVienUser.MatKhau);
+        if (!isPasswordValid) {
+          throw new Error('Số điện thoại hoặc mật khẩu không đúng');
+        }
+
+        const tokenData: ITokenData = {
+          id: nhanVienUser.MaNhanVien,
+          role: nhanVienUser.MaVaiTro
+        };
+
+        const token = this.generateToken(tokenData);
+        
+        const userObject: any = nhanVienUser.get({ plain: true });
+        delete userObject.MatKhau;
+
+        return {
+          token,
+          user: userObject
+        };
+      }
+      
+      // Nếu không tìm thấy trong bảng NhanVien, tìm trong bảng KhachHang
+      const khachHangUser = await KhachHang.findOne({ 
+        where: { SoDienThoai },
+        include: ['VaiTro']
+      });
+
+      if (!khachHangUser) {
         throw new Error('Số điện thoại hoặc mật khẩu không đúng');
       }
 
-      const isPasswordValid = await bcrypt.compare(MatKhau, user.MatKhau);
+      const isPasswordValid = await bcrypt.compare(MatKhau, khachHangUser.MatKhau);
       if (!isPasswordValid) {
         throw new Error('Số điện thoại hoặc mật khẩu không đúng');
       }
 
       const tokenData: ITokenData = {
-        id: isNhanVien ? (user as NhanVien).MaNhanVien : (user as KhachHang).MaKhachHang,
-        role: user.MaVaiTro
+        id: khachHangUser.MaKhachHang,
+        role: khachHangUser.MaVaiTro
       };
 
       const token = this.generateToken(tokenData);
       
-      // Tạo đối tượng mới từ user và loại bỏ thuộc tính MatKhau
-      const userObject: any = user.get({ plain: true });
+      const userObject: any = khachHangUser.get({ plain: true });
       delete userObject.MatKhau;
 
       return {

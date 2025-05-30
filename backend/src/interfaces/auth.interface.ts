@@ -1,7 +1,6 @@
 export interface ILoginDto {
   SoDienThoai: string;
   MatKhau: string;
-  isNhanVien?: boolean;
 }
 
 export interface IRegisterDto {
