@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import { ChevronRight, Loader, Package, Calendar, CreditCard, Clock, ChevronDown, AlertTriangle } from 'lucide-react';
+import { ChevronRight, Loader, Package, Calendar, CreditCard, Clock, ChevronDown, AlertTriangle, Image } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
@@ -194,12 +194,26 @@ const Orders = () => {
                       <div className="space-y-4 mb-6">
                         {order.ChiTietHoaDons?.map((item) => (
                           <div key={item.MaSanPham} className="flex items-center gap-4 p-3 border rounded-md">
-                            <div className="w-16 h-16 shrink-0">
-                              <img
-                                src={item.SanPham.HinhAnh ? `http://localhost:5000${item.SanPham.HinhAnh}` : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'}
-                                alt={item.SanPham.TenSanPham}
-                                className="w-full h-full object-cover rounded"
-                              />
+                            <div className="w-16 h-16 shrink-0 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                              {item.SanPham.HinhAnh ? (
+                                <img
+                                  src={item.SanPham.HinhAnh.startsWith('/uploads') 
+                                    ? `http://localhost:5000${item.SanPham.HinhAnh}` 
+                                    : item.SanPham.HinhAnh}
+                                  alt={item.SanPham.TenSanPham}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Fallback khi ảnh lỗi
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center w-full h-full"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg></div>';
+                                  }}
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center w-full h-full">
+                                  <Image className="h-8 w-8 text-gray-400" />
+                                </div>
+                              )}
                             </div>
                             <div className="flex-1">
                               <Link 
@@ -248,7 +262,7 @@ const Orders = () => {
                               ? 'Đã giao thành công' 
                               : order.TrangThai === 'Đã hủy'
                               ? 'Đơn hàng đã bị hủy'
-                              : 'Dự kiến giao hàng trong 2-3 ngày làm việc'}
+                              : 'Dự kiến giao trong 2-3 ngày làm việc'}
                           </span>
                         </div>
                       </div>
