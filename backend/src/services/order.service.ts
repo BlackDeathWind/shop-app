@@ -6,6 +6,7 @@ import SanPham from '../models/SanPham.model';
 import KhachHang from '../models/KhachHang.model';
 import NhanVien from '../models/NhanVien.model';
 import { IHoaDon } from '../interfaces/models.interface';
+import { QueryTypes } from 'sequelize';
 
 interface OrderItem {
   MaSanPham: number;
@@ -23,51 +24,118 @@ interface CreateOrderData {
   items: OrderItem[];
 }
 
+interface InsertedOrder {
+  MaHoaDon: number;
+  MaKhachHang: number;
+  MaNhanVien?: number | null;
+  NgayLap: Date;
+  TongTien: number;
+  PhuongThucTT: string;
+  DiaChi: string;
+  TrangThai: string;
+}
+
 export default class OrderService {
   public async createOrder(orderData: CreateOrderData) {
     const t: Transaction = await sequelize.transaction();
 
     try {
-      // Tạo hóa đơn
-      const order = await HoaDon.create({
-        MaKhachHang: orderData.MaKhachHang,
-        MaNhanVien: orderData.MaNhanVien,
-        NgayLap: new Date(),
-        TongTien: orderData.TongTien,
-        PhuongThucTT: orderData.PhuongThucTT,
-        DiaChi: orderData.DiaChi,
-        TrangThai: 'Đang xử lý'
-      }, { transaction: t });
-
-      // Tạo chi tiết hóa đơn và cập nhật số lượng sản phẩm
+      // Tạo hóa đơn sử dụng raw query
+      const result = await sequelize.query(`
+        INSERT INTO HoaDon (MaKhachHang, MaNhanVien, NgayLap, TongTien, PhuongThucTT, DiaChi, TrangThai)
+        OUTPUT INSERTED.*
+        VALUES (:makhachhang, :manhanvien, GETDATE(), :tongtien, :phuongthuctt, :diachi, N'Đang xử lý')
+      `, {
+        replacements: {
+          makhachhang: orderData.MaKhachHang,
+          manhanvien: orderData.MaNhanVien || null,
+          tongtien: orderData.TongTien,
+          phuongthuctt: orderData.PhuongThucTT,
+          diachi: orderData.DiaChi
+        },
+        type: QueryTypes.INSERT,
+        transaction: t
+      });
+      
+      // Kiểm tra kết quả trả về và lấy MaHoaDon
+      const insertedRows = result[0] as unknown as any[];
+      
+      if (!Array.isArray(insertedRows) || insertedRows.length === 0) {
+        throw new Error('Không thể tạo hóa đơn: Không có dữ liệu trả về');
+      }
+      
+      const maHoaDon = insertedRows[0].MaHoaDon;
+      
+      if (!maHoaDon) {
+        throw new Error('Không thể tạo hóa đơn: Không có mã hóa đơn');
+      }
+      
+      // Xử lý từng sản phẩm trong đơn hàng
       for (const item of orderData.items) {
-        await ChiTietHoaDon.create({
-          MaHoaDon: order.MaHoaDon,
-          MaSanPham: item.MaSanPham,
-          SoLuong: item.SoLuong,
-          DonGia: item.DonGia,
-          ThanhTien: item.ThanhTien
-        }, { transaction: t });
-
-        // Cập nhật số lượng sản phẩm
-        const product = await SanPham.findByPk(item.MaSanPham, { transaction: t });
-        if (!product) {
+        // Kiểm tra số lượng sản phẩm
+        const productResult = await sequelize.query(`
+          SELECT * FROM SanPham WHERE MaSanPham = :masanpham
+        `, {
+          replacements: {
+            masanpham: item.MaSanPham
+          },
+          type: QueryTypes.SELECT,
+          transaction: t
+        });
+        
+        const productRows = productResult as unknown as any[];
+        
+        if (!Array.isArray(productRows) || productRows.length === 0) {
           throw new Error(`Sản phẩm với mã ${item.MaSanPham} không tồn tại`);
         }
-
+        
+        const product = productRows[0];
         if (product.SoLuong < item.SoLuong) {
           throw new Error(`Sản phẩm ${product.TenSanPham} không đủ số lượng`);
         }
 
-        await product.update({
-          SoLuong: product.SoLuong - item.SoLuong
-        }, { transaction: t });
+        // Thêm chi tiết hóa đơn
+        await sequelize.query(`
+          INSERT INTO ChiTietHoaDon (MaHoaDon, MaSanPham, SoLuong, DonGia, ThanhTien)
+          VALUES (:mahoadon, :masanpham, :soluong, :dongia, :thanhtien)
+        `, {
+          replacements: {
+            mahoadon: maHoaDon,
+            masanpham: item.MaSanPham,
+            soluong: item.SoLuong,
+            dongia: item.DonGia,
+            thanhtien: item.ThanhTien
+          },
+          type: QueryTypes.INSERT,
+          transaction: t
+        });
+
+        // Cập nhật số lượng sản phẩm
+        await sequelize.query(`
+          UPDATE SanPham
+          SET SoLuong = SoLuong - :soluong
+          WHERE MaSanPham = :masanpham
+        `, {
+          replacements: {
+            soluong: item.SoLuong,
+            masanpham: item.MaSanPham
+          },
+          type: QueryTypes.UPDATE,
+          transaction: t
+        });
       }
 
       await t.commit();
+      
+      // Trả về đầy đủ thông tin hóa đơn
+      const order = await HoaDon.findByPk(maHoaDon);
       return order;
     } catch (error) {
-      await t.rollback();
+      try {
+        await t.rollback();
+      } catch (rollbackError) {
+        console.error('Lỗi khi rollback:', rollbackError);
+      }
       throw error;
     }
   }

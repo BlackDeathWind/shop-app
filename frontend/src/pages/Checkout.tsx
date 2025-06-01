@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { ChevronRight, CreditCard, Truck, MapPin, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
+import { useToast } from '../contexts/ToastContext';
 
 interface CartItem {
   productId: number;
@@ -27,11 +29,12 @@ const Checkout = () => {
     diaChi: '',
     phuongThucTT: 'Tiền mặt',
   });
-  const [orderSuccess, setOrderSuccess] = useState<boolean>(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   
   const { user, isAuthenticated } = useAuth();
+  const { cart: cartItems, clearAll } = useCart();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -47,21 +50,24 @@ const Checkout = () => {
       }));
     }
 
-    // Lấy dữ liệu giỏ hàng từ localStorage
-    const cartData = localStorage.getItem('cart');
-    if (cartData) {
-      const parsedCart = JSON.parse(cartData);
-      if (parsedCart.length === 0) {
-        navigate('/cart');
-        return;
-      }
-      setCart(parsedCart);
-    } else {
+    // Sử dụng dữ liệu từ CartContext thay vì trực tiếp từ localStorage
+    if (cartItems.length === 0) {
       navigate('/cart');
       return;
     }
+
+    // Chuyển đổi từ định dạng CartContext sang định dạng CartItem cho trang thanh toán
+    const formattedCart = cartItems.map(item => ({
+      productId: item.product.MaSanPham,
+      name: item.product.TenSanPham,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.product.HinhAnh || ''
+    }));
+
+    setCart(formattedCart);
     setLoading(false);
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, cartItems]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -108,56 +114,33 @@ const Checkout = () => {
       };
 
       // Gửi yêu cầu tạo đơn hàng
-      await api.post(API_ENDPOINTS.ORDER.CREATE, orderData);
-
-      // Đặt hàng thành công
-      setOrderSuccess(true);
-      localStorage.removeItem('cart');
-
-      // Hiển thị thông báo thành công trong 3 giây rồi chuyển hướng
-      setTimeout(() => {
-        navigate('/orders');
-      }, 3000);
+      const response = await api.post(API_ENDPOINTS.ORDER.CREATE, orderData);
+      
+      // Đảm bảo đơn hàng đã được tạo thành công
+      if (response.status === 201 || response.status === 200) {
+        // Hiển thị thông báo thành công
+        addToast('Đặt hàng thành công! Bạn có thể xem chi tiết trong trang Đơn hàng của tôi.', 'success');
+        
+        // Đảm bảo chuyển hướng trước khi xóa giỏ hàng để tránh tự động chuyển về /cart
+        // Sử dụng setTimeout để đảm bảo việc chuyển hướng diễn ra trước
+        setTimeout(() => {
+          // Xóa giỏ hàng sau khi đã chuyển hướng
+          clearAll();
+        }, 100);
+        
+        // Chuyển hướng ngay lập tức đến trang đơn hàng
+        navigate('/orders', { replace: true });
+      } else {
+        throw new Error('Không thể tạo đơn hàng');
+      }
     } catch (error: any) {
       console.error('Error creating order:', error);
       setOrderError(error.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng');
+      addToast('Đặt hàng thất bại: ' + (error.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng'), 'error');
     } finally {
       setSubmitting(false);
     }
   };
-
-  // Hiển thị thông báo đặt hàng thành công
-  if (orderSuccess) {
-    return (
-      <MainLayout>
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-lg mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="h-8 w-8 text-green-500" />
-            </div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Đặt hàng thành công!</h2>
-            <p className="text-gray-600 mb-6">
-              Cảm ơn bạn đã đặt hàng. Chúng tôi đã nhận được đơn hàng của bạn và sẽ xử lý sớm nhất có thể.
-            </p>
-            <p className="text-pink-500 mb-6">
-              Chú ý: Đây chỉ là chức năng thử nghiệm, không thanh toán thật
-            </p>
-            <p className="text-gray-600 italic mb-6">
-              Đang chuyển hướng đến trang đơn hàng...
-            </p>
-            <div className="flex justify-center">
-              <Link
-                to="/orders"
-                className="bg-pink-500 text-white px-6 py-2 rounded-md hover:bg-pink-600 transition"
-              >
-                Xem đơn hàng
-              </Link>
-            </div>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
 
   return (
     <MainLayout>

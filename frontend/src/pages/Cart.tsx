@@ -4,71 +4,19 @@ import MainLayout from '../layouts/MainLayout';
 import { ChevronRight, Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-
-interface CartItem {
-  productId: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { useCart } from '../contexts/CartContext';
 
 const Cart = () => {
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { cart, updateQuantity, removeItem, clearAll, totalPrice } = useCart();
 
   useEffect(() => {
-    // Lấy dữ liệu giỏ hàng từ localStorage
-    const cartData = localStorage.getItem('cart');
-    if (cartData) {
-      setCart(JSON.parse(cartData));
-    }
+    // Hoàn thành quá trình tải dữ liệu
     setLoading(false);
   }, []);
-
-  const updateQuantity = (productId: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-
-    const updatedCart = cart.map(item => {
-      if (item.productId === productId) {
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
-
-    const product = cart.find(item => item.productId === productId);
-    if (product) {
-      addToast(`Đã cập nhật số lượng ${product.name} thành ${newQuantity}`, 'info');
-    }
-
-    setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
-  const removeItem = (productId: number) => {
-    const product = cart.find(item => item.productId === productId);
-    const updatedCart = cart.filter(item => item.productId !== productId);
-    
-    setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-    
-    if (product) {
-      addToast(`Đã xóa ${product.name} khỏi giỏ hàng`, 'success');
-    }
-  };
-
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem('cart');
-    addToast('Đã xóa toàn bộ giỏ hàng', 'success');
-  };
-
-  const calculateTotalPrice = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -141,23 +89,26 @@ const Cart = () => {
                     </thead>
                     <tbody>
                       {cart.map((item) => (
-                        <tr key={item.productId} className="border-b">
+                        <tr key={item.product.MaSanPham} className="border-b">
                           <td className="py-4 px-6">
                             <div className="flex items-center">
                               <img
-                                src={item.image ? `http://localhost:5000${item.image}` : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'}
-                                alt={item.name}
+                                src={item.product.HinhAnh ? (item.product.HinhAnh.startsWith('http') 
+                                  ? item.product.HinhAnh 
+                                  : `http://localhost:5000${item.product.HinhAnh}`) 
+                                  : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80'}
+                                alt={item.product.TenSanPham}
                                 className="w-16 h-16 object-cover rounded"
                               />
-                              <Link to={`/products/${item.productId}`} className="ml-4 hover:text-pink-500">
-                                {item.name}
+                              <Link to={`/products/${item.product.MaSanPham}`} className="ml-4 hover:text-pink-500">
+                                {item.product.TenSanPham}
                               </Link>
                             </div>
                           </td>
                           <td className="py-4 px-6">
                             <div className="flex items-center justify-center">
                               <button
-                                onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                                onClick={() => updateQuantity(item.product.MaSanPham, item.quantity - 1)}
                                 className="bg-gray-200 hover:bg-gray-300 rounded-l-md px-2 py-1"
                               >
                                 <Minus size={16} />
@@ -166,11 +117,11 @@ const Cart = () => {
                                 type="number"
                                 min="1"
                                 value={item.quantity}
-                                onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value) || 1)}
+                                onChange={(e) => updateQuantity(item.product.MaSanPham, parseInt(e.target.value) || 1)}
                                 className="w-12 text-center py-1 border-t border-b"
                               />
                               <button
-                                onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                                onClick={() => updateQuantity(item.product.MaSanPham, item.quantity + 1)}
                                 className="bg-gray-200 hover:bg-gray-300 rounded-r-md px-2 py-1"
                               >
                                 <Plus size={16} />
@@ -181,11 +132,14 @@ const Cart = () => {
                             {formatPrice(item.price)}
                           </td>
                           <td className="py-4 px-6 text-right font-semibold">
-                            {formatPrice(item.price * item.quantity)}
+                            {formatPrice(item.totalPrice)}
                           </td>
                           <td className="py-4 px-6 text-center">
                             <button
-                              onClick={() => removeItem(item.productId)}
+                              onClick={() => {
+                                addToast(`Đã xóa ${item.product.TenSanPham} khỏi giỏ hàng`, 'success');
+                                removeItem(item.product.MaSanPham);
+                              }}
                               className="text-gray-500 hover:text-red-500"
                             >
                               <Trash2 size={18} />
@@ -205,7 +159,10 @@ const Cart = () => {
                     Tiếp tục mua sắm
                   </Link>
                   <button
-                    onClick={clearCart}
+                    onClick={() => {
+                      clearAll();
+                      addToast('Đã xóa toàn bộ giỏ hàng', 'success');
+                    }}
                     className="px-6 py-2 border border-pink-500 text-pink-500 rounded-md hover:bg-pink-500 hover:text-white transition"
                   >
                     Xóa giỏ hàng
@@ -220,7 +177,7 @@ const Cart = () => {
                   <div className="border-t pt-4">
                     <div className="flex justify-between mb-2">
                       <span>Tạm tính</span>
-                      <span>{formatPrice(calculateTotalPrice())}</span>
+                      <span>{formatPrice(totalPrice)}</span>
                     </div>
                     <div className="flex justify-between mb-2">
                       <span>Phí vận chuyển</span>
@@ -228,7 +185,7 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between font-semibold border-t border-b py-4 my-2">
                       <span>Tổng cộng</span>
-                      <span className="text-pink-600">{formatPrice(calculateTotalPrice())}</span>
+                      <span className="text-pink-600">{formatPrice(totalPrice)}</span>
                     </div>
                   </div>
 

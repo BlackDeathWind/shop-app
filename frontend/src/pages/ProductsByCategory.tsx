@@ -5,6 +5,8 @@ import { ChevronRight, ChevronLeft, ChevronDown, Star, Filter, ShoppingCart, Sea
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
 import { useToast } from '../contexts/ToastContext';
+import { useCart } from '../contexts/CartContext';
+import type { ProductResponse } from '../services/product.service';
 
 interface Product {
   MaSanPham: number;
@@ -36,6 +38,7 @@ const ProductsByCategory = () => {
   const [priceRange, setPriceRange] = useState<{ min: number; max: number | null }>({ min: 0, max: null });
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { addToast } = useToast();
+  const { addItem } = useCart();
 
   // Giả lập dữ liệu đánh giá sản phẩm
   const getRandomRating = () => {
@@ -103,34 +106,19 @@ const ProductsByCategory = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Thêm logic giỏ hàng
-    let cart: any[] = JSON.parse(localStorage.getItem('cart') || '[]');
+    // Chuyển đổi Product thành ProductResponse để phù hợp với interface yêu cầu
+    const productForCart: ProductResponse = {
+      MaSanPham: product.MaSanPham,
+      TenSanPham: product.TenSanPham,
+      GiaSanPham: product.GiaSanPham,
+      SoLuong: product.SoLuong,
+      HinhAnh: product.HinhAnh,
+      MaDanhMuc: product.DanhMuc.MaDanhMuc,
+      DanhMuc: product.DanhMuc
+    };
     
-    const existingItemIndex = cart.findIndex(item => item.productId === product.MaSanPham);
-    
-    if (existingItemIndex !== -1) {
-      const updatedCart = [...cart];
-      updatedCart[existingItemIndex].quantity += 1;
-      
-      if (updatedCart[existingItemIndex].quantity > product.SoLuong) {
-        updatedCart[existingItemIndex].quantity = product.SoLuong;
-        addToast(`Chỉ còn ${product.SoLuong} sản phẩm trong kho!`, 'warning');
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-    } else {
-      const newItem = {
-        productId: product.MaSanPham,
-        name: product.TenSanPham,
-        price: product.GiaSanPham,
-        quantity: 1,
-        image: product.HinhAnh || ''
-      };
-      
-      cart.push(newItem);
-      localStorage.setItem('cart', JSON.stringify(cart));
-    }
-    
+    // Sử dụng hàm addItem từ CartContext
+    addItem(productForCart, 1);
     addToast(`Đã thêm ${product.TenSanPham} vào giỏ hàng!`, 'success');
   };
 

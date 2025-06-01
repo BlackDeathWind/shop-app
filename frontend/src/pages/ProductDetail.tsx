@@ -5,6 +5,8 @@ import { ChevronRight, Star, ShoppingCart, Minus, Plus, Loader, AlertTriangle, S
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
 import { useToast } from '../contexts/ToastContext';
+import { useCart } from '../contexts/CartContext';
+import type { ProductResponse } from '../services/product.service';
 
 interface Product {
   MaSanPham: number;
@@ -28,6 +30,7 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const { addToast } = useToast();
+  const { addItem } = useCart();
 
   // Giả lập dữ liệu đánh giá sản phẩm
   const rating = 4;
@@ -69,49 +72,23 @@ const ProductDetail = () => {
     }
   };
 
-  // Giỏ hàng lưu trong localStorage
-  interface CartItem {
-    productId: number;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-  }
-
   const addToCart = () => {
     if (!product) return;
 
-    let cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-    
-    // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
-    const existingItemIndex = cart.findIndex(item => item.productId === product.MaSanPham);
-    
-    if (existingItemIndex !== -1) {
-      // Cập nhật số lượng nếu sản phẩm đã có trong giỏ
-      const updatedCart = [...cart];
-      updatedCart[existingItemIndex].quantity += quantity;
-      
-      // Kiểm tra số lượng không vượt quá tồn kho
-      if (updatedCart[existingItemIndex].quantity > product.SoLuong) {
-        updatedCart[existingItemIndex].quantity = product.SoLuong;
-        addToast(`Chỉ còn ${product.SoLuong} sản phẩm trong kho!`, 'warning');
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-    } else {
-      // Thêm sản phẩm mới vào giỏ hàng
-      const newItem: CartItem = {
-        productId: product.MaSanPham,
-        name: product.TenSanPham,
-        price: product.GiaSanPham,
-        quantity: quantity,
-        image: product.HinhAnh || ''
-      };
-      
-      cart.push(newItem);
-      localStorage.setItem('cart', JSON.stringify(cart));
-    }
-    
+    // Chuyển đổi Product thành ProductResponse để phù hợp với interface yêu cầu
+    const productForCart: ProductResponse = {
+      MaSanPham: product.MaSanPham,
+      TenSanPham: product.TenSanPham,
+      GiaSanPham: product.GiaSanPham,
+      SoLuong: product.SoLuong,
+      MoTa: product.MoTa,
+      HinhAnh: product.HinhAnh,
+      MaDanhMuc: product.DanhMuc.MaDanhMuc,
+      DanhMuc: product.DanhMuc
+    };
+
+    // Sử dụng hàm addItem từ CartContext
+    addItem(productForCart, quantity);
     addToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, 'success');
   };
 

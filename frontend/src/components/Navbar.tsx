@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, LogOut, Package, Home, Info, Search } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { useCart } from '../contexts/CartContext';
 
 const Navbar = () => {
   const { isAuthenticated, isAdmin, isStaff, user, logout } = useAuth();
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { addToast } = useToast();
+  const { itemCount } = useCart();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -101,7 +103,7 @@ const Navbar = () => {
             <Link to="/cart" className="hover:text-pink-200 relative">
               <ShoppingCart size={24} />
               <span className="absolute -top-2 -right-2 bg-pink-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
+                {itemCount}
               </span>
             </Link>
 
@@ -199,7 +201,7 @@ const Navbar = () => {
               </Link>
               <Link to="/cart" className="hover:text-pink-200 flex items-center gap-2">
                 <ShoppingCart size={18} />
-                <span>Giỏ hàng</span>
+                <span>Giỏ hàng ({itemCount})</span>
               </Link>
               
               {isAuthenticated ? (

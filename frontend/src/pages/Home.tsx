@@ -9,6 +9,7 @@ import { getAllCategories } from '../services/category.service';
 import type { ProductResponse } from '../services/product.service';
 import type { CategoryResponse } from '../services/category.service';
 import { useToast } from '../contexts/ToastContext';
+import { useCart } from '../contexts/CartContext';
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -17,6 +18,7 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { addToast } = useToast();
+  const { addItem } = useCart();
   
   const banners = [
     {
@@ -97,29 +99,8 @@ const Home = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Thêm logic giỏ hàng
-    let cart: any[] = JSON.parse(localStorage.getItem('cart') || '[]');
-    
-    const existingItemIndex = cart.findIndex(item => item.productId === product.MaSanPham);
-    
-    if (existingItemIndex !== -1) {
-      const updatedCart = [...cart];
-      updatedCart[existingItemIndex].quantity += 1;
-      
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-    } else {
-      const newItem = {
-        productId: product.MaSanPham,
-        name: product.TenSanPham,
-        price: product.GiaSanPham,
-        quantity: 1,
-        image: product.HinhAnh || ''
-      };
-      
-      cart.push(newItem);
-      localStorage.setItem('cart', JSON.stringify(cart));
-    }
-    
+    // Sử dụng hàm addItem từ CartContext
+    addItem(product, 1);
     addToast(`Đã thêm ${product.TenSanPham} vào giỏ hàng!`, 'success');
   };
 
