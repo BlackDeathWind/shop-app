@@ -2,9 +2,36 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import AdminController from '../controllers/admin.controller';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware';
+import ProductController from '../controllers/product.controller';
+import multer from 'multer';
 
 const router = Router();
 const adminController = new AdminController();
+const productController = new ProductController();
+
+// Cấu hình multer để xử lý upload file
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // limit to 5MB
+  },
+});
+
+// Validation middleware cho tạo/cập nhật sản phẩm
+const productValidation = [
+  body('TenSanPham')
+    .notEmpty().withMessage('Tên sản phẩm không được để trống')
+    .isLength({ max: 100 }).withMessage('Tên sản phẩm không được vượt quá 100 ký tự'),
+  body('MaDanhMuc')
+    .notEmpty().withMessage('Mã danh mục không được để trống')
+    .isInt().withMessage('Mã danh mục phải là số nguyên'),
+  body('SoLuong')
+    .notEmpty().withMessage('Số lượng không được để trống')
+    .isInt({ min: 0 }).withMessage('Số lượng phải là số nguyên dương hoặc 0'),
+  body('GiaSanPham')
+    .notEmpty().withMessage('Giá sản phẩm không được để trống')
+    .isFloat({ min: 0 }).withMessage('Giá sản phẩm phải là số dương')
+];
 
 // Validation middleware cho tạo/cập nhật người dùng
 const userValidation = [
@@ -109,6 +136,32 @@ router.get(
   authMiddleware,
   roleMiddleware([0, 1]),
   adminController.getProductById
+);
+
+// Thêm route cập nhật sản phẩm
+router.post(
+  '/products',
+  authMiddleware,
+  roleMiddleware([0, 1]),
+  upload.single('image'),
+  productValidation,
+  productController.createProduct
+);
+
+router.put(
+  '/products/:id',
+  authMiddleware,
+  roleMiddleware([0, 1]),
+  upload.single('image'),
+  productValidation,
+  productController.updateProduct
+);
+
+router.delete(
+  '/products/:id',
+  authMiddleware,
+  roleMiddleware([0, 1]),
+  productController.deleteProduct
 );
 
 // Order management - Admin và nhân viên

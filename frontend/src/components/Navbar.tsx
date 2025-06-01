@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, LogOut, Package, Home, Info, Search } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,11 +6,31 @@ import { useAuth } from '../contexts/AuthContext';
 const Navbar = () => {
   const { isAuthenticated, isAdmin, isStaff, user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // Xử lý click ngoài dropdown menu để đóng nó
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,41 +94,46 @@ const Navbar = () => {
             </Link>
 
             {isAuthenticated ? (
-              <div className="relative group">
-                <button className="flex items-center space-x-1 hover:text-pink-200">
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  className="flex items-center space-x-1 hover:text-pink-200 focus:outline-none"
+                  onClick={toggleDropdown}
+                >
                   <User size={24} />
                   <span>{user?.TenKhachHang || user?.TenNhanVien}</span>
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-20 hidden group-hover:block">
-                  <div className="py-2">
-                    {(isAdmin || isStaff) && (
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg overflow-hidden z-20">
+                    <div className="py-2">
+                      {(isAdmin || isStaff) && (
+                        <Link
+                          to="/admin"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Quản trị
+                        </Link>
+                      )}
                       <Link
-                        to="/admin"
+                        to="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
-                        Quản trị
+                        Tài khoản
                       </Link>
-                    )}
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Tài khoản
-                    </Link>
-                    <Link
-                      to="/orders"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Đơn hàng
-                    </Link>
-                    <button
-                      onClick={logout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Đăng xuất
-                    </button>
+                      <Link
+                        to="/orders"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Đơn hàng
+                      </Link>
+                      <button
+                        onClick={logout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ) : (
               <Link
