@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Heart, ShoppingCart, Star, Loader } from 'lucide-react';
+import { ChevronRight, ShoppingCart, Star, Loader } from 'lucide-react';
 import MainLayout from '../layouts/MainLayout';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
@@ -8,6 +8,7 @@ import { getAllProducts } from '../services/product.service';
 import { getAllCategories } from '../services/category.service';
 import type { ProductResponse } from '../services/product.service';
 import type { CategoryResponse } from '../services/category.service';
+import { useToast } from '../contexts/ToastContext';
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -15,6 +16,7 @@ const Home = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { addToast } = useToast();
   
   const banners = [
     {
@@ -47,8 +49,9 @@ const Home = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % banners.length);
+      setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
     }, 5000);
+
     return () => clearInterval(interval);
   }, [banners.length]);
 
@@ -88,6 +91,36 @@ const Home = () => {
 
   const getCategoryImage = (category: CategoryResponse) => {
     return category.HinhAnh || defaultImage;
+  };
+
+  const addToCart = (e: React.MouseEvent, product: ProductResponse) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Thêm logic giỏ hàng
+    let cart: any[] = JSON.parse(localStorage.getItem('cart') || '[]');
+    
+    const existingItemIndex = cart.findIndex(item => item.productId === product.MaSanPham);
+    
+    if (existingItemIndex !== -1) {
+      const updatedCart = [...cart];
+      updatedCart[existingItemIndex].quantity += 1;
+      
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+    } else {
+      const newItem = {
+        productId: product.MaSanPham,
+        name: product.TenSanPham,
+        price: product.GiaSanPham,
+        quantity: 1,
+        image: product.HinhAnh || ''
+      };
+      
+      cart.push(newItem);
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+    
+    addToast(`Đã thêm ${product.TenSanPham} vào giỏ hàng!`, 'success');
   };
 
   return (
@@ -193,24 +226,17 @@ const Home = () => {
                 const rating = getRandomRating();
                 return (
                   <div key={product.MaSanPham} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
-                    <div className="relative h-64 overflow-hidden group">
-                      <img
-                        src={product.HinhAnh ? (product.HinhAnh.startsWith('http') ? product.HinhAnh : `http://localhost:5000${product.HinhAnh}`) : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'}
-                        alt={product.TenSanPham}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                        <div className="flex space-x-2">
-                          <button className="bg-white rounded-full p-2 hover:bg-pink-500 hover:text-white transition">
-                            <ShoppingCart size={20} />
-                          </button>
-                          <button className="bg-white rounded-full p-2 hover:bg-pink-500 hover:text-white transition">
-                            <Heart size={20} />
-                          </button>
-                        </div>
+                    <Link to={`/products/${product.MaSanPham}`} className="block">
+                      <div className="relative h-64 overflow-hidden group">
+                        <img
+                          src={product.HinhAnh ? (product.HinhAnh.startsWith('http') ? product.HinhAnh : `http://localhost:5000${product.HinhAnh}`) : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'}
+                          alt={product.TenSanPham}
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
-                    </div>
-                    <div className="p-4">
+                    </Link>
+                    <Link to={`/products/${product.MaSanPham}`} className="block p-4">
                       <div className="flex items-center text-yellow-400 mb-2">
                         {[...Array(5)].map((_, i) => (
                           <Star
@@ -221,18 +247,18 @@ const Home = () => {
                           />
                         ))}
                       </div>
-                      <h3 className="font-semibold text-gray-800 mb-1">{product.TenSanPham}</h3>
+                      <h3 className="font-semibold text-gray-800 mb-1 hover:text-pink-600 transition-colors">{product.TenSanPham}</h3>
                       <p className="text-sm text-gray-500 mb-2">{product.DanhMuc?.TenDanhMuc}</p>
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-bold text-pink-600">{formatPrice(product.GiaSanPham)}</span>
-                        <Link
-                          to={`/products/${product.MaSanPham}`}
-                          className="text-pink-500 hover:text-pink-700 text-sm font-medium"
+                        <button 
+                          className="bg-pink-500 hover:bg-pink-600 text-white text-sm px-3 py-1 rounded-full transition-colors"
+                          onClick={(e) => addToCart(e, product)}
                         >
-                          Chi tiết
-                        </Link>
+                          <ShoppingCart size={16} />
+                        </button>
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 );
               })}

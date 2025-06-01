@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import { ChevronRight, Star, ShoppingCart, Heart, Minus, Plus, Loader, AlertTriangle, Share2 } from 'lucide-react';
+import { ChevronRight, Star, ShoppingCart, Minus, Plus, Loader, AlertTriangle, Share2 } from 'lucide-react';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
+import { useToast } from '../contexts/ToastContext';
 
 interface Product {
   MaSanPham: number;
@@ -26,6 +27,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const { addToast } = useToast();
 
   // Giả lập dữ liệu đánh giá sản phẩm
   const rating = 4;
@@ -92,7 +94,7 @@ const ProductDetail = () => {
       // Kiểm tra số lượng không vượt quá tồn kho
       if (updatedCart[existingItemIndex].quantity > product.SoLuong) {
         updatedCart[existingItemIndex].quantity = product.SoLuong;
-        alert(`Chỉ còn ${product.SoLuong} sản phẩm trong kho!`);
+        addToast(`Chỉ còn ${product.SoLuong} sản phẩm trong kho!`, 'warning');
       }
       
       localStorage.setItem('cart', JSON.stringify(updatedCart));
@@ -110,7 +112,7 @@ const ProductDetail = () => {
       localStorage.setItem('cart', JSON.stringify(cart));
     }
     
-    alert('Đã thêm sản phẩm vào giỏ hàng!');
+    addToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, 'success');
   };
 
   const formatPrice = (price: number) => {
@@ -278,9 +280,6 @@ const ProductDetail = () => {
                 >
                   <ShoppingCart className="mr-2" size={20} />
                   {product.SoLuong === 0 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
-                </button>
-                <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-md">
-                  <Heart size={20} />
                 </button>
                 <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-md">
                   <Share2 size={20} />

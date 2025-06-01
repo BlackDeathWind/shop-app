@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, LogOut, Package, Home, Info, Search } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 const Navbar = () => {
   const { isAuthenticated, isAdmin, isStaff, user, logout } = useAuth();
@@ -9,6 +10,7 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { addToast } = useToast();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -36,6 +38,16 @@ const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       window.location.href = `/products/search?q=${encodeURIComponent(searchQuery)}`;
+    }
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+      addToast('Đăng xuất thành công!', 'success');
+      // Không cần redirect vì logout đã làm điều đó
+    } catch (error) {
+      addToast('Có lỗi xảy ra khi đăng xuất.', 'error');
     }
   };
 
@@ -114,7 +126,7 @@ const Navbar = () => {
                         </Link>
                       )}
                       <Link
-                        to="/profile"
+                        to="/account"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Tài khoản
@@ -126,7 +138,7 @@ const Navbar = () => {
                         Đơn hàng
                       </Link>
                       <button
-                        onClick={logout}
+                        onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Đăng xuất
@@ -192,7 +204,7 @@ const Navbar = () => {
               
               {isAuthenticated ? (
                 <>
-                  <Link to="/profile" className="hover:text-pink-200 flex items-center gap-2">
+                  <Link to="/account" className="hover:text-pink-200 flex items-center gap-2">
                     <User size={18} />
                     <span>Tài khoản</span>
                   </Link>
@@ -207,7 +219,7 @@ const Navbar = () => {
                     </Link>
                   )}
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="hover:text-pink-200 flex items-center gap-2"
                   >
                     <LogOut size={18} />

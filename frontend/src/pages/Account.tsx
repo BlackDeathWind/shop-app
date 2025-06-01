@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { ChevronRight, User, Save, Loader, AlertTriangle, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
 
@@ -32,6 +33,7 @@ const Account = () => {
   
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -75,9 +77,12 @@ const Account = () => {
       });
 
       setSuccessMessage('Cập nhật thông tin thành công!');
+      addToast('Cập nhật thông tin tài khoản thành công!', 'success');
     } catch (err: any) {
       console.error('Error updating profile:', err);
-      setError(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin');
+      const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin';
+      setError(errorMessage);
+      addToast(errorMessage, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -88,6 +93,7 @@ const Account = () => {
     
     if (formData.MatKhauMoi !== formData.XacNhanMatKhau) {
       setError('Xác nhận mật khẩu không khớp');
+      addToast('Xác nhận mật khẩu không khớp', 'error');
       return;
     }
     
@@ -103,6 +109,7 @@ const Account = () => {
       });
 
       setSuccessMessage('Đổi mật khẩu thành công!');
+      addToast('Đổi mật khẩu thành công!', 'success');
       setFormData(prev => ({
         ...prev,
         MatKhauCu: '',
@@ -111,15 +118,22 @@ const Account = () => {
       }));
     } catch (err: any) {
       console.error('Error changing password:', err);
-      setError(err.response?.data?.message || 'Có lỗi xảy ra khi đổi mật khẩu');
+      const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi đổi mật khẩu';
+      setError(errorMessage);
+      addToast(errorMessage, 'error');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      addToast('Đăng xuất thành công!', 'success');
+      navigate('/login');
+    } catch (error) {
+      addToast('Có lỗi xảy ra khi đăng xuất.', 'error');
+    }
   };
 
   if (loading) {

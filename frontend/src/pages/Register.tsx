@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, Mail, MapPin, UserPlus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import MainLayout from '../layouts/MainLayout';
 
 const Register = () => {
@@ -16,6 +17,7 @@ const Register = () => {
   
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,11 +26,13 @@ const Register = () => {
     // Validate form
     if (password !== confirmPassword) {
       setError('Mật khẩu xác nhận không khớp');
+      addToast('Mật khẩu xác nhận không khớp', 'error');
       return;
     }
 
     if (password.length < 6) {
       setError('Mật khẩu phải có ít nhất 6 ký tự');
+      addToast('Mật khẩu phải có ít nhất 6 ký tự', 'error');
       return;
     }
 
@@ -41,9 +45,12 @@ const Register = () => {
         MatKhau: password,
         DiaChi: address
       });
+      addToast(`Chào mừng ${name}! Đăng ký thành công.`, 'success');
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Đăng ký thất bại');
+      const errorMessage = err.response?.data?.message || 'Đăng ký thất bại';
+      setError(errorMessage);
+      addToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }

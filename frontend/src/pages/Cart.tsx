@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { ChevronRight, Trash2, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface CartItem {
   productId: number;
@@ -17,6 +18,7 @@ const Cart = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   useEffect(() => {
     // Lấy dữ liệu giỏ hàng từ localStorage
@@ -37,19 +39,31 @@ const Cart = () => {
       return item;
     });
 
+    const product = cart.find(item => item.productId === productId);
+    if (product) {
+      addToast(`Đã cập nhật số lượng ${product.name} thành ${newQuantity}`, 'info');
+    }
+
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
   const removeItem = (productId: number) => {
+    const product = cart.find(item => item.productId === productId);
     const updatedCart = cart.filter(item => item.productId !== productId);
+    
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
+    
+    if (product) {
+      addToast(`Đã xóa ${product.name} khỏi giỏ hàng`, 'success');
+    }
   };
 
   const clearCart = () => {
     setCart([]);
     localStorage.removeItem('cart');
+    addToast('Đã xóa toàn bộ giỏ hàng', 'success');
   };
 
   const calculateTotalPrice = () => {
@@ -67,6 +81,7 @@ const Cart = () => {
     if (isAuthenticated) {
       navigate('/checkout');
     } else {
+      addToast('Vui lòng đăng nhập để thanh toán', 'info');
       navigate('/login', { state: { from: '/cart', message: 'Vui lòng đăng nhập để thanh toán' } });
     }
   };

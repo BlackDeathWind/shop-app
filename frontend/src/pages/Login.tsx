@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import MainLayout from '../layouts/MainLayout';
 
 const Login = () => {
@@ -13,6 +14,7 @@ const Login = () => {
   
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,6 +26,9 @@ const Login = () => {
         SoDienThoai: phoneNumber,
         MatKhau: password
       });
+      
+      // Thông báo đăng nhập thành công
+      addToast('Đăng nhập thành công!', 'success');
       
       // Navigate dựa vào vai trò được quản lý bởi AuthContext
       const userStr = localStorage.getItem('user');
@@ -43,7 +48,9 @@ const Login = () => {
         navigate('/');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Đăng nhập thất bại');
+      const errorMessage = err.response?.data?.message || 'Đăng nhập thất bại';
+      setError(errorMessage);
+      addToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }

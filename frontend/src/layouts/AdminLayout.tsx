@@ -5,6 +5,7 @@ import {
   User, Store, ExternalLink, UserCog
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { addToast } = useToast();
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -32,8 +34,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   }, []);
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+      addToast('Đăng xuất thành công!', 'success');
+      navigate('/login');
+    } catch (error) {
+      addToast('Có lỗi xảy ra khi đăng xuất.', 'error');
+    }
   };
 
   const isActive = (path: string) => {
@@ -91,19 +98,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                   <Link 
-                    to="/admin/account" 
+                    to="/account" 
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-50"
                   >
                     <User className="h-4 w-4 mr-2" />
                     Thông tin tài khoản
-                  </Link>
-
-                  <Link 
-                    to="/admin/settings" 
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-50"
-                  >
-                    <UserCog className="h-4 w-4 mr-2" />
-                    Cài đặt tài khoản
                   </Link>
                   
                   <div className="border-t border-gray-100 my-1"></div>
@@ -174,14 +173,20 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 // Component sidebar content để tái sử dụng cho cả mobile và desktop
 function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
   const { user, logout } = useAuth();
+  const { addToast } = useToast();
   const isAdmin = user?.MaVaiTro === 0;
   
   const [userManagementOpen, setUserManagementOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+      addToast('Đăng xuất thành công!', 'success');
+      navigate('/login');
+    } catch (error) {
+      addToast('Có lỗi xảy ra khi đăng xuất.', 'error');
+    }
   };
 
   return (
