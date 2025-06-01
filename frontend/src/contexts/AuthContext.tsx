@@ -11,7 +11,7 @@ interface AuthContextType {
   loading: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,8 +47,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (data: LoginRequest) => {
     try {
       const response = await loginApi(data);
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
     } catch (error) {
       throw error;
@@ -58,16 +56,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (data: RegisterRequest) => {
     try {
       const response = await registerApi(data);
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
     } catch (error) {
       throw error;
     }
   };
 
-  const logout = () => {
-    logoutApi();
+  const logout = async () => {
+    await logoutApi();
     setUser(null);
   };
 

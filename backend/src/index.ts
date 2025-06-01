@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
+import cookieParser from 'cookie-parser';
 import { testConnection } from './config/db.config';
 import { initializeModels } from './models';
 import { logger } from './utils/logger';
@@ -27,11 +28,15 @@ const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Đảm bảo thư mục uploads tồn tại
 const uploadDir = path.join(__dirname, '../public/uploads');

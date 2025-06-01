@@ -18,12 +18,26 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'shopapp_secret_key') as ITokenData;
+    const secret = process.env.JWT_SECRET || 'shopapp_access_token_secret';
     
-    req.user = decoded;
-    next();
+    try {
+      const decoded = jwt.verify(token, secret) as ITokenData;
+      
+      // Thêm thông tin người dùng vào request
+      req.user = decoded;
+      next();
+    } catch (jwtError) {
+      if ((jwtError as Error).name === 'TokenExpiredError') {
+        return res.status(401).json({ 
+          message: 'Token đã hết hạn',
+          expired: true
+        });
+      } else {
+        return res.status(401).json({ message: 'Token không hợp lệ' });
+      }
+    }
   } catch (error) {
-    return res.status(401).json({ message: 'Token không hợp lệ' });
+    return res.status(401).json({ message: 'Xác thực thất bại' });
   }
 };
 

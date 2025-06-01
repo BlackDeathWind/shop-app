@@ -15,4 +15,19 @@ export interface IRegisterDto {
 export interface ITokenData {
   id: number;
   role: number;
+  tokenId?: string;
+  iat?: number;
+  exp?: number;
+}
+
+export interface IAuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface IRefreshTokenData {
+  id: number;
+  role: number;
+  tokenId: string;
 } 

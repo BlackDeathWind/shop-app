@@ -31,10 +31,10 @@ const Login = () => {
         const user = JSON.parse(userStr);
         if (user.MaVaiTro === 0) {
           // Admin
-          navigate('/admin/dashboard');
+          navigate('/admin');
         } else if (user.MaVaiTro === 1) {
           // Nhân viên
-          navigate('/employee/dashboard');
+          navigate('/admin');
         } else {
           // Khách hàng hoặc mặc định
           navigate('/');

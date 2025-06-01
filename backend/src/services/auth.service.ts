@@ -1,11 +1,17 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { ILoginDto, IRegisterDto, ITokenData } from '../interfaces/auth.interface';
+import jwt, { SignOptions } from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { IAuthTokens, ILoginDto, IRefreshTokenData, IRegisterDto, ITokenData } from '../interfaces/auth.interface';
 import KhachHang from '../models/KhachHang.model';
 import NhanVien from '../models/NhanVien.model';
 
 export default class AuthService {
-  public async login(loginDto: ILoginDto): Promise<{ token: string; user: any }> {
+  private readonly ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || 'shopapp_access_token_secret';
+  private readonly REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET || 'shopapp_refresh_token_secret';
+  private readonly ACCESS_TOKEN_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
+  private readonly REFRESH_TOKEN_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+
+  public async login(loginDto: ILoginDto): Promise<{ tokens: IAuthTokens; user: any }> {
     try {
       const { SoDienThoai, MatKhau } = loginDto;
       
@@ -24,16 +30,17 @@ export default class AuthService {
 
         const tokenData: ITokenData = {
           id: nhanVienUser.MaNhanVien,
-          role: nhanVienUser.MaVaiTro
+          role: nhanVienUser.MaVaiTro,
+          tokenId: uuidv4()
         };
 
-        const token = this.generateToken(tokenData);
+        const tokens = this.generateTokens(tokenData);
         
         const userObject: any = nhanVienUser.get({ plain: true });
         delete userObject.MatKhau;
 
         return {
-          token,
+          tokens,
           user: userObject
         };
       }
@@ -55,16 +62,17 @@ export default class AuthService {
 
       const tokenData: ITokenData = {
         id: khachHangUser.MaKhachHang,
-        role: khachHangUser.MaVaiTro
+        role: khachHangUser.MaVaiTro,
+        tokenId: uuidv4()
       };
 
-      const token = this.generateToken(tokenData);
+      const tokens = this.generateTokens(tokenData);
       
       const userObject: any = khachHangUser.get({ plain: true });
       delete userObject.MatKhau;
 
       return {
-        token,
+        tokens,
         user: userObject
       };
     } catch (error) {
@@ -72,7 +80,7 @@ export default class AuthService {
     }
   }
 
-  public async register(registerDto: IRegisterDto): Promise<{ token: string; user: any }> {
+  public async register(registerDto: IRegisterDto): Promise<{ tokens: IAuthTokens; user: any }> {
     try {
       const { SoDienThoai, MatKhau, DiaChi, TenKhachHang, isNhanVien = false } = registerDto;
 
@@ -105,17 +113,18 @@ export default class AuthService {
 
       const tokenData: ITokenData = {
         id: user.MaKhachHang,
-        role: user.MaVaiTro
+        role: user.MaVaiTro,
+        tokenId: uuidv4()
       };
 
-      const token = this.generateToken(tokenData);
+      const tokens = this.generateTokens(tokenData);
 
       // Tạo đối tượng mới từ user và loại bỏ thuộc tính MatKhau
       const userObject: any = user.get({ plain: true });
       delete userObject.MatKhau;
 
       return {
-        token,
+        tokens,
         user: userObject
       };
     } catch (error) {
@@ -123,10 +132,48 @@ export default class AuthService {
     }
   }
 
-  private generateToken(data: ITokenData): string {
-    const secret = process.env.JWT_SECRET || 'shopapp_secret_key';
-    const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
-    
-    return jwt.sign(data, secret, { expiresIn } as any);
+  public async refreshToken(refreshToken: string): Promise<IAuthTokens> {
+    try {
+      // Xác thực refresh token
+      const decoded = jwt.verify(refreshToken, this.REFRESH_TOKEN_SECRET) as IRefreshTokenData;
+      
+      // Tạo token mới với cùng thông tin nhưng tokenId mới
+      const tokenData: ITokenData = {
+        id: decoded.id,
+        role: decoded.role,
+        tokenId: uuidv4() // Tạo tokenId mới
+      };
+
+      // Tạo cặp token mới
+      return this.generateTokens(tokenData);
+    } catch (error) {
+      throw new Error('Refresh token không hợp lệ hoặc đã hết hạn');
+    }
+  }
+
+  private generateTokens(data: ITokenData): IAuthTokens {
+    // Tạo access token
+    const accessToken = jwt.sign(
+      data,
+      this.ACCESS_TOKEN_SECRET,
+      { expiresIn: this.ACCESS_TOKEN_EXPIRES_IN } as SignOptions
+    );
+
+    // Tạo refresh token
+    const refreshToken = jwt.sign(
+      { id: data.id, role: data.role, tokenId: data.tokenId },
+      this.REFRESH_TOKEN_SECRET,
+      { expiresIn: this.REFRESH_TOKEN_EXPIRES_IN } as SignOptions
+    );
+
+    // Decode để lấy thời gian hết hạn
+    const decoded = jwt.decode(accessToken) as ITokenData;
+    const expiresIn = decoded.exp ? decoded.exp - Math.floor(Date.now() / 1000) : 900; // Mặc định 15 phút
+
+    return {
+      accessToken,
+      refreshToken,
+      expiresIn
+    };
   }
 } 
