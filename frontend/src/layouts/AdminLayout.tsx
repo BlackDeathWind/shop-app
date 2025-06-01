@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Home, Package, Users, ShoppingBag, Settings, LogOut, Menu, X, ChevronDown
+  Home, Package, Users, ShoppingBag, Settings, LogOut, Menu, X, ChevronDown,
+  User, Store, ExternalLink, UserCog
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,12 +12,27 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -40,15 +56,67 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               Flower Shop Admin
             </Link>
           </div>
-          <div className="flex items-center">
-            <div className="mr-4">
-              <div className="text-sm">Xin chào, {user?.TenKhachHang || user?.TenNhanVien}</div>
-              <div className="text-xs opacity-75">
-                {user?.MaVaiTro === 0 ? 'Quản trị viên' : 'Nhân viên'}
-              </div>
-            </div>
-            <div className="h-8 w-8 bg-pink-700 rounded-full flex items-center justify-center">
-              {user?.TenKhachHang?.[0] || user?.TenNhanVien?.[0] || 'A'}
+          
+          <div className="flex items-center space-x-4">
+            {/* Link quay về cửa hàng */}
+            <Link
+              to="/"
+              className="flex items-center px-3 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-sm font-medium transition"
+            >
+              <Store className="h-4 w-4 mr-1" />
+              <span>Về cửa hàng</span>
+              <ExternalLink className="h-3 w-3 ml-1" />
+            </Link>
+
+            {/* Dropdown tài khoản */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center space-x-2"
+              >
+                <div className="mr-2">
+                  <div className="text-sm">{user?.TenKhachHang || user?.TenNhanVien}</div>
+                  <div className="text-xs opacity-75 text-right">
+                    {user?.MaVaiTro === 0 ? 'Quản trị viên' : 'Nhân viên'}
+                  </div>
+                </div>
+                
+                <div className="h-9 w-9 bg-pink-700 rounded-full flex items-center justify-center">
+                  {user?.TenKhachHang?.[0] || user?.TenNhanVien?.[0] || 'A'}
+                </div>
+                
+                <ChevronDown className={`h-4 w-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  <Link 
+                    to="/admin/account" 
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-50"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Thông tin tài khoản
+                  </Link>
+
+                  <Link 
+                    to="/admin/settings" 
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-pink-50"
+                  >
+                    <UserCog className="h-4 w-4 mr-2" />
+                    Cài đặt tài khoản
+                  </Link>
+                  
+                  <div className="border-t border-gray-100 my-1"></div>
+                  
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Đăng xuất
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -105,14 +173,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
 // Component sidebar content để tái sử dụng cho cả mobile và desktop
 function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isAdmin = user?.MaVaiTro === 0;
   
   const [userManagementOpen, setUserManagementOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Implement logout logic here
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -128,6 +196,15 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
       >
         <Home className="h-5 w-5 mr-3" />
         <span>Tổng quan</span>
+      </Link>
+
+      {/* Link quay về shop */}
+      <Link
+        to="/"
+        className="flex items-center px-4 py-2 rounded-md text-gray-700 hover:bg-pink-50 hover:text-pink-600"
+      >
+        <Store className="h-5 w-5 mr-3" />
+        <span>Về cửa hàng</span>
       </Link>
 
       <Link
