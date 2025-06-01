@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Eye, Search, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
-import { getAllOrders, updateOrderStatus } from '../../services/order.service';
+import { getAllOrders, updateOrderStatus, getOrderById } from '../../services/order.service';
 import type { OrderResponse } from '../../services/order.service';
 
 const OrderManagement = () => {
@@ -40,9 +40,22 @@ const OrderManagement = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
-  const handleShowDetail = (order: OrderResponse) => {
-    setSelectedOrder(order);
-    setShowDetail(true);
+  const handleShowDetail = async (order: OrderResponse) => {
+    try {
+      // Log dữ liệu để kiểm tra
+      console.log('Chi tiết đơn hàng ban đầu:', order);
+      
+      // Tải lại chi tiết đơn hàng để đảm bảo có đầy đủ dữ liệu
+      const orderDetail = await getOrderById(order.MaHoaDon);
+      console.log('Chi tiết đơn hàng sau khi tải lại:', orderDetail);
+      console.log('Chi tiết sản phẩm:', orderDetail.ChiTietHoaDons);
+      
+      setSelectedOrder(orderDetail);
+      setShowDetail(true);
+    } catch (error) {
+      console.error('Lỗi khi tải chi tiết đơn hàng:', error);
+      setError('Đã xảy ra lỗi khi tải chi tiết đơn hàng');
+    }
   };
 
   const handleCloseDetail = () => {
@@ -307,16 +320,47 @@ const OrderManagement = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {selectedOrder.ChiTietHoaDons?.map((item) => (
-                        <tr key={item.MaChiTiet}>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{item.SanPham?.TenSanPham || 'Không có tên'}</div>
+                      {selectedOrder.ChiTietHoaDons && selectedOrder.ChiTietHoaDons.length > 0 ? (
+                        selectedOrder.ChiTietHoaDons.map((item, index) => (
+                          <tr key={item.MaChiTiet || `${item.MaSanPham}-${index}`}>
+                            <td className="px-4 py-4">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10 mr-3">
+                                  <img 
+                                    className="h-10 w-10 rounded-md object-cover border border-gray-200" 
+                                    src={item.SanPham?.HinhAnh 
+                                      ? (item.SanPham.HinhAnh.startsWith('/uploads') 
+                                          ? `http://localhost:5000${item.SanPham.HinhAnh}`
+                                          : item.SanPham.HinhAnh)
+                                      : "https://via.placeholder.com/40x40?text=SP"
+                                    } 
+                                    alt={item.SanPham?.TenSanPham || "Sản phẩm"}
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = "https://via.placeholder.com/40x40?text=SP";
+                                    }}
+                                  />
+                                </div>
+                                <div className="ml-2">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {item.SanPham?.TenSanPham || 'Sản phẩm không xác định'}
+                                  </div>
+                                  <div className="text-xs text-gray-500">Mã: {item.MaSanPham}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">{item.SoLuong}</td>
+                            <td className="px-4 py-4 whitespace-nowrap text-right text-sm text-gray-500">{formatCurrency(item.DonGia)}</td>
+                            <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">{formatCurrency(item.ThanhTien)}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="px-4 py-4 text-center text-gray-500">
+                            Không có thông tin chi tiết sản phẩm
                           </td>
-                          <td className="px-4 py-4 whitespace-nowrap text-center text-sm text-gray-500">{item.SoLuong}</td>
-                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm text-gray-500">{formatCurrency(item.DonGia)}</td>
-                          <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">{formatCurrency(item.ThanhTien)}</td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                     <tfoot className="bg-gray-50">
                       <tr>

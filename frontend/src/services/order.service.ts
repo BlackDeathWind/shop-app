@@ -61,7 +61,18 @@ export const getMyOrders = async (): Promise<OrderResponse[]> => {
 };
 
 export const getOrderById = async (id: number): Promise<OrderResponse> => {
-  const response = await api.get(API_ENDPOINTS.ORDER.GET_BY_ID(id));
+  // Đối với admin, sử dụng endpoint ADMIN
+  let url = '';
+  
+  // Kiểm tra người dùng có phải là admin không
+  const userRole = localStorage.getItem('role');
+  if (userRole === '1') {
+    url = API_ENDPOINTS.ADMIN.ORDERS.GET_BY_ID(id);
+  } else {
+    url = API_ENDPOINTS.ORDER.GET_BY_ID(id);
+  }
+  
+  const response = await api.get(url);
   return response.data;
 };
 
