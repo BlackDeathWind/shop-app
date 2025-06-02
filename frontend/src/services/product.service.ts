@@ -1,5 +1,5 @@
 import api from './api';
-import { API_ENDPOINTS } from '../constants/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../constants/api';
 
 export interface ProductResponse {
   MaSanPham: number;
@@ -55,12 +55,13 @@ export const createProduct = async (productData: FormData): Promise<ProductRespo
 };
 
 export const updateProduct = async (id: number, productData: FormData): Promise<ProductResponse> => {
-  const response = await api.put(API_ENDPOINTS.ADMIN.PRODUCTS.UPDATE(id), productData, {
+  console.log('Sending update request to:', API_ENDPOINTS.PRODUCT.UPDATE(id));
+  const response = await api.put(API_ENDPOINTS.PRODUCT.UPDATE(id), productData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
-  return response.data;
+  return response.data.product || response.data;
 };
 
 export const deleteProduct = async (id: number): Promise<void> => {

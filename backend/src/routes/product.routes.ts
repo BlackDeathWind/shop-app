@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import ProductController from '../controllers/product.controller';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware';
 import multer from 'multer';
+import { Request, Response, NextFunction } from 'express';
 
 const router = Router();
 const productController = new ProductController();
@@ -52,6 +53,12 @@ router.put(
   authMiddleware,
   roleMiddleware([0, 1]),
   upload.single('image'),
+  (req: Request, res: Response, next: NextFunction) => {
+    console.log('=== Product update route hit ===');
+    console.log('Product ID:', req.params.id);
+    console.log('Request has file:', !!req.file);
+    next();
+  },
   productValidation,
   productController.updateProduct
 );

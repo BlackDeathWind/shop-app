@@ -9,6 +9,8 @@ import cookieParser from 'cookie-parser';
 import { testConnection } from './config/db.config';
 import { initializeModels } from './models';
 import { logger } from './utils/logger';
+import ProductController from './controllers/product.controller';
+import multer from 'multer';
 
 // Routes
 import authRoutes from './routes/auth.routes';
@@ -54,6 +56,14 @@ testConnection();
 // Initialize models
 initializeModels();
 
+// Cấu hình multer để xử lý upload file
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // limit to 5MB
+  },
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -63,6 +73,26 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/order-details', orderDetailRoutes);
 app.use('/api/upload', uploadRoutes);
+
+// Thêm route trực tiếp cho việc cập nhật sản phẩm
+const productController = new ProductController();
+app.put('/api/products-update/:id', upload.single('image'), (req, res) => {
+  console.log('=== Direct product update route hit ===');
+  console.log('Request path:', req.path);
+  console.log('Request URL:', req.originalUrl);
+  console.log('Product ID:', req.params.id);
+  console.log('Request has file:', !!req.file);
+  
+  try {
+    productController.updateProduct(req, res);
+  } catch (error: any) {
+    console.error('Error in direct update route:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({
+      message: error.message || 'Lỗi khi cập nhật sản phẩm'
+    });
+  }
+});
 
 // Home route
 app.get('/', (_req: Request, res: Response) => {

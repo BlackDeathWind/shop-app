@@ -111,12 +111,32 @@ export default class ProductController {
 
   public updateProduct = async (req: Request, res: Response): Promise<Response> => {
     try {
+      console.log('=== START updateProduct ===');
+      console.log('Request URL:', req.originalUrl);
+      console.log('Request params:', req.params);
+      console.log('Request headers:', req.headers);
+      
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('Validation errors:', errors.array());
         return res.status(400).json({ errors: errors.array() });
       }
 
+      // Kiểm tra id hợp lệ
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        console.log('Invalid ID:', req.params.id);
+        return res.status(400).json({
+          message: 'ID sản phẩm không hợp lệ'
+        });
+      }
+
+      // Log thông tin request để debug
+      console.log('Update product request:', {
+        id,
+        body: req.body,
+        file: req.file ? 'File exists' : 'No file'
+      });
 
       // Xử lý tệp hình ảnh nếu có
       let imagePath = null;
@@ -134,19 +154,35 @@ export default class ProductController {
         imagePath = `/uploads/${fileName}`;
       }
 
-      const productData = {
-        ...req.body,
-        ...(imagePath ? { HinhAnh: imagePath } : {})
+      // Chuẩn bị dữ liệu cập nhật
+      const productData: any = {
+        TenSanPham: req.body.TenSanPham,
+        MaDanhMuc: parseInt(req.body.MaDanhMuc),
+        MoTa: req.body.MoTa || '',
+        SoLuong: parseInt(req.body.SoLuong),
+        GiaSanPham: parseFloat(req.body.GiaSanPham)
       };
 
+      // Thêm hình ảnh nếu có
+      if (imagePath) {
+        productData.HinhAnh = imagePath;
+      }
+
+      console.log('Product data to update:', productData);
+
+      // Cập nhật sản phẩm
       const product = await this.productService.updateProduct(id, productData);
+      console.log('Product updated successfully:', product.MaSanPham);
+      
       return res.status(200).json({
         message: 'Cập nhật sản phẩm thành công',
         product
       });
     } catch (error: any) {
-      return res.status(404).json({
-        message: error.message
+      console.error('Error updating product:', error);
+      console.error('Error stack:', error.stack);
+      return res.status(500).json({
+        message: error.message || 'Lỗi khi cập nhật sản phẩm'
       });
     }
   };

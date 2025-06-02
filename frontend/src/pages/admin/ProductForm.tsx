@@ -8,6 +8,7 @@ import { getAllCategories } from '../../services/category.service';
 import type { ProductResponse } from '../../services/product.service';
 import type { CategoryResponse } from '../../services/category.service';
 import { API_BASE_URL } from '../../constants/api';
+import api from '../../services/api';
 
 const ProductForm = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -109,16 +110,23 @@ const ProductForm = () => {
       if (formData.imageFile) {
         formDataToSend.append('image', formData.imageFile);
       }
-      
+
+      // Gọi API thông qua service
       if (isEditMode && productId) {
+        console.log('Calling updateProduct for ID:', productId);
         await updateProduct(parseInt(productId), formDataToSend);
       } else {
+        console.log('Calling createProduct');
         await createProduct(formDataToSend);
       }
       
       navigate('/admin/products');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Lỗi khi lưu sản phẩm:', error);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
       setError('Đã xảy ra lỗi khi lưu sản phẩm. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);

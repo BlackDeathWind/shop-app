@@ -3,6 +3,7 @@ import { ISanPham } from '../interfaces/models.interface';
 import { sequelize } from '../config/db.config';
 import DanhMuc from './DanhMuc.model';
 import ChiTietHoaDon from './ChiTietHoaDon.model';
+import { formatDateForSqlServer } from '../utils/helpers';
 
 // Interface cho các thuộc tính SanPham khi tạo mới
 interface SanPhamCreationAttributes extends Optional<ISanPham, 'MaSanPham' | 'Ngaytao' | 'NgayCapNhat' | 'HinhAnh'> {}
@@ -73,12 +74,13 @@ SanPham.init(
     tableName: 'SanPham',
     timestamps: false,
     hooks: {
-      beforeCreate: (sanPham: SanPham) => {
-        sanPham.Ngaytao = new Date();
-      },
-      beforeUpdate: (sanPham: SanPham) => {
-        sanPham.NgayCapNhat = new Date();
-      },
+      // Tắt hook tự động cập nhật để tránh lỗi định dạng ngày
+      // beforeCreate: (sanPham: SanPham) => {
+      //   sanPham.Ngaytao = new Date();
+      // },
+      // beforeUpdate: (sanPham: SanPham) => {
+      //   sanPham.NgayCapNhat = new Date();
+      // },
     },
   }
 );
