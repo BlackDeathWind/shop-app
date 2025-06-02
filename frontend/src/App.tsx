@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { CartProvider } from './contexts/CartContext';
 import Toast from './components/Toast';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -39,17 +40,55 @@ function App() {
               <Route path="/categories/:categoryId" element={<ProductsByCategory />} />
               <Route path="/products/:productId" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/account" element={<Account />} />
               
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/products" element={<ProductManagement />} />
-              <Route path="/admin/products/new" element={<ProductForm />} />
-              <Route path="/admin/products/edit/:productId" element={<ProductForm />} />
-              <Route path="/admin/users" element={<UserManagement />} />
-              <Route path="/admin/orders" element={<OrderManagement />} />
+              {/* Protected Customer Routes */}
+              <Route path="/checkout" element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              } />
+              <Route path="/orders" element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              } />
+              <Route path="/account" element={
+                <ProtectedRoute>
+                  <Account />
+                </ProtectedRoute>
+              } />
+              
+              {/* Admin Routes - chỉ cho Admin và Staff */}
+              <Route path="/admin" element={
+                <ProtectedRoute requiredRoles={[0, 1]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/products" element={
+                <ProtectedRoute requiredRoles={[0, 1]}>
+                  <ProductManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/products/new" element={
+                <ProtectedRoute requiredRoles={[0, 1]}>
+                  <ProductForm />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/products/edit/:productId" element={
+                <ProtectedRoute requiredRoles={[0, 1]}>
+                  <ProductForm />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/users" element={
+                <ProtectedRoute requiredRoles={[0]}>
+                  <UserManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/orders" element={
+                <ProtectedRoute requiredRoles={[0, 1]}>
+                  <OrderManagement />
+                </ProtectedRoute>
+              } />
               
               {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />

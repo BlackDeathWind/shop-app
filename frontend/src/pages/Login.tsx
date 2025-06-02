@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -12,9 +12,18 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToast } = useToast();
+
+  // Kiểm tra nếu đã đăng nhập thì chuyển hướng
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const from = location.state?.from || '/';
+      navigate(from);
+    }
+  }, [isAuthenticated, user, navigate, location.state]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -30,22 +39,24 @@ const Login = () => {
       // Thông báo đăng nhập thành công
       addToast('Đăng nhập thành công!', 'success');
       
-      // Navigate dựa vào vai trò được quản lý bởi AuthContext
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        if (user.MaVaiTro === 0) {
-          // Admin
-          navigate('/admin');
-        } else if (user.MaVaiTro === 1) {
-          // Nhân viên
-          navigate('/admin');
+      // Chuyển hướng về trang trước đó hoặc trang mặc định dựa vào vai trò
+      const from = location.state?.from;
+      if (from) {
+        navigate(from);
+      } else {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user.MaVaiTro === 0 || user.MaVaiTro === 1) {
+            // Admin hoặc nhân viên
+            navigate('/admin');
+          } else {
+            // Khách hàng
+            navigate('/');
+          }
         } else {
-          // Khách hàng hoặc mặc định
           navigate('/');
         }
-      } else {
-        navigate('/');
       }
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Đăng nhập thất bại';

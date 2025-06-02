@@ -52,3 +52,36 @@ export default tseslint.config({
   },
 })
 ```
+
+# Shop App Frontend
+
+## Cập nhật mới
+
+### Cải tiến hệ thống xác thực và bảo mật
+
+Hệ thống đã được cập nhật với các tính năng sau:
+
+1. **Protected Routes**: Đã thêm component ProtectedRoute để bảo vệ các trang yêu cầu đăng nhập.
+2. **Tự động làm mới token**: Token sẽ tự động được làm mới trong nền, tránh việc phiên làm việc hết hạn khi đang sử dụng.
+3. **Quay lại trang trước đó sau khi đăng nhập**: Khi người dùng truy cập vào trang yêu cầu đăng nhập, sau khi đăng nhập thành công, hệ thống sẽ tự động chuyển hướng về trang mà người dùng muốn truy cập ban đầu.
+4. **Tránh chuyển hướng liên tục khi F5**: Đã khắc phục vấn đề người dùng bị chuyển hướng về trang đăng nhập khi nhấn F5 sau khi đã đăng nhập.
+
+## Hướng dẫn sử dụng
+
+### Cài đặt
+
+```bash
+npm install
+```
+
+### Chạy môi trường phát triển
+
+```bash
+npm run dev
+```
+
+### Build
+
+```bash
+npm run build
+```
