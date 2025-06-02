@@ -27,21 +27,21 @@ const About = () => {
           <div className="flex flex-col md:flex-row items-center gap-10">
             <div className="md:w-1/2">
               <img 
-                src="https://images.unsplash.com/photo-1521543832500-49e528178874?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" 
+                src="https://images.squarespace-cdn.com/content/v1/5eac4ea3e88fff1b365dc45d/1599599381716-G6S1JK3EQVVQR1F4ZJ4S/AUGUST+pink+50x70.jpg?format=1000w" 
                 alt="Flower Shop Story" 
                 className="rounded-lg shadow-lg w-full"
               />
             </div>
             <div className="md:w-1/2">
-              <h2 className="text-3xl font-bold text-gray-800 mb-6">Câu Chuyện Của Chúng Tôi</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-6">Sinh Viên Thực hiện</h2>
               <p className="text-gray-600 mb-4">
-                Flower Shop được thành lập vào năm 2015 với mong muốn mang đến những bó hoa tươi đẹp nhất và những món quà ý nghĩa đến với mọi người. Chúng tôi bắt đầu từ một cửa hàng nhỏ và dần phát triển thành một trong những thương hiệu hàng đầu trong lĩnh vực hoa và quà tặng.
+                Phạm Nguyễn Chu Nguyên - Mã số sinh viên: 21050043.
               </p>
               <p className="text-gray-600 mb-4">
-                Với đội ngũ nhân viên giàu kinh nghiệm và đam mê, chúng tôi cam kết mang đến những sản phẩm chất lượng cao nhất với giá cả phải chăng. Mỗi bó hoa, mỗi món quà đều được chúng tôi chăm chút tỉ mỉ để đảm bảo sự hài lòng của khách hàng.
+                Vy Ngọc Nhân - Mã số sinh viên: .
               </p>
               <p className="text-gray-600 mb-4">
-                Flower Shop tự hào là đối tác tin cậy trong những dịp đặc biệt của khách hàng, từ sinh nhật, khai trương đến đám cưới và các sự kiện quan trọng khác. Chúng tôi luôn nỗ lực không ngừng để cải tiến và nâng cao chất lượng dịch vụ.
+                Đặng Văn Nhật Thanh - Mã số sinh viên: .
               </p>
             </div>
           </div>
@@ -59,7 +59,7 @@ const About = () => {
               </div>
               <h3 className="text-xl font-semibold mb-3">Đam Mê</h3>
               <p className="text-gray-600">
-                Chúng tôi làm việc với tình yêu và đam mê đối với hoa và nghệ thuật cắm hoa.
+                Nhóm sinh viên chúng em thực hiện dự án với sự đam mê đối với Ngành Công Nghệ Thông Tin.
               </p>
             </div>
 
@@ -69,7 +69,7 @@ const About = () => {
               </div>
               <h3 className="text-xl font-semibold mb-3">Chất Lượng</h3>
               <p className="text-gray-600">
-                Chúng tôi cam kết chỉ sử dụng những bông hoa tươi nhất và vật liệu chất lượng cao.
+                Nhóm sinh viên chúng em  cam kết chỉ sử dụng những bông hoa tươi nhất và vật liệu chất lượng cao.
               </p>
             </div>
 
@@ -79,7 +79,7 @@ const About = () => {
               </div>
               <h3 className="text-xl font-semibold mb-3">Sự Hài Lòng</h3>
               <p className="text-gray-600">
-                Sự hài lòng của khách hàng là ưu tiên hàng đầu trong mọi việc chúng tôi làm.
+                Sự hài lòng của khách hàng là ưu tiên hàng đầu mà nhóm sinh viên chúng em làm.
               </p>
             </div>
 
@@ -89,7 +89,7 @@ const About = () => {
               </div>
               <h3 className="text-xl font-semibold mb-3">Dịch Vụ</h3>
               <p className="text-gray-600">
-                Chúng tôi cung cấp dịch vụ giao hàng nhanh chóng và đáng tin cậy.
+                Trong tương lai, nhóm sinh viên chúng em có thể trở thành đối tác tin cậy cung cấp dịch vụ giao hàng nhanh chóng và uy tín.
               </p>
             </div>
           </div>
@@ -106,15 +106,15 @@ const About = () => {
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <MapPin className="h-6 w-6 text-pink-500 mr-3 flex-shrink-0 mt-1" />
-                  <span>123 Đường Hoa, Quận 1, TP. Hồ Chí Minh</span>
+                  <span>Trường đại học Bình Dương, TP. Thủ dầu Một, Bình Dương</span>
                 </li>
                 <li className="flex items-center">
                   <Phone className="h-6 w-6 text-pink-500 mr-3 flex-shrink-0" />
-                  <span>0123 456 789</span>
+                  <span>0938 320 498</span>
                 </li>
                 <li className="flex items-center">
                   <Mail className="h-6 w-6 text-pink-500 mr-3 flex-shrink-0" />
-                  <span>info@flowershop.com</span>
+                  <span>21050043@student.bdu.edu.vn</span>
                 </li>
                 <li className="flex items-center">
                   <Clock className="h-6 w-6 text-pink-500 mr-3 flex-shrink-0" />

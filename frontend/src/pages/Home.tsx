@@ -267,7 +267,7 @@ const Home = () => {
                 Chúng tôi cung cấp các loại hoa tươi và quà tặng chất lượng cao cho mọi dịp đặc biệt trong cuộc sống của bạn.
               </p>
               <p className="text-gray-600 mb-6">
-                Với nhiều năm kinh nghiệm, chúng tôi tự hào mang đến những sản phẩm đẹp nhất, dịch vụ tốt nhất và giá cả hợp lý nhất.
+                Với nhiều sản phẩm chất lượng, chúng tôi tự hào mang đến những sản phẩm đẹp nhất, dịch vụ tốt nhất và giá cả hợp lý nhất.
               </p>
               <Link
                 to="/about"
