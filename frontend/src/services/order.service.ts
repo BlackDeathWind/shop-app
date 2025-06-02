@@ -56,8 +56,22 @@ export const createOrder = async (orderData: OrderRequest): Promise<OrderRespons
 };
 
 export const getMyOrders = async (): Promise<OrderResponse[]> => {
-  const response = await api.get(API_ENDPOINTS.ORDER.GET_MY_ORDERS);
-  return response.data;
+  try {
+    console.log('Gọi API lấy đơn hàng của tôi');
+    const response = await api.get(API_ENDPOINTS.ORDER.GET_MY_ORDERS);
+    
+    // Kiểm tra dữ liệu trả về
+    if (!response.data) {
+      console.error('Không có dữ liệu đơn hàng');
+      return [];
+    }
+    
+    console.log(`Nhận được ${Array.isArray(response.data) ? response.data.length : 0} đơn hàng`);
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('Lỗi khi lấy đơn hàng của tôi:', error);
+    throw error;
+  }
 };
 
 export const getOrderById = async (id: number): Promise<OrderResponse> => {

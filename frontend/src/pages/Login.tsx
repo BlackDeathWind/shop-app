@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { User, Lock, LogIn } from 'lucide-react';
+import { User, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import MainLayout from '../layouts/MainLayout';
@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -67,6 +68,10 @@ const Login = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <MainLayout>
       <div className="bg-gray-100 min-h-screen py-12">
@@ -115,13 +120,21 @@ const Login = () => {
                     </div>
                     <input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       className="w-full px-4 py-2 focus:outline-none"
                       placeholder="Nhập mật khẩu"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                    <button
+                      type="button"
+                      className="px-3 py-2 text-gray-500 hover:text-gray-700"
+                      onClick={togglePasswordVisibility}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
                 </div>
 

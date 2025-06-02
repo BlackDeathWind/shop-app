@@ -142,19 +142,74 @@ export default class OrderService {
 
   public async getOrdersByCustomerId(customerId: number) {
     try {
-      const orders = await HoaDon.findAll({
-        where: { MaKhachHang: customerId },
-        include: [
-          {
-            model: ChiTietHoaDon,
-            as: 'ChiTietHoaDons',
-            include: [{ model: SanPham, as: 'SanPham' }]
-          }
-        ],
-        order: [['NgayLap', 'DESC']]
+      // Sử dụng raw query để đảm bảo lấy chính xác dữ liệu từ SQL Server
+      const sql = `
+        SELECT 
+          hd.MaHoaDon, hd.MaKhachHang, hd.MaNhanVien, hd.NgayLap, 
+          hd.TongTien, hd.PhuongThucTT, hd.DiaChi, hd.TrangThai
+        FROM 
+          HoaDon hd
+        WHERE 
+          hd.MaKhachHang = :customerId
+        ORDER BY 
+          hd.NgayLap DESC
+      `;
+      
+      const orders = await sequelize.query(sql, {
+        replacements: { customerId },
+        type: QueryTypes.SELECT
       });
-      return orders;
+      
+      // Nếu không có đơn hàng, trả về mảng rỗng
+      if (!Array.isArray(orders) || orders.length === 0) {
+        return [];
+      }
+      
+      // Lấy thông tin chi tiết cho từng đơn hàng
+      const ordersWithDetails = await Promise.all(orders.map(async (order: any) => {
+        const detailsSql = `
+          SELECT 
+            ct.MaChiTiet, ct.MaHoaDon, ct.MaSanPham, ct.SoLuong, 
+            ct.DonGia, ct.ThanhTien,
+            sp.TenSanPham, sp.HinhAnh, sp.GiaSanPham
+          FROM 
+            ChiTietHoaDon ct
+          JOIN 
+            SanPham sp ON ct.MaSanPham = sp.MaSanPham
+          WHERE 
+            ct.MaHoaDon = :orderId
+        `;
+        
+        const details = await sequelize.query(detailsSql, {
+          replacements: { orderId: order.MaHoaDon },
+          type: QueryTypes.SELECT
+        });
+        
+        // Định dạng lại chi tiết để phù hợp với cấu trúc dữ liệu cần thiết
+        const formattedDetails = details.map((detail: any) => ({
+          MaChiTiet: detail.MaChiTiet,
+          MaHoaDon: detail.MaHoaDon,
+          MaSanPham: detail.MaSanPham,
+          SoLuong: detail.SoLuong,
+          DonGia: detail.DonGia,
+          ThanhTien: detail.ThanhTien,
+          SanPham: {
+            MaSanPham: detail.MaSanPham,
+            TenSanPham: detail.TenSanPham,
+            GiaSanPham: detail.GiaSanPham,
+            HinhAnh: detail.HinhAnh
+          }
+        }));
+        
+        return {
+          ...order,
+          ChiTietHoaDons: formattedDetails
+        };
+      }));
+      
+      return ordersWithDetails;
     } catch (error) {
+      console.error('Error in getOrdersByCustomerId:', error);
       throw error;
     }
   }

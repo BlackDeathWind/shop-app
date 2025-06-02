@@ -34,7 +34,7 @@ const Orders = () => {
   const [error, setError] = useState<string | null>(null);
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,21 +43,41 @@ const Orders = () => {
       return;
     }
 
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get(API_ENDPOINTS.ORDER.GET_MY_ORDERS);
-        setOrders(response.data);
-      } catch (err: any) {
-        console.error('Error fetching orders:', err);
-        setError(err.response?.data?.message || 'Không thể tải đơn hàng. Vui lòng thử lại sau!');
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Kiểm tra vai trò người dùng, chỉ khách hàng (role = 2) mới tải đơn hàng
+    if (user && user.MaVaiTro === 2) {
+      const fetchOrders = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          console.log('Đang tải đơn hàng của khách hàng');
+          const response = await api.get(API_ENDPOINTS.ORDER.GET_MY_ORDERS);
+          
+          // Kiểm tra dữ liệu trả về
+          if (Array.isArray(response.data)) {
+            console.log(`Đã tải ${response.data.length} đơn hàng`);
+            setOrders(response.data);
+          } else {
+            console.error('Định dạng dữ liệu không hợp lệ:', response.data);
+            setOrders([]);
+            setError('Không thể tải đơn hàng do định dạng dữ liệu không hợp lệ');
+          }
+        } catch (err: any) {
+          console.error('Lỗi khi tải đơn hàng:', err);
+          setOrders([]);
+          setError(err.response?.data?.message || 'Không thể tải đơn hàng. Vui lòng thử lại sau!');
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchOrders();
-  }, [isAuthenticated, navigate]);
+      fetchOrders();
+    } else if (user && (user.MaVaiTro === 0 || user.MaVaiTro === 1)) {
+      // Admin hoặc nhân viên
+      setLoading(false);
+      setError('Chỉ tài khoản khách hàng mới có thể xem đơn hàng của họ, Admin và nhân viên vui lòng sử dụng trang quản lý đơn hàng');
+    }
+  }, [isAuthenticated, navigate, user]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {

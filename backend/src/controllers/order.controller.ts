@@ -34,11 +34,31 @@ export default class OrderController {
   public getOrdersByCustomerId = async (req: Request, res: Response): Promise<Response> => {
     try {
       // Lấy MaKhachHang từ user đã xác thực
-      const { id: customerId } = req.user!;
+      const { id: customerId, role } = req.user!;
+      
+      // Kiểm tra xác thực customerId và vai trò
+      if (!customerId) {
+        return res.status(401).json({
+          message: 'Không tìm thấy thông tin người dùng'
+        });
+      }
+      
+      // Xác nhận người dùng là khách hàng
+      if (role !== 2) {
+        return res.status(403).json({
+          message: 'Chỉ tài khoản khách hàng mới có thể xem đơn hàng của họ, Admin và nhân viên vui lòng xử dụng trang quản lý đơn hàng'
+        });
+      }
+      
+      console.log(`Fetching orders for customer ID: ${customerId}`);
       
       const orders = await this.orderService.getOrdersByCustomerId(customerId);
+      
+      console.log(`Found ${orders.length} orders for customer ID: ${customerId}`);
+      
       return res.status(200).json(orders);
     } catch (error: any) {
+      console.error('Error in getOrdersByCustomerId controller:', error);
       return res.status(500).json({
         message: error.message || 'Lỗi khi lấy danh sách đơn hàng'
       });
