@@ -38,10 +38,10 @@ const About = () => {
                 Phạm Nguyễn Chu Nguyên - Mã số sinh viên: 21050043.
               </p>
               <p className="text-gray-600 mb-4">
-                Vy Ngọc Nhân - Mã số sinh viên: .
+                Vy Ngọc Nhân - Mã số sinh viên: 22050030.
               </p>
               <p className="text-gray-600 mb-4">
-                Đặng Văn Nhật Thanh - Mã số sinh viên: .
+                Đặng Văn Nhật Thanh - Mã số sinh viên: 23050029.
               </p>
             </div>
           </div>

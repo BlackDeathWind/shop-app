@@ -9,20 +9,20 @@ VALUES
     (2, N'Khách hàng');
 GO
 
--- Thêm dữ liệu cho bảng NhanVien (Mật khẩu mặc định '123456' đã hash)
+-- Thêm dữ liệu cho bảng NhanVien (Mật khẩu mặc định theo thứ tự 'Admin@1', 'Nhanvien@1', 'Nhanvien@2' đã hash)
 INSERT INTO NhanVien (MaVaiTro, TenNhanVien, SoDienThoai, MatKhau, DiaChi)
 VALUES
-    (0, N'Admin', '0901234567', '$2b$10$7JpjEVmP5uvU3JGq1WaYXO1hJj0NQ3K4rG5p.BvU5vJFRw88Yxnnq', N'123 Đường Admin, Quận 1, TP HCM'),
-    (1, N'Nhân viên 1', '0912345678', '$2b$10$7JpjEVmP5uvU3JGq1WaYXO1hJj0NQ3K4rG5p.BvU5vJFRw88Yxnnq', N'456 Đường NV, Quận 2, TP HCM'),
-    (1, N'Nhân viên 2', '0912345679', '$2b$10$7JpjEVmP5uvU3JGq1WaYXO1hJj0NQ3K4rG5p.BvU5vJFRw88Yxnnq', N'789 Đường NV, Quận 3, TP HCM');
+    (0, N'Admin', '0901234567', '$2a$12$Gd1DwtLpJOiVaEhLXjKwKuOL50wDb1FOtTb6AGrD8mrDCxyrmOquy', N'123 Đường Admin, Quận 1, TP HCM'),
+    (1, N'Nhân viên 1', '0912345678', '$2a$12$L3un9Wg1yMnyvTKuWAxKF.nW4aV2FS6f6OauasyJ5m1Csr0ORLEZa', N'456 Đường NV, Quận 2, TP HCM'),
+    (1, N'Nhân viên 2', '0912345679', '$2a$12$M9kPXni1vigAngFnz2Y7vuMRwjF1CuoAlczkXLOUrWa81O3ewtky6', N'789 Đường NV, Quận 3, TP HCM');
 GO
 
--- Thêm dữ liệu cho bảng KhachHang (Mật khẩu mặc định '123456' đã hash)
+-- Thêm dữ liệu cho bảng KhachHang (Mật khẩu mặc định 'Khachhang@1', 'Khachhang@2', 'Khachhang@3' đã hash)
 INSERT INTO KhachHang (MaVaiTro, TenKhachHang, SoDienThoai, MatKhau, DiaChi)
 VALUES
-    (2, N'Khách hàng 1', '0923456789', '$2b$10$7JpjEVmP5uvU3JGq1WaYXO1hJj0NQ3K4rG5p.BvU5vJFRw88Yxnnq', N'123 Đường KH, Quận 1, TP HCM'),
-    (2, N'Khách hàng 2', '0923456780', '$2b$10$7JpjEVmP5uvU3JGq1WaYXO1hJj0NQ3K4rG5p.BvU5vJFRw88Yxnnq', N'456 Đường KH, Quận 2, TP HCM'),
-    (2, N'Khách hàng 3', '0923456781', '$2b$10$7JpjEVmP5uvU3JGq1WaYXO1hJj0NQ3K4rG5p.BvU5vJFRw88Yxnnq', N'789 Đường KH, Quận 3, TP HCM');
+    (2, N'Khách hàng 1', '0923456789', '$2a$12$kDOXSl3QsobIKnqa0.7/kuJzEwQiqxQmKnoLw6HBiWsDFHeTdr55e', N'123 Đường KH, Quận 1, TP HCM'),
+    (2, N'Khách hàng 2', '0923456780', '$2a$12$3WErTWo5laf8.5Ks3/OItuwAkQvRToX/hZ.cI8SxT4ywBSNWiq2DG', N'456 Đường KH, Quận 2, TP HCM'),
+    (2, N'Khách hàng 3', '0923456781', '$2a$12$hHzaPBHADKEAPG5yoqrGZO2HagmBG3WRlirwx9fMWvDrV6tmJVGUK', N'789 Đường KH, Quận 3, TP HCM');
 GO
 
 -- Thêm dữ liệu cho bảng DanhMuc
