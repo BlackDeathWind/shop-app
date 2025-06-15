@@ -40,7 +40,7 @@ export const getProductsByCategory = async (categoryId: number, page = 1, limit 
 };
 
 export const searchProducts = async (query: string, page = 1, limit = 10): Promise<ProductListResponse> => {
-  const response = await api.get(`${API_ENDPOINTS.PRODUCT.SEARCH}?query=${query}&page=${page}&limit=${limit}`);
+  const response = await api.get(`${API_ENDPOINTS.PRODUCT.SEARCH}?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`);
   return response.data;
 };
 

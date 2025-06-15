@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, LogOut, Package, Home, Info, Search } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useCart } from '../contexts/CartContext';
+import { searchProducts } from '../services/product.service';
 
 const Navbar = () => {
   const { isAuthenticated, isAdmin, isStaff, user, logout } = useAuth();
@@ -13,6 +14,11 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { addToast } = useToast();
   const { itemCount } = useCart();
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimeout = useRef<number | null>(null);
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -35,6 +41,38 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Gợi ý tìm kiếm sản phẩm
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    setSearchLoading(true);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = window.setTimeout(async () => {
+      try {
+        const res = await searchProducts(searchQuery, 1, 5);
+        setSuggestions(res.products || []);
+        setShowSuggestions(true);
+      } catch (e) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300);
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, [searchQuery]);
+
+  const handleSuggestionClick = (productId: number) => {
+    setShowSuggestions(false);
+    setSearchQuery('');
+    navigate(`/products/${productId}`);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,14 +118,16 @@ const Navbar = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="hidden md:flex">
-            <form onSubmit={handleSearch} className="flex">
+          <div className="hidden md:flex relative">
+            <form onSubmit={handleSearch} className="flex w-72">
               <input
                 type="text"
                 placeholder="Tìm kiếm sản phẩm..."
-                className="px-4 py-2 rounded-l-lg text-gray-800 focus:outline-none"
+                className="px-4 py-2 rounded-l-lg text-gray-800 focus:outline-none w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery && setShowSuggestions(true)}
+                autoComplete="off"
               />
               <button
                 type="submit"
@@ -96,6 +136,28 @@ const Navbar = () => {
                 <Search size={18} />
               </button>
             </form>
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-lg z-30 border border-t-0 border-gray-200">
+                {searchLoading ? (
+                  <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>
+                ) : (
+                  suggestions.map((item) => (
+                    <div
+                      key={item.MaSanPham}
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-pink-50 cursor-pointer"
+                      onMouseDown={() => handleSuggestionClick(item.MaSanPham)}
+                    >
+                      <img
+                        src={item.HinhAnh ? (item.HinhAnh.startsWith('http') ? item.HinhAnh : `http://localhost:5000${item.HinhAnh}`) : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=60&q=80'}
+                        alt={item.TenSanPham}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                      <span className="text-gray-800 text-sm font-medium">{item.TenSanPham}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
           {/* User Actions */}
@@ -170,13 +232,15 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-pink-400">
-            <form onSubmit={handleSearch} className="mb-4 flex">
+            <form onSubmit={handleSearch} className="mb-4 flex relative">
               <input
                 type="text"
                 placeholder="Tìm kiếm sản phẩm..."
                 className="px-4 py-2 rounded-l-lg text-gray-800 w-full focus:outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery && setShowSuggestions(true)}
+                autoComplete="off"
               />
               <button
                 type="submit"
@@ -185,58 +249,28 @@ const Navbar = () => {
                 <Search size={18} />
               </button>
             </form>
-            
-            <div className="flex flex-col space-y-3">
-              <Link to="/" className="hover:text-pink-200 flex items-center gap-2">
-                <Home size={18} />
-                <span>Trang chủ</span>
-              </Link>
-              <Link to="/categories" className="hover:text-pink-200 flex items-center gap-2">
-                <Package size={18} />
-                <span>Danh mục</span>
-              </Link>
-              <Link to="/about" className="hover:text-pink-200 flex items-center gap-2">
-                <Info size={18} />
-                <span>Về chúng tôi</span>
-              </Link>
-              <Link to="/cart" className="hover:text-pink-200 flex items-center gap-2">
-                <ShoppingCart size={18} />
-                <span>Giỏ hàng ({itemCount})</span>
-              </Link>
-              
-              {isAuthenticated ? (
-                <>
-                  <Link to="/account" className="hover:text-pink-200 flex items-center gap-2">
-                    <User size={18} />
-                    <span>Tài khoản</span>
-                  </Link>
-                  <Link to="/orders" className="hover:text-pink-200 flex items-center gap-2">
-                    <Package size={18} />
-                    <span>Đơn hàng</span>
-                  </Link>
-                  {(isAdmin || isStaff) && (
-                    <Link to="/admin" className="hover:text-pink-200 flex items-center gap-2">
-                      <User size={18} />
-                      <span>Quản trị</span>
-                    </Link>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="hover:text-pink-200 flex items-center gap-2"
-                  >
-                    <LogOut size={18} />
-                    <span>Đăng xuất</span>
-                  </button>
-                </>
-              ) : (
-                <Link
-                  to="/login"
-                  className="bg-white text-pink-600 px-4 py-2 rounded-lg hover:bg-pink-100 transition text-center"
-                >
-                  Đăng nhập
-                </Link>
-              )}
-            </div>
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-lg z-30 border border-t-0 border-gray-200">
+                {searchLoading ? (
+                  <div className="p-4 text-center text-gray-500">Đang tìm kiếm...</div>
+                ) : (
+                  suggestions.map((item) => (
+                    <div
+                      key={item.MaSanPham}
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-pink-50 cursor-pointer"
+                      onMouseDown={() => handleSuggestionClick(item.MaSanPham)}
+                    >
+                      <img
+                        src={item.HinhAnh ? (item.HinhAnh.startsWith('http') ? item.HinhAnh : `http://localhost:5000${item.HinhAnh}`) : 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=60&q=80'}
+                        alt={item.TenSanPham}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                      <span className="text-gray-800 text-sm font-medium">{item.TenSanPham}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

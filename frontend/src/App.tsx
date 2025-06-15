@@ -21,6 +21,7 @@ import UserManagement from './pages/admin/UserManagement';
 import OrderManagement from './pages/admin/OrderManagement';
 import ProductForm from './pages/admin/ProductForm';
 import NotFound from './pages/NotFound';
+import SearchResults from './pages/SearchResults';
 import './App.css'
 
 function App() {
@@ -92,6 +93,9 @@ function App() {
               
               {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />
+
+              {/* New route for search results */}
+              <Route path="/products/search" element={<SearchResults />} />
             </Routes>
           </Router>
         </CartProvider>

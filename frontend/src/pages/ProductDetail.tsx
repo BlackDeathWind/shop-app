@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import { ChevronRight, Star, ShoppingCart, Minus, Plus, Loader, AlertTriangle, Share2 } from 'lucide-react';
+import { ChevronRight, Star, ShoppingCart, Minus, Plus, Loader, AlertTriangle } from 'lucide-react';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
 import { useToast } from '../contexts/ToastContext';
@@ -257,9 +257,6 @@ const ProductDetail = () => {
                 >
                   <ShoppingCart className="mr-2" size={20} />
                   {product.SoLuong === 0 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
-                </button>
-                <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-md">
-                  <Share2 size={20} />
                 </button>
               </div>
             </div>
