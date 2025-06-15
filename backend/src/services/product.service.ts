@@ -157,15 +157,24 @@ export default class ProductService {
       });
       
       // Lấy ID của sản phẩm mới tạo
-      // Trong SQL Server, kết quả của SCOPE_IDENTITY() là phần tử đầu tiên của kết quả
-      const newProductId = typeof result === 'number' ? result : (Array.isArray(result) ? result[0] : null);
-      
-      if (newProductId === null) {
+      // Kết quả trả về từ sequelize.query với SELECT SCOPE_IDENTITY() as id;
+      // thường là [[{ id: 9 }], ...] hoặc [ [ { id: 9 } ], ... ]
+      let newProductId: number | null = null;
+      if (Array.isArray(result) && Array.isArray(result[0]) && typeof result[0][0] === 'object' && result[0][0] !== null && 'id' in result[0][0]) {
+        const obj: any = result[0][0];
+        newProductId = obj.id;
+      } else if (Array.isArray(result) && typeof result[0] === 'object' && result[0] !== null && 'id' in result[0]) {
+        const obj: any = result[0];
+        newProductId = obj.id;
+      } else if (Array.isArray(result) && typeof result[0] === 'number') {
+        newProductId = result[0];
+      } else if (typeof result === 'number') {
+        newProductId = result;
+      }
+      if (!newProductId) {
         throw new Error('Không thể tạo sản phẩm mới');
       }
-      
       console.log('Product created with ID:', newProductId);
-      
       // Lấy sản phẩm đã tạo
       const product = await SanPham.findByPk(newProductId);
       

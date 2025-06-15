@@ -8,6 +8,7 @@ import {
   changeUserRole
 } from '../../services/user.service';
 import type { UserResponse } from '../../services/user.service';
+import { useToast } from '../../contexts/ToastContext';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<UserResponse[]>([]);
@@ -18,6 +19,8 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<'customers' | 'staff'>('customers');
+  const { addToast } = useToast();
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,14 +53,25 @@ const UserManagement = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
-      try {
-        await deleteUser(id);
-        handleRefresh();
-      } catch (error) {
-        console.error('Lỗi khi xóa người dùng:', error);
-        setError('Đã xảy ra lỗi khi xóa người dùng. Vui lòng thử lại sau.');
-      }
+    setPendingDeleteId(id);
+    addToast(
+      <span>Bạn có chắc chắn muốn xóa người dùng này không?
+        <button onClick={() => confirmDelete(id)} className="ml-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Xác nhận xóa</button>
+        <button onClick={() => setPendingDeleteId(null)} className="ml-2 px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Hủy</button>
+      </span>,
+      'warning'
+    );
+  };
+
+  const confirmDelete = async (id: number) => {
+    try {
+      await deleteUser(id);
+      addToast('Đã xóa người dùng thành công!', 'success');
+      handleRefresh();
+    } catch (error) {
+      addToast('Đã xảy ra lỗi khi xóa người dùng. Vui lòng thử lại sau.', 'error');
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 

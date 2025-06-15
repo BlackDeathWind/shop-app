@@ -10,6 +10,7 @@ import type { ProductResponse, ProductListResponse } from '../../services/produc
 import { getAllCategories } from '../../services/category.service';
 import type { CategoryResponse } from '../../services/category.service';
 import { API_BASE_URL } from '../../constants/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -21,6 +22,8 @@ const ProductManagement = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const { addToast } = useToast();
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,14 +56,25 @@ const ProductManagement = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) {
-      try {
-        await deleteProduct(id);
-        handleRefresh();
-      } catch (error) {
-        console.error('Lỗi khi xóa sản phẩm:', error);
-        setError('Đã xảy ra lỗi khi xóa sản phẩm. Vui lòng thử lại sau.');
-      }
+    setPendingDeleteId(id);
+    addToast(
+      <span>Bạn có chắc chắn muốn xóa sản phẩm này không?
+        <button onClick={() => confirmDelete(id)} className="ml-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Xác nhận xóa</button>
+        <button onClick={() => setPendingDeleteId(null)} className="ml-2 px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Hủy</button>
+      </span>,
+      'warning'
+    );
+  };
+
+  const confirmDelete = async (id: number) => {
+    try {
+      await deleteProduct(id);
+      addToast('Đã xóa sản phẩm thành công!', 'success');
+      handleRefresh();
+    } catch (error) {
+      addToast('Đã xảy ra lỗi khi xóa sản phẩm. Vui lòng thử lại sau.', 'error');
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 

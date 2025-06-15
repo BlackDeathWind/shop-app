@@ -9,6 +9,7 @@ import type { ProductResponse } from '../../services/product.service';
 import type { CategoryResponse } from '../../services/category.service';
 import { API_BASE_URL } from '../../constants/api';
 import api from '../../services/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const ProductForm = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -34,6 +35,8 @@ const ProductForm = () => {
     GiaSanPham: '0',
     imageFile: null,
   });
+
+  const { addToast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,7 +130,7 @@ const ProductForm = () => {
         console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
       }
-      setError('Đã xảy ra lỗi khi lưu sản phẩm. Vui lòng thử lại sau.');
+      addToast('Đã xảy ra lỗi khi lưu sản phẩm. Vui lòng thử lại sau.', 'error');
     } finally {
       setLoading(false);
     }

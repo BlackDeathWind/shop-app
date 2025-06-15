@@ -3,13 +3,13 @@ import type { ReactNode } from 'react';
 
 export interface Toast {
   id: string;
-  message: string;
+  message: ReactNode;
   type: 'success' | 'error' | 'info' | 'warning';
 }
 
 interface ToastContextType {
   toasts: Toast[];
-  addToast: (message: string, type: Toast['type']) => void;
+  addToast: (message: ReactNode, type: Toast['type']) => void;
   removeToast: (id: string) => void;
 }
 
@@ -30,7 +30,7 @@ interface ToastProviderProps {
 export const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = (message: string, type: Toast['type']) => {
+  const addToast = (message: ReactNode, type: Toast['type']) => {
     const newToast: Toast = {
       id: Date.now().toString(),
       message,
