@@ -56,7 +56,11 @@ const Register = () => {
       setSuccess('Đăng ký thành công!');
       setForm({ TenKhachHang: '', SoDienThoai: '', MatKhau: '', MatKhauNhapLai: '', DiaChi: '' });
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Đã xảy ra lỗi khi đăng ký.');
+      if (err.response?.data?.message?.includes('Số điện thoại đã được sử dụng')) {
+        setError('Số điện thoại đã được sử dụng. Vui lòng nhập số khác.');
+      } else {
+        setError(err.response?.data?.message || 'Đã xảy ra lỗi khi đăng ký.');
+      }
     } finally {
       setLoading(false);
     }

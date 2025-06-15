@@ -191,19 +191,21 @@ const Dashboard = () => {
               </a>
             </div>
             
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all">
-              <div className="flex items-center mb-4">
-                <Users className="h-6 w-6 mr-2" />
-                <h2 className="text-xl font-semibold">Quản lý người dùng</h2>
+            {user?.MaVaiTro === 0 && (
+              <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all">
+                <div className="flex items-center mb-4">
+                  <Users className="h-6 w-6 mr-2" />
+                  <h2 className="text-xl font-semibold">Quản lý người dùng</h2>
+                </div>
+                <p className="mb-4 opacity-90">Quản lý tài khoản khách hàng và nhân viên của hệ thống</p>
+                <a 
+                  href="/admin/users" 
+                  className="inline-block bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-all"
+                >
+                  Xem người dùng
+                </a>
               </div>
-              <p className="mb-4 opacity-90">Quản lý tài khoản khách hàng và nhân viên của hệ thống</p>
-              <a 
-                href="/admin/users" 
-                className="inline-block bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-all"
-              >
-                Xem người dùng
-              </a>
-            </div>
+            )}
           </div>
 
           {/* Phần mới: Thống kê trạng thái đơn hàng */}

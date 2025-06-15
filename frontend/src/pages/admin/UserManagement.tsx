@@ -163,7 +163,11 @@ const UserManagement = () => {
       handleCloseAddModal();
       setRefreshTrigger(prev => prev + 1);
     } catch (error: any) {
-      addToast(error?.response?.data?.message || 'Đã xảy ra lỗi khi thêm tài khoản.', 'error');
+      if (error?.response?.data?.message?.includes('Số điện thoại đã được sử dụng')) {
+        addToast('Số điện thoại đã được sử dụng. Vui lòng nhập số khác.', 'error');
+      } else {
+        addToast(error?.response?.data?.message || 'Đã xảy ra lỗi khi thêm tài khoản.', 'error');
+      }
     } finally {
       setAddLoading(false);
     }

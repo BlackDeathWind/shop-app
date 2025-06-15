@@ -140,11 +140,18 @@ export default class AdminService {
     const t = await sequelize.transaction();
     
     try {
-      const { MaVaiTro, MatKhau, ...rest } = userData;
+      const { MaVaiTro, MatKhau, SoDienThoai, ...rest } = userData;
       
-      // Hash mật khẩu
-      const salt = await bcrypt.genSalt(12);
-      const hashedPassword = await bcrypt.hash(MatKhau, salt);
+      // Kiểm tra số điện thoại đã tồn tại chưa
+      let existingUser;
+      if (MaVaiTro === 2) {
+        existingUser = await KhachHang.findOne({ where: { SoDienThoai } });
+      } else {
+        existingUser = await NhanVien.findOne({ where: { SoDienThoai } });
+      }
+      if (existingUser) {
+        throw new Error('Số điện thoại đã được sử dụng');
+      }
       
       let newUser;
       
@@ -153,14 +160,16 @@ export default class AdminService {
         newUser = await KhachHang.create({
           ...rest,
           MaVaiTro,
-          MatKhau: hashedPassword
+          SoDienThoai,
+          MatKhau // plain text, model sẽ tự hash
         }, { transaction: t });
       } else {
         // Tạo nhân viên hoặc admin
         newUser = await NhanVien.create({
           ...rest,
           MaVaiTro,
-          MatKhau: hashedPassword
+          SoDienThoai,
+          MatKhau // plain text, model sẽ tự hash
         }, { transaction: t });
       }
       
