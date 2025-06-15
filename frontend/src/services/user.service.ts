@@ -51,7 +51,7 @@ export const getAllCustomers = async (page = 1, limit = 10): Promise<{
   users: UserResponse[];
 }> => {
   const response = await api.get(`${API_ENDPOINTS.ADMIN.USERS.GET_ALL_CUSTOMERS}?page=${page}&limit=${limit}`);
-  return response.data;
+  return { ...response.data, users: response.data.customers };
 };
 
 export const getAllStaff = async (page = 1, limit = 10): Promise<{
@@ -61,7 +61,7 @@ export const getAllStaff = async (page = 1, limit = 10): Promise<{
   users: UserResponse[];
 }> => {
   const response = await api.get(`${API_ENDPOINTS.ADMIN.USERS.GET_ALL_STAFF}?page=${page}&limit=${limit}`);
-  return response.data;
+  return { ...response.data, users: response.data.staff };
 };
 
 export const getUserById = async (id: number): Promise<UserResponse> => {
@@ -91,11 +91,11 @@ export const updateUser = async (id: number, userData: {
   return response.data;
 };
 
-export const deleteUser = async (id: number): Promise<void> => {
-  await api.delete(API_ENDPOINTS.ADMIN.USERS.DELETE(id));
-};
+// export const deleteUser = async (id: number): Promise<void> => {
+//   await api.delete(API_ENDPOINTS.ADMIN.USERS.DELETE(id));
+// };
 
-export const changeUserRole = async (id: number, roleId: number): Promise<UserResponse> => {
-  const response = await api.put(API_ENDPOINTS.ADMIN.USERS.CHANGE_ROLE(id), { MaVaiTro: roleId });
-  return response.data;
-}; 
+// export const changeUserRole = async (id: number, roleId: number): Promise<UserResponse> => {
+//   const response = await api.put(API_ENDPOINTS.ADMIN.USERS.CHANGE_ROLE(id), { MaVaiTro: roleId });
+//   return response.data;
+// }; 

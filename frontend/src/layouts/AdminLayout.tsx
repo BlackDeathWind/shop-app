@@ -177,6 +177,13 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
   const isAdmin = user?.MaVaiTro === 0;
   
   const [userManagementOpen, setUserManagementOpen] = useState(false);
+  const location = useLocation();
+  useEffect(() => {
+    // Tự động mở dropdown nếu đang ở trang /admin/users
+    if (location.pathname === '/admin/users') {
+      setUserManagementOpen(true);
+    }
+  }, [location.pathname]);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -255,9 +262,9 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
           {userManagementOpen && (
             <div className="ml-9 mt-2 space-y-1">
               <Link
-                to="/admin/users/customers"
+                to={{ pathname: '/admin/users', search: '?tab=customers' }}
                 className={`block px-4 py-2 rounded-md ${
-                  isActive('/admin/users/customers')
+                  location.pathname === '/admin/users' && new URLSearchParams(location.search).get('tab') === 'customers'
                     ? 'bg-pink-100 text-pink-600'
                     : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600'
                 }`}
@@ -265,9 +272,9 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
                 Khách hàng
               </Link>
               <Link
-                to="/admin/users/staff"
+                to={{ pathname: '/admin/users', search: '?tab=staff' }}
                 className={`block px-4 py-2 rounded-md ${
-                  isActive('/admin/users/staff')
+                  location.pathname === '/admin/users' && new URLSearchParams(location.search).get('tab') === 'staff'
                     ? 'bg-pink-100 text-pink-600'
                     : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600'
                 }`}

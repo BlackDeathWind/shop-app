@@ -3,12 +3,11 @@ import { UserPlus, Edit, Trash, Search, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import {
   getAllCustomers,
-  getAllStaff,
-  deleteUser,
-  changeUserRole
+  getAllStaff
 } from '../../services/user.service';
 import type { UserResponse } from '../../services/user.service';
 import { useToast } from '../../contexts/ToastContext';
+import { useLocation } from 'react-router-dom';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<UserResponse[]>([]);
@@ -20,7 +19,15 @@ const UserManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<'customers' | 'staff'>('customers');
   const { addToast } = useToast();
-  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab === 'staff' || tab === 'customers') {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,11 +37,11 @@ const UserManagement = () => {
         let response;
         if (activeTab === 'customers') {
           response = await getAllCustomers(currentPage, 10);
+          setUsers(response.users || []);
         } else {
           response = await getAllStaff(currentPage, 10);
+          setUsers(response.users || []);
         }
-        
-        setUsers(response.users);
         setTotalPages(response.totalPages);
         setError(null);
       } catch (error) {
@@ -50,39 +57,6 @@ const UserManagement = () => {
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
-  };
-
-  const handleDelete = async (id: number) => {
-    setPendingDeleteId(id);
-    addToast(
-      <span>Bạn có chắc chắn muốn xóa người dùng này không?
-        <button onClick={() => confirmDelete(id)} className="ml-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Xác nhận xóa</button>
-        <button onClick={() => setPendingDeleteId(null)} className="ml-2 px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Hủy</button>
-      </span>,
-      'warning'
-    );
-  };
-
-  const confirmDelete = async (id: number) => {
-    try {
-      await deleteUser(id);
-      addToast('Đã xóa người dùng thành công!', 'success');
-      handleRefresh();
-    } catch (error) {
-      addToast('Đã xảy ra lỗi khi xóa người dùng. Vui lòng thử lại sau.', 'error');
-    } finally {
-      setPendingDeleteId(null);
-    }
-  };
-
-  const handleChangeRole = async (id: number, roleId: number) => {
-    try {
-      await changeUserRole(id, roleId);
-      handleRefresh();
-    } catch (error) {
-      console.error('Lỗi khi thay đổi vai trò:', error);
-      setError('Đã xảy ra lỗi khi thay đổi vai trò. Vui lòng thử lại sau.');
-    }
   };
 
   const handlePageChange = (page: number) => {
@@ -103,7 +77,7 @@ const UserManagement = () => {
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
           >
             <UserPlus size={18} />
-            <span>Thêm người dùng mới</span>
+            <span>Thêm tài khoản nhân viên</span>
           </button>
         </div>
 
@@ -177,9 +151,6 @@ const UserManagement = () => {
                         Địa chỉ
                       </th>
                       <th className="py-3 px-4 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
-                        Vai trò
-                      </th>
-                      <th className="py-3 px-4 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
                         Thao tác
                       </th>
                     </tr>
@@ -209,33 +180,23 @@ const UserManagement = () => {
                             {user.DiaChi || 'Không có địa chỉ'}
                           </td>
                           <td className="py-4 px-4 whitespace-nowrap text-center">
-                            <select
-                              value={user.MaVaiTro}
-                              onChange={(e) => handleChangeRole(
-                                user.MaKhachHang || user.MaNhanVien || 0, 
-                                Number(e.target.value)
-                              )}
-                              className="border rounded-md px-2 py-1 text-sm"
-                            >
-                              <option value="0">Quản trị viên</option>
-                              <option value="1">Nhân viên</option>
-                              <option value="2">Khách hàng</option>
-                            </select>
-                          </td>
-                          <td className="py-4 px-4 whitespace-nowrap text-center">
                             <div className="flex justify-center space-x-2">
                               <button
                                 className="p-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
-                                title="Chỉnh sửa"
+                                title="Xem chi tiết tài khoản"
                               >
-                                <Edit size={16} />
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
+                                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
+                                </svg>
                               </button>
                               <button
-                                onClick={() => handleDelete(user.MaKhachHang || user.MaNhanVien || 0)}
-                                className="p-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
-                                title="Xóa"
+                                className="p-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
+                                title="Vô hiệu hóa tài khoản"
                               >
-                                <Trash size={16} />
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75l10.5 10.5m0-10.5L6.75 17.25" />
+                                </svg>
                               </button>
                             </div>
                           </td>
