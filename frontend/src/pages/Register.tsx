@@ -7,50 +7,56 @@ import { useToast } from '../contexts/ToastContext';
 import MainLayout from '../layouts/MainLayout';
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [address, setAddress] = useState('');
+  const [form, setForm] = useState({
+    TenKhachHang: '',
+    SoDienThoai: '',
+    MatKhau: '',
+    MatKhauNhapLai: '',
+    DiaChi: ''
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
   
   const { register } = useAuth();
   const navigate = useNavigate();
   const { addToast } = useToast();
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
-
-    // Validate form
-    if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
-      addToast('Mật khẩu xác nhận không khớp', 'error');
+    if (!form.TenKhachHang || !form.SoDienThoai || !form.MatKhau || !form.MatKhauNhapLai || !form.DiaChi) {
+      setError('Vui lòng nhập đầy đủ thông tin.');
       return;
     }
-
-    if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự');
-      addToast('Mật khẩu phải có ít nhất 6 ký tự', 'error');
+    if (!/^[0-9]{10}$/.test(form.SoDienThoai)) {
+      setError('Số điện thoại phải có 10 chữ số.');
       return;
     }
-
+    if (form.MatKhau.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
+    if (form.MatKhau !== form.MatKhauNhapLai) {
+      setError('Mật khẩu nhập lại không khớp.');
+      return;
+    }
     setLoading(true);
-
+    setError('');
     try {
       await register({
-        TenKhachHang: name,
-        SoDienThoai: phoneNumber,
-        MatKhau: password,
-        DiaChi: address
+        TenKhachHang: form.TenKhachHang,
+        SoDienThoai: form.SoDienThoai,
+        MatKhau: form.MatKhau,
+        DiaChi: form.DiaChi
       });
-      addToast(`Chào mừng ${name}! Đăng ký thành công.`, 'success');
-      navigate('/');
+      setSuccess('Đăng ký thành công!');
+      setForm({ TenKhachHang: '', SoDienThoai: '', MatKhau: '', MatKhauNhapLai: '', DiaChi: '' });
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Đăng ký thất bại';
-      setError(errorMessage);
-      addToast(errorMessage, 'error');
+      setError(err.response?.data?.message || 'Đã xảy ra lỗi khi đăng ký.');
     } finally {
       setLoading(false);
     }
@@ -87,8 +93,9 @@ const Register = () => {
                       type="text"
                       className="w-full px-4 py-2 focus:outline-none"
                       placeholder="Nhập họ và tên"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      name="TenKhachHang"
+                      value={form.TenKhachHang}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -107,8 +114,9 @@ const Register = () => {
                       type="tel"
                       className="w-full px-4 py-2 focus:outline-none"
                       placeholder="Nhập số điện thoại"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      name="SoDienThoai"
+                      value={form.SoDienThoai}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -124,11 +132,12 @@ const Register = () => {
                     </div>
                     <input
                       id="password"
-                      type="password"
+                      type="text"
                       className="w-full px-4 py-2 focus:outline-none"
                       placeholder="Nhập mật khẩu"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      name="MatKhau"
+                      value={form.MatKhau}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -136,7 +145,7 @@ const Register = () => {
 
                 <div className="mb-4">
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
-                    Xác nhận mật khẩu
+                    Nhập lại mật khẩu
                   </label>
                   <div className="flex items-center border rounded-lg overflow-hidden">
                     <div className="bg-gray-100 px-3 py-2 text-gray-400">
@@ -146,9 +155,10 @@ const Register = () => {
                       id="confirmPassword"
                       type="password"
                       className="w-full px-4 py-2 focus:outline-none"
-                      placeholder="Xác nhận mật khẩu"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Nhập lại mật khẩu"
+                      name="MatKhauNhapLai"
+                      value={form.MatKhauNhapLai}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -167,8 +177,9 @@ const Register = () => {
                       type="text"
                       className="w-full px-4 py-2 focus:outline-none"
                       placeholder="Nhập địa chỉ (không bắt buộc)"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
+                      name="DiaChi"
+                      value={form.DiaChi}
+                      onChange={handleInputChange}
                     />
                   </div>
                 </div>

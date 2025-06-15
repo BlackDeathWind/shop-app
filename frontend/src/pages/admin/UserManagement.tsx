@@ -32,6 +32,7 @@ const UserManagement = () => {
     TenNhanVien: '',
     SoDienThoai: '',
     MatKhau: '',
+    MatKhauNhapLai: '',
     DiaChi: ''
   });
   const [addLoading, setAddLoading] = useState(false);
@@ -125,7 +126,7 @@ const UserManagement = () => {
   const handleOpenAddModal = () => setShowAddModal(true);
   const handleCloseAddModal = () => {
     setShowAddModal(false);
-    setAddForm({ TenNhanVien: '', SoDienThoai: '', MatKhau: '', DiaChi: '' });
+    setAddForm({ TenNhanVien: '', SoDienThoai: '', MatKhau: '', MatKhauNhapLai: '', DiaChi: '' });
   };
   const handleAddInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -133,7 +134,7 @@ const UserManagement = () => {
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Kiểm tra dữ liệu đầu vào
-    if (!addForm.TenNhanVien || !addForm.SoDienThoai || !addForm.MatKhau || !addForm.DiaChi) {
+    if (!addForm.TenNhanVien || !addForm.SoDienThoai || !addForm.MatKhau || !addForm.MatKhauNhapLai || !addForm.DiaChi) {
       addToast('Vui lòng nhập đầy đủ thông tin.', 'error');
       return;
     }
@@ -143,6 +144,10 @@ const UserManagement = () => {
     }
     if (addForm.MatKhau.length < 6) {
       addToast('Mật khẩu phải có ít nhất 6 ký tự.', 'error');
+      return;
+    }
+    if (addForm.MatKhau !== addForm.MatKhauNhapLai) {
+      addToast('Mật khẩu nhập lại không khớp.', 'error');
       return;
     }
     setAddLoading(true);
@@ -399,7 +404,11 @@ const UserManagement = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Mật khẩu</label>
-                <input type="password" name="MatKhau" value={addForm.MatKhau} onChange={handleAddInputChange} required className="w-full border rounded px-3 py-2" />
+                <input type="text" name="MatKhau" value={addForm.MatKhau} onChange={handleAddInputChange} required className="w-full border rounded px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Nhập lại mật khẩu</label>
+                <input type="password" name="MatKhauNhapLai" value={addForm.MatKhauNhapLai} onChange={handleAddInputChange} required className="w-full border rounded px-3 py-2" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Địa chỉ</label>

@@ -143,7 +143,7 @@ export default class AdminService {
       const { MaVaiTro, MatKhau, ...rest } = userData;
       
       // Hash mật khẩu
-      const salt = await bcrypt.genSalt(10);
+      const salt = await bcrypt.genSalt(12);
       const hashedPassword = await bcrypt.hash(MatKhau, salt);
       
       let newUser;

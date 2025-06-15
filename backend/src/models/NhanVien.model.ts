@@ -67,12 +67,12 @@ NhanVien.init(
     hooks: {
       beforeCreate: async (nhanVien: NhanVien) => {
         if (nhanVien.MatKhau) {
-          nhanVien.MatKhau = await bcrypt.hash(nhanVien.MatKhau, 10);
+          nhanVien.MatKhau = await bcrypt.hash(nhanVien.MatKhau, 12);
         }
       },
       beforeUpdate: async (nhanVien: NhanVien) => {
         if (nhanVien.changed('MatKhau')) {
-          nhanVien.MatKhau = await bcrypt.hash(nhanVien.MatKhau, 10);
+          nhanVien.MatKhau = await bcrypt.hash(nhanVien.MatKhau, 12);
         }
       },
     },

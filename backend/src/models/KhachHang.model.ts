@@ -67,12 +67,12 @@ KhachHang.init(
     hooks: {
       beforeCreate: async (khachHang: KhachHang) => {
         if (khachHang.MatKhau) {
-          khachHang.MatKhau = await bcrypt.hash(khachHang.MatKhau, 10);
+          khachHang.MatKhau = await bcrypt.hash(khachHang.MatKhau, 12);
         }
       },
       beforeUpdate: async (khachHang: KhachHang) => {
         if (khachHang.changed('MatKhau')) {
-          khachHang.MatKhau = await bcrypt.hash(khachHang.MatKhau, 10);
+          khachHang.MatKhau = await bcrypt.hash(khachHang.MatKhau, 12);
         }
       },
     },
