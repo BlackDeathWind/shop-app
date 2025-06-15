@@ -187,4 +187,11 @@ router.put(
   adminController.updateOrderStatus
 );
 
+router.get(
+  '/orders/by-customer/:customerId',
+  authMiddleware,
+  roleMiddleware([0, 1]),
+  adminController.getOrdersByCustomerId
+);
+
 export default router; 

@@ -232,4 +232,22 @@ export default class AdminController {
       });
     }
   };
+
+  /**
+   * Lấy đơn hàng của một khách hàng bất kỳ (cho admin/staff)
+   */
+  public getOrdersByCustomerId = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      if (isNaN(customerId)) {
+        return res.status(400).json({ message: 'Mã khách hàng không hợp lệ' });
+      }
+      const orders = await this.orderService.getOrdersByCustomerId(customerId);
+      return res.status(200).json(orders);
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || 'Lỗi khi lấy danh sách đơn hàng của khách hàng'
+      });
+    }
+  };
 } 

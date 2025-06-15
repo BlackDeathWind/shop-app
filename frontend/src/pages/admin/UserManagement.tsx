@@ -3,11 +3,14 @@ import { UserPlus, Edit, Trash, Search, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import {
   getAllCustomers,
-  getAllStaff
+  getAllStaff,
+  getUserById,
+  createUser
 } from '../../services/user.service';
 import type { UserResponse } from '../../services/user.service';
 import { useToast } from '../../contexts/ToastContext';
 import { useLocation } from 'react-router-dom';
+import { getMyOrders, getOrdersByCustomerId } from '../../services/order.service';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<UserResponse[]>([]);
@@ -20,6 +23,18 @@ const UserManagement = () => {
   const [activeTab, setActiveTab] = useState<'customers' | 'staff'>('customers');
   const { addToast } = useToast();
   const location = useLocation();
+  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [userOrders, setUserOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState({
+    TenNhanVien: '',
+    SoDienThoai: '',
+    MatKhau: '',
+    DiaChi: ''
+  });
+  const [addLoading, setAddLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -68,6 +83,83 @@ const UserManagement = () => {
     setCurrentPage(1);
   };
 
+  const handleShowDetail = async (user: UserResponse) => {
+    setShowDetailModal(true);
+    setSelectedUser(user);
+    if (user.MaKhachHang) {
+      setOrdersLoading(true);
+      try {
+        // Nếu là admin/staff, lấy đơn hàng của khách hàng này qua API mới
+        const res = await getOrdersByCustomerId(user.MaKhachHang);
+        setUserOrders(res);
+      } catch {
+        setUserOrders([]);
+      } finally {
+        setOrdersLoading(false);
+      }
+    } else {
+      setUserOrders([]);
+    }
+  };
+
+  const handleCloseDetail = () => {
+    setShowDetailModal(false);
+    setSelectedUser(null);
+    setUserOrders([]);
+  };
+
+  const handleDisableUser = (user: UserResponse) => {
+    addToast(
+      <span>Bạn có chắc chắn muốn vô hiệu hóa tài khoản này không?
+        <button onClick={() => confirmDisableUser()} className="ml-4 px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">Xác nhận</button>
+        <button onClick={() => {}} className="ml-2 px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Hủy</button>
+      </span>,
+      'warning'
+    );
+  };
+
+  const confirmDisableUser = () => {
+    addToast('Đây chỉ là thử nghiệm, tính năng vô hiệu hóa sẽ phát triển trong tương lai.', 'info');
+  };
+
+  const handleOpenAddModal = () => setShowAddModal(true);
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setAddForm({ TenNhanVien: '', SoDienThoai: '', MatKhau: '', DiaChi: '' });
+  };
+  const handleAddInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddLoading(true);
+    try {
+      await createUser({
+        TenNhanVien: addForm.TenNhanVien,
+        SoDienThoai: addForm.SoDienThoai,
+        MatKhau: addForm.MatKhau,
+        DiaChi: addForm.DiaChi,
+        MaVaiTro: 1
+      });
+      addToast('Thêm tài khoản nhân viên thành công!', 'success');
+      handleCloseAddModal();
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error: any) {
+      addToast(error?.response?.data?.message || 'Đã xảy ra lỗi khi thêm tài khoản.', 'error');
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
+  // Filter users theo searchTerm
+  const filteredUsers = users.filter(user => {
+    const search = searchTerm.trim().toLowerCase();
+    if (!search) return true;
+    const name = (user.TenKhachHang || user.TenNhanVien || '').toLowerCase();
+    const phone = (user.SoDienThoai || '').toLowerCase();
+    return name.includes(search) || phone.includes(search);
+  });
+
   return (
     <AdminLayout>
       <div className="p-6">
@@ -75,6 +167,7 @@ const UserManagement = () => {
           <h1 className="text-2xl font-semibold text-gray-800">Quản lý người dùng</h1>
           <button
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+            onClick={handleOpenAddModal}
           >
             <UserPlus size={18} />
             <span>Thêm tài khoản nhân viên</span>
@@ -156,14 +249,14 @@ const UserManagement = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {users.length === 0 ? (
+                    {filteredUsers.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="py-8 text-center text-gray-500">
                           Không có người dùng nào
                         </td>
                       </tr>
                     ) : (
-                      users.map((user) => (
+                      filteredUsers.map((user) => (
                         <tr key={user.MaKhachHang || user.MaNhanVien} className="hover:bg-gray-50">
                           <td className="py-4 px-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
@@ -184,6 +277,7 @@ const UserManagement = () => {
                               <button
                                 className="p-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
                                 title="Xem chi tiết tài khoản"
+                                onClick={() => handleShowDetail(user)}
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
@@ -193,6 +287,7 @@ const UserManagement = () => {
                               <button
                                 className="p-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
                                 title="Vô hiệu hóa tài khoản"
+                                onClick={() => handleDisableUser(user)}
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75l10.5 10.5m0-10.5L6.75 17.25" />
@@ -230,6 +325,83 @@ const UserManagement = () => {
           )}
         </div>
       </div>
+
+      {/* Modal chi tiết tài khoản */}
+      {showDetailModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+            <button onClick={handleCloseDetail} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h2 className="text-xl font-bold mb-4">Chi tiết tài khoản</h2>
+            <div className="mb-2"><b>Tên:</b> {selectedUser.TenKhachHang || selectedUser.TenNhanVien}</div>
+            <div className="mb-2"><b>Số điện thoại:</b> {selectedUser.SoDienThoai}</div>
+            <div className="mb-2"><b>Địa chỉ:</b> {selectedUser.DiaChi || 'Không có'}</div>
+            <div className="mb-2"><b>Vai trò:</b> {selectedUser.VaiTro?.TenVaiTro || (selectedUser.MaVaiTro === 0 ? 'Quản trị viên' : selectedUser.MaVaiTro === 1 ? 'Nhân viên' : 'Khách hàng')}</div>
+            {selectedUser.MaKhachHang && (
+              <div className="mt-4">
+                <h3 className="font-semibold mb-2">Đơn hàng của tài khoản này:</h3>
+                {ordersLoading ? (
+                  <div>Đang tải đơn hàng...</div>
+                ) : userOrders.length === 0 ? (
+                  <div>Chưa có đơn hàng nào.</div>
+                ) : (
+                  <ul className="divide-y divide-gray-200">
+                    {userOrders.map(order => (
+                      <li key={order.MaHoaDon} className="py-2">
+                        <div><b>Mã đơn hàng:</b> {order.MaHoaDon}</div>
+                        <div><b>Ngày lập:</b> {order.NgayLap}</div>
+                        <div><b>Tổng tiền:</b> {order.TongTien.toLocaleString('vi-VN')} VND</div>
+                        <div><b>Trạng thái:</b> {order.TrangThai}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal thêm tài khoản nhân viên */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <button onClick={handleCloseAddModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h2 className="text-xl font-bold mb-4">Thêm tài khoản nhân viên</h2>
+            <form onSubmit={handleAddSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Tên nhân viên</label>
+                <input type="text" name="TenNhanVien" value={addForm.TenNhanVien} onChange={handleAddInputChange} required className="w-full border rounded px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Số điện thoại</label>
+                <input type="text" name="SoDienThoai" value={addForm.SoDienThoai} onChange={handleAddInputChange} required className="w-full border rounded px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Mật khẩu</label>
+                <input type="password" name="MatKhau" value={addForm.MatKhau} onChange={handleAddInputChange} required className="w-full border rounded px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Địa chỉ</label>
+                <input type="text" name="DiaChi" value={addForm.DiaChi} onChange={handleAddInputChange} className="w-full border rounded px-3 py-2" />
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button type="button" onClick={handleCloseAddModal} className="px-4 py-2 border rounded bg-gray-100 text-gray-700">Hủy</button>
+                <button type="submit" disabled={addLoading} className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">
+                  {addLoading ? 'Đang thêm...' : 'Thêm nhân viên'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 };
