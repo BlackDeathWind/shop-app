@@ -132,6 +132,19 @@ const UserManagement = () => {
   };
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Kiểm tra dữ liệu đầu vào
+    if (!addForm.TenNhanVien || !addForm.SoDienThoai || !addForm.MatKhau || !addForm.DiaChi) {
+      addToast('Vui lòng nhập đầy đủ thông tin.', 'error');
+      return;
+    }
+    if (!/^[0-9]{10}$/.test(addForm.SoDienThoai)) {
+      addToast('Số điện thoại phải có 10 chữ số.', 'error');
+      return;
+    }
+    if (addForm.MatKhau.length < 6) {
+      addToast('Mật khẩu phải có ít nhất 6 ký tự.', 'error');
+      return;
+    }
     setAddLoading(true);
     try {
       await createUser({
