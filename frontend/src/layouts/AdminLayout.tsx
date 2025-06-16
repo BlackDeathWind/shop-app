@@ -160,7 +160,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <footer className="mt-auto pt-8 pb-4">
             <div className="container mx-auto px-4">
               <div className="text-center text-sm text-gray-500">
-                © {new Date().getFullYear()} Flower Shop Admin. Bản quyền thuộc về Flower Shop.
+                © {new Date().getFullYear()} Flower Shop Admin. Bản quyền thuộc về 21050043@student.bdu.edu.vn.
               </div>
             </div>
           </footer>

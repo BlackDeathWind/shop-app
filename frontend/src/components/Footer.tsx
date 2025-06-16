@@ -13,17 +13,6 @@ const Footer = () => {
               Chuyên cung cấp các loại hoa tươi, hoa sinh nhật, hoa khai trương, hoa cưới và quà tặng
               với chất lượng cao và dịch vụ chuyên nghiệp.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-white hover:text-pink-400 transition">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="text-white hover:text-pink-400 transition">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="text-white hover:text-pink-400 transition">
-                <Twitter size={20} />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}

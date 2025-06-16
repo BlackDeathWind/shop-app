@@ -34,15 +34,29 @@ const About = () => {
             </div>
             <div className="md:w-1/2">
               <h2 className="text-3xl font-bold text-gray-800 mb-6">Sinh Viên Thực hiện</h2>
-              <p className="text-gray-600 mb-4">
-                Phạm Nguyễn Chu Nguyên - Mã số sinh viên: 21050043.
-              </p>
-              <p className="text-gray-600 mb-4">
-                Vy Ngọc Nhân - Mã số sinh viên: 22050030.
-              </p>
-              <p className="text-gray-600 mb-4">
-                Đặng Văn Nhật Thanh - Mã số sinh viên: 23050029.
-              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Card 1 */}
+                <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center border border-gray-100 hover:shadow-lg transition">
+                  <img src="https://media.istockphoto.com/id/2151669184/vector/vector-flat-illustration-in-grayscale-avatar-user-profile-person-icon-gender-neutral.jpg?s=612x612&w=0&k=20&c=UEa7oHoOL30ynvmJzSCIPrwwopJdfqzBs0q69ezQoM8=" alt="Phạm Nguyễn Chu Nguyên" className="w-20 h-20 rounded-full mb-3 border-4 border-pink-200 object-cover" />
+                  <div className="font-semibold text-lg text-gray-800">Phạm Nguyễn Chu Nguyên</div>
+                  <div className="text-pink-600 font-medium text-sm mb-1">MSSV: 21050043</div>
+                  <div className="text-gray-500 text-xs">Trách nhiệm: &amp;</div>
+                </div>
+                {/* Card 2 */}
+                <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center border border-gray-100 hover:shadow-lg transition">
+                  <img src="https://media.istockphoto.com/id/2151669184/vector/vector-flat-illustration-in-grayscale-avatar-user-profile-person-icon-gender-neutral.jpg?s=612x612&w=0&k=20&c=UEa7oHoOL30ynvmJzSCIPrwwopJdfqzBs0q69ezQoM8=" alt="Vy Ngọc Nhân" className="w-20 h-20 rounded-full mb-3 border-4 border-pink-200 object-cover" />
+                  <div className="font-semibold text-lg text-gray-800">Vy Ngọc Nhân</div>
+                  <div className="text-pink-600 font-medium text-sm mb-1">MSSV: 22050030</div>
+                  <div className="text-gray-500 text-xs">Trách nhiệm: &amp; </div>
+                </div>
+                {/* Card 3 */}
+                <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center text-center border border-gray-100 hover:shadow-lg transition">
+                  <img src="https://media.istockphoto.com/id/2151669184/vector/vector-flat-illustration-in-grayscale-avatar-user-profile-person-icon-gender-neutral.jpg?s=612x612&w=0&k=20&c=UEa7oHoOL30ynvmJzSCIPrwwopJdfqzBs0q69ezQoM8=" alt="Đặng Văn Nhật Thanh" className="w-20 h-20 rounded-full mb-3 border-4 border-pink-200 object-cover" />
+                  <div className="font-semibold text-lg text-gray-800">Đặng Văn Nhật Thanh</div>
+                  <div className="text-pink-600 font-medium text-sm mb-1">MSSV: 23050029</div>
+                  <div className="text-gray-500 text-xs">Trách nhiệm: &amp; </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

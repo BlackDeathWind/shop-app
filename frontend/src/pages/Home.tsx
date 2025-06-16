@@ -298,7 +298,7 @@ const Home = () => {
             </div>
             <div className="md:w-1/2">
               <img
-                src="https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                src="https://images.pexels.com/photos/31098426/pexels-photo-31098426/free-photo-of-vibrant-spring-flowers-in-rustic-wooden-box.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
                 alt="Cửa hàng hoa"
                 className="rounded-lg shadow-lg"
               />

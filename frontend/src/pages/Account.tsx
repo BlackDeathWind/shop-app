@@ -43,7 +43,7 @@ const Account = () => {
 
     if (user) {
       setFormData({
-        TenKhachHang: user.TenKhachHang || '',
+        TenKhachHang: user.TenKhachHang || user.TenNhanVien || '',
         SoDienThoai: user.SoDienThoai || '',
         DiaChi: user.DiaChi || '',
         MatKhauCu: '',
@@ -70,11 +70,16 @@ const Account = () => {
       setSubmitting(true);
 
       // Gửi yêu cầu cập nhật thông tin cá nhân
-      await api.put(API_ENDPOINTS.USER.UPDATE_PROFILE, {
-        TenKhachHang: formData.TenKhachHang,
+      const payload: any = {
         SoDienThoai: formData.SoDienThoai,
         DiaChi: formData.DiaChi,
-      });
+      };
+      if (user?.MaVaiTro === 2) {
+        payload['TenKhachHang'] = formData.TenKhachHang;
+      } else {
+        payload['TenNhanVien'] = formData.TenKhachHang;
+      }
+      await api.put(API_ENDPOINTS.USER.UPDATE_PROFILE, payload);
 
       setSuccessMessage('Cập nhật thông tin thành công!');
       addToast('Cập nhật thông tin tài khoản thành công!', 'success');
