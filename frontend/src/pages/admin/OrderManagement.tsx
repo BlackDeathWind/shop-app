@@ -109,9 +109,21 @@ const OrderManagement = () => {
     }
   };
 
-  const filteredOrders = selectedStatus === 'all'
-    ? orders
-    : orders.filter(order => order.TrangThai === selectedStatus);
+  const filterOrdersBySearch = (orders: OrderResponse[], searchTerm: string) => {
+    if (!searchTerm.trim()) return orders;
+    const lower = searchTerm.toLowerCase();
+    return orders.filter(order =>
+      order.MaHoaDon.toString().includes(lower) ||
+      (order.KhachHang?.TenKhachHang?.toLowerCase().includes(lower) ?? false) ||
+      (order.KhachHang?.SoDienThoai?.includes(lower) ?? false) ||
+      (order.TrangThai?.toLowerCase().includes(lower) ?? false)
+    );
+  };
+
+  const filteredOrders = filterOrdersBySearch(
+    selectedStatus === 'all' ? orders : orders.filter(order => order.TrangThai === selectedStatus),
+    searchTerm
+  );
 
   return (
     <AdminLayout>

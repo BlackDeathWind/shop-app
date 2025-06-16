@@ -5,6 +5,7 @@ import AdminLayout from '../../layouts/AdminLayout';
 import {
   getAllProducts,
   deleteProduct,
+  searchProducts,
 } from '../../services/product.service';
 import type { ProductResponse, ProductListResponse } from '../../services/product.service';
 import { getAllCategories } from '../../services/category.service';
@@ -34,9 +35,18 @@ const ProductManagement = () => {
         const categoriesData = await getAllCategories();
         setCategories(categoriesData);
 
-        // Lấy danh sách sản phẩm
-        const productsData: ProductListResponse = await getAllProducts(currentPage, 10);
-        setProducts(productsData.products);
+        let productsData: ProductListResponse;
+        if (searchTerm.trim()) {
+          productsData = await searchProducts(searchTerm, currentPage, 10);
+        } else {
+          productsData = await getAllProducts(currentPage, 10);
+        }
+        let filteredProducts = productsData.products;
+        // Nếu có chọn danh mục, lọc tiếp trên frontend
+        if (selectedCategory) {
+          filteredProducts = filteredProducts.filter(p => p.MaDanhMuc === selectedCategory);
+        }
+        setProducts(filteredProducts);
         setTotalPages(productsData.totalPages);
         
         setError(null);
@@ -49,7 +59,7 @@ const ProductManagement = () => {
     };
 
     fetchData();
-  }, [currentPage, refreshTrigger]);
+  }, [currentPage, refreshTrigger, searchTerm, selectedCategory]);
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
