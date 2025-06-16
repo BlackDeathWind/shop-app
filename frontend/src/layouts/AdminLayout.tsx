@@ -286,9 +286,10 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
         </div>
       )}
 
-      <Link
-        to="/admin/settings"
-        className={`flex items-center px-4 py-2 rounded-md ${
+      <button
+        type="button"
+        onClick={() => addToast('Chức năng Cài đặt sẽ được xây dựng trong tương lai!', 'info')}
+        className={`flex items-center w-full px-4 py-2 rounded-md focus:outline-none transition ${
           isActive('/admin/settings')
             ? 'bg-pink-100 text-pink-600'
             : 'text-gray-700 hover:bg-pink-50 hover:text-pink-600'
@@ -296,7 +297,7 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
       >
         <Settings className="h-5 w-5 mr-3" />
         <span>Cài đặt</span>
-      </Link>
+      </button>
 
       <button
         onClick={handleLogout}

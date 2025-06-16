@@ -322,7 +322,7 @@ const Account = () => {
                             Mật khẩu hiện tại
                           </label>
                           <input
-                            type="password"
+                            type="text"
                             name="MatKhauCu"
                             value={formData.MatKhauCu}
                             onChange={handleInputChange}
@@ -336,7 +336,7 @@ const Account = () => {
                             Mật khẩu mới
                           </label>
                           <input
-                            type="password"
+                            type="text"
                             name="MatKhauMoi"
                             value={formData.MatKhauMoi}
                             onChange={handleInputChange}
