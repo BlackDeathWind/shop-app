@@ -42,43 +42,43 @@ VALUES
     -- Danh mục 1: Hoa sinh nhật
     (N'Bó hoa hồng đỏ', 1, N'Bó hoa gồm 20 bông hồng đỏ tươi thắm, tượng trưng cho tình yêu mãnh liệt', 50, 500000, 'https://hoatuoihuythao.com/upload/sanpham/bohoahongdodepnhat1401.jpg'),
     (N'Hoa lan hồ điệp', 1, N'Chậu hoa lan hồ điệp sang trọng, phù hợp làm quà tặng sinh nhật', 25, 1200000, 'https://storage.googleapis.com/cdn_dlhf_vn/public/products/OWC0/OWC05HP037/IMG_8126_800x800.png'),
-    (N'Giỏ hoa tulip', 1, N'Giỏ hoa tulip nhiều màu sắc tươi tắn, thích hợp tặng sinh nhật', 35, 750000, 'https://images.unsplash.com/photo-1520575839349-52ff2532d328?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Bó hoa hướng dương', 1, N'Bó hoa hướng dương tràn đầy năng lượng và sự tích cực', 40, 450000, 'https://images.unsplash.com/photo-1594663653925-365bcbf7ef86?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Hộp hoa mix pastel', 1, N'Hộp hoa với tông màu pastel nhẹ nhàng dành tặng người yêu thương', 30, 680000, 'https://images.unsplash.com/photo-1566873535330-b9a3a954fa00?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
+    (N'Giỏ hoa tulip', 1, N'Giỏ hoa tulip nhiều màu sắc tươi tắn, thích hợp tặng sinh nhật', 35, 750000, 'https://www.pexels.com/photo/white-tulips-in-a-basket-15419300/'),
+    (N'Bó hoa hướng dương', 1, N'Bó hoa hướng dương tràn đầy năng lượng và sự tích cực', 40, 450000, 'http://pexels.com/photo/colorful-floral-bouquets-in-istanbul-shop-display-32477274/'),
+    (N'Hộp hoa mix pastel', 1, N'Hộp hoa với tông màu pastel nhẹ nhàng dành tặng người yêu thương', 30, 680000, 'https://www.pexels.com/photo/heap-of-rose-petals-and-gift-box-4041245/'),
     
     -- Danh mục 2: Hoa khai trương
     (N'Lẵng hoa khai trương', 2, N'Lẵng hoa gồm các loại hoa tươi đa sắc, phù hợp tặng dịp khai trương', 30, 850000, 'https://hoatuoihuythao.com/upload/sanpham/langhoakhaitruongdepgiare015.jpg'),
     (N'Kệ hoa chúc mừng', 2, N'Kệ hoa hai tầng trang trọng dành cho dịp khai trương, khánh thành', 20, 1500000, 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Lẵng hoa hướng dương', 2, N'Lẵng hoa hướng dương tượng trưng cho sự thành công và thịnh vượng', 25, 920000, 'https://images.unsplash.com/photo-1593026892370-40c70be61fad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Lẵng hoa lan hồ điệp', 2, N'Lẵng hoa lan hồ điệp sang trọng cho dịp khai trương cửa hàng', 15, 1800000, 'https://images.unsplash.com/photo-1612007676897-a7f2637de6f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Kệ hoa tươi chúc mừng', 2, N'Kệ hoa trang trọng với tone màu đỏ - vàng, biểu tượng của sự may mắn', 20, 1350000, 'https://images.unsplash.com/photo-1595536595021-8db6c04b27c1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
+    (N'Hoa Cát Tường', 2, N'Lẵng hoa hướng dương tượng trưng cho sự thành công và thịnh vượng', 25, 920000, 'https://images.pexels.com/photos/1488310/pexels-photo-1488310.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Lẵng hoa lan hồ điệp', 2, N'Lẵng hoa lan hồ điệp sang trọng cho dịp khai trương cửa hàng', 15, 1800000, 'https://images.pexels.com/photos/9130825/pexels-photo-9130825.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Kệ hoa tươi chúc mừng', 2, N'Kệ hoa trang trọng với tone màu đỏ - vàng, biểu tượng của sự may mắn', 20, 1350000, 'https://images.pexels.com/photos/4872082/pexels-photo-4872082.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
     
     -- Danh mục 3: Hoa cưới
     (N'Hoa cầm tay cô dâu', 3, N'Bó hoa cầm tay dành cho cô dâu trong ngày cưới, gồm hoa hồng trắng và baby', 20, 650000, 'https://hoatuoi360.vn/uploads/file/Baiviet2023/hoa-cuoi-cam-tay-hoa-hong-7.jpg'),
     (N'Bó hoa cưới hồng pastel', 3, N'Bó hoa cưới với tông màu hồng pastel lãng mạn', 25, 780000, 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Hoa cưới cầm tay sen đá', 3, N'Bó hoa cưới từ các loại sen đá, hiện đại và độc đáo', 15, 850000, 'https://images.unsplash.com/photo-1614926037384-4159c33e196b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Hoa cưới cầm tay vintage', 3, N'Bó hoa cưới phong cách vintage với các loại hoa khô', 20, 720000, 'https://images.unsplash.com/photo-1525249181835-95a4c9168268?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Hoa cài áo chú rể', 3, N'Hoa cài áo vest cho chú rể đồng điệu với hoa cưới', 50, 120000, 'https://images.unsplash.com/photo-1595407753234-0882f1e77954?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
+    (N'Hoa cưới cầm tay sen đá', 3, N'Bó hoa cưới từ các loại sen đá, hiện đại và độc đáo', 15, 850000, 'https://images.pexels.com/photos/12615497/pexels-photo-12615497.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Hoa cưới cầm tay vintage', 3, N'Bó hoa cưới phong cách vintage với các loại hoa khô', 20, 720000, 'https://images.pexels.com/photos/27986406/pexels-photo-27986406/free-photo-of-bouquet-of-roses-on-wedding-veil.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Hoa cài áo chú rể', 3, N'Hoa cài áo vest cho chú rể đồng điệu với hoa cưới', 50, 120000, 'https://images.pexels.com/photos/14450286/pexels-photo-14450286.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
     
     -- Danh mục 4: Hoa tang lễ
     (N'Vòng hoa chia buồn', 4, N'Vòng hoa tang lễ thể hiện lòng thành kính với người đã khuất', 15, 750000, 'https://cdn.litiflorist.com/upload/1660277850187.png'),
-    (N'Kệ hoa tang lễ', 4, N'Kệ hoa trang nghiêm với tông màu trắng, tím', 20, 950000, 'https://images.unsplash.com/photo-1621438659466-548477161666?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Lẵng hoa chia buồn', 4, N'Lẵng hoa thể hiện sự chia buồn sâu sắc', 15, 820000, 'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Vòng hoa tang tròn', 4, N'Vòng hoa tang truyền thống với hoa cúc trắng', 20, 680000, 'https://images.unsplash.com/photo-1622006489995-e5e72eb316d1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
+    (N'Kệ hoa tang lễ', 4, N'Kệ hoa trang nghiêm với tông màu trắng, tím', 20, 950000, 'https://images.pexels.com/photos/7317745/pexels-photo-7317745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Lẵng hoa chia buồn', 4, N'Lẵng hoa thể hiện sự chia buồn sâu sắc', 15, 820000, 'https://images.pexels.com/photos/6231818/pexels-photo-6231818.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Vòng hoa tang tròn', 4, N'Vòng hoa tang truyền thống với hoa cúc trắng', 20, 680000, 'https://images.pexels.com/photos/6841645/pexels-photo-6841645.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
     
     -- Danh mục 5: Quà tặng lưu niệm
     (N'Khung ảnh lưu niệm', 5, N'Khung ảnh để bàn làm từ gỗ tự nhiên, thiết kế sang trọng', 60, 180000, 'https://shopquatructuyen.com/wp-content/uploads/2019/05/khung-anh-co-dien-5.jpg'),
-    (N'Bình hoa trang trí', 5, N'Bình hoa thủy tinh nghệ thuật đặt bàn', 40, 250000, 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Đồng hồ để bàn vintage', 5, N'Đồng hồ để bàn phong cách cổ điển', 30, 320000, 'https://images.unsplash.com/photo-1574958269945-fa99b3dfcc3d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Mô hình trang trí', 5, N'Mô hình trang trí độc đáo handmade', 25, 280000, 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Bộ ly thủy tinh cao cấp', 5, N'Bộ 6 ly thủy tinh cao cấp làm quà tặng', 20, 420000, 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
+    (N'Bình hoa trang trí', 5, N'Bình hoa thủy tinh nghệ thuật đặt bàn', 40, 250000, 'https://images.pexels.com/photos/5446916/pexels-photo-5446916.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Đồng hồ để bàn vintage', 5, N'Đồng hồ để bàn phong cách cổ điển', 30, 320000, 'https://images.pexels.com/photos/31819421/pexels-photo-31819421/free-photo-of-vintage-floral-lampshade-and-table-clock.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Mô hình trang trí', 5, N'Mô hình trang trí độc đáo handmade', 25, 280000, 'https://images.pexels.com/photos/7174515/pexels-photo-7174515.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Bộ ly thủy tinh cao cấp', 5, N'Bộ 6 ly thủy tinh cao cấp làm quà tặng', 20, 420000, 'https://images.pexels.com/photos/7809794/pexels-photo-7809794.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
     
     -- Danh mục 6: Gấu bông
     (N'Gấu bông Teddy', 6, N'Gấu bông Teddy size lớn, chất liệu mềm mại, an toàn', 40, 350000, 'https://bizweb.dktcdn.net/100/459/249/products/02.jpg?v=1657252163400'),
     (N'Gấu bông Panda', 6, N'Gấu bông hình gấu trúc Panda ngộ nghĩnh', 35, 280000, 'https://salt.tikicdn.com/cache/w300/ts/product/8b/a1/1a/35be10558729eae4722a3181cca79913.jpg'),
-    (N'Thú bông Totoro', 6, N'Thú bông hình nhân vật Totoro nổi tiếng', 30, 320000, 'https://images.unsplash.com/photo-1559715541-5daf8a0296d0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Gấu bông Unicorn', 6, N'Gấu bông hình kỳ lân nhiều màu sắc', 25, 300000, 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'),
-    (N'Thú bông khủng long', 6, N'Thú bông hình khủng long dễ thương cho bé', 30, 250000, 'https://images.unsplash.com/photo-1563901935883-cb9ac2578a16?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80');
+    (N'Thú bông Totoro', 6, N'Thú bông hình nhân vật Totoro nổi tiếng', 30, 320000, 'https://images.pexels.com/photos/5488397/pexels-photo-5488397.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Thú bông Unicorn', 6, N'Gấu bông hình kỳ lân nhiều màu sắc', 25, 300000, 'https://images.pexels.com/photos/20558686/pexels-photo-20558686/free-photo-of-close-up-of-a-person-holding-a-small-mirror-next-to-a-cuddly-toy-and-a-tulip.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+    (N'Thú bông khủng long', 6, N'Thú bông hình khủng long dễ thương cho bé', 30, 250000, 'https://images.pexels.com/photos/15261916/pexels-photo-15261916/free-photo-of-big-teddy-toy-on-grass.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
 GO
 
 -- Thêm dữ liệu cho bảng HoaDon

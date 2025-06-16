@@ -67,11 +67,11 @@ const ProductManagement = () => {
   };
 
   const confirmDelete = async (id: number) => {
-    try {
-      await deleteProduct(id);
+      try {
+        await deleteProduct(id);
       addToast('Đã xóa sản phẩm thành công!', 'success');
-      handleRefresh();
-    } catch (error) {
+        handleRefresh();
+      } catch (error) {
       addToast('Đã xảy ra lỗi khi xóa sản phẩm. Vui lòng thử lại sau.', 'error');
     } finally {
       setPendingDeleteId(null);

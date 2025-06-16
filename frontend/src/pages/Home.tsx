@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, ShoppingCart, Star, Loader } from 'lucide-react';
 import MainLayout from '../layouts/MainLayout';
 import api from '../services/api';
@@ -19,6 +19,7 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const { addToast } = useToast();
   const { addItem } = useCart();
+  const navigate = useNavigate();
   
   const banners = [
     {
@@ -104,6 +105,14 @@ const Home = () => {
     addToast(`Đã thêm ${product.TenSanPham} vào giỏ hàng!`, 'success');
   };
 
+  // Danh sách các mã danh mục hoa
+  const flowerCategoryIds = [1, 2, 3, 4];
+  // Hàm random danh mục hoa
+  const handleRandomFlowerCategory = () => {
+    const randomId = flowerCategoryIds[Math.floor(Math.random() * flowerCategoryIds.length)];
+    navigate(`/categories/${randomId}`);
+  };
+
   return (
     <MainLayout>
       {/* Hero Banner Slider */}
@@ -124,13 +133,23 @@ const Home = () => {
               <div className="max-w-lg text-white">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">{banner.title}</h1>
                 <p className="text-lg mb-8">{banner.description}</p>
-                <Link
-                  to={banner.link}
-                  className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-lg inline-flex items-center transition"
-                >
-                  Khám phá ngay
-                  <ChevronRight size={20} className="ml-2" />
-                </Link>
+                {currentSlide === 0 ? (
+                  <button
+                    onClick={handleRandomFlowerCategory}
+                    className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-lg inline-flex items-center transition"
+                  >
+                    Khám phá ngay
+                    <ChevronRight size={20} className="ml-2" />
+                  </button>
+                ) : (
+                  <Link
+                    to={banners[currentSlide].link}
+                    className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-lg inline-flex items-center transition"
+                  >
+                    Khám phá ngay
+                    <ChevronRight size={20} className="ml-2" />
+                  </Link>
+                )}
               </div>
             </div>
           </div>

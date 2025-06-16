@@ -126,42 +126,37 @@ const About = () => {
               </ul>
             </div>
             <div className="md:w-1/2">
-              <form className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4">Gửi Tin Nhắn</h3>
-                <div className="mb-4">
-                  <label htmlFor="name" className="block text-gray-700 mb-2">Họ và tên</label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    placeholder="Nhập họ và tên"
-                  />
+              <div className="bg-white p-6 rounded-lg shadow-md h-full flex flex-col items-center justify-center text-center">
+                <h3 className="text-xl font-semibold mb-4">Kết nối với chúng tôi</h3>
+                <p className="text-gray-600 mb-6">Bạn có thể liên hệ hoặc theo dõi chúng tôi qua các kênh mạng xã hội và email bên dưới để nhận thông tin mới nhất, tư vấn hoặc hỗ trợ nhanh chóng.</p>
+                <div className="flex justify-center gap-6 mb-2">
+                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition" title="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17 2.1A2.1 2.1 0 0 1 19.1 4.2v15.6A2.1 2.1 0 0 1 17 21.9H7A2.1 2.1 0 0 1 4.9 19.8V4.2A2.1 2.1 0 0 1 7 2.1h10zm-2.5 4.4h-1.5c-.8 0-1.5.7-1.5 1.5v1.5h3l-.4 2.9h-2.6v7.1h-3V12.4H7.5v-2.9h1.5V8c0-1.7 1.3-3 3-3h1.5v2.5z" /></svg>
+                  </a>
+                  <a href="https://zalo.me/0938320498" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 transition flex flex-col items-center" title="Zalo">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 48 48" fill="currentColor">
+                      <rect width="48" height="48" rx="12" fill="#008ee6"/>
+                      <text x="24" y="30" textAnchor="middle" fontSize="18" fill="white" fontFamily="Arial, Helvetica, sans-serif">Zalo</text>
+                    </svg>
+                    <span className="text-xs mt-1 text-gray-700 font-medium">0938 320 498</span>
+                  </a>
+                  <a href="mailto:21050043@student.bdu.edu.vn" className="text-rose-500 hover:text-rose-700 transition" title="Email">
+                    <Mail className="h-8 w-8" />
+                  </a>
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    placeholder="Nhập địa chỉ email"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="message" className="block text-gray-700 mb-2">Tin nhắn</label>
-                  <textarea 
-                    id="message" 
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    placeholder="Nhập nội dung tin nhắn"
-                  ></textarea>
-                </div>
-                <button 
-                  type="submit" 
-                  className="bg-gradient-to-r from-pink-500 to-rose-500 text-white py-2 px-6 rounded-md hover:from-pink-600 hover:to-rose-600 transition"
-                >
-                  Gửi tin nhắn
-                </button>
-              </form>
+                <div className="text-xs text-gray-400">Chúng tôi sẽ phản hồi bạn trong thời gian sớm nhất!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* License Section */}
+      <section className="py-4">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center">
+            <div className="bg-white bg-opacity-80 rounded-lg shadow p-4 text-center text-sm text-gray-500 border border-gray-200 max-w-xl w-full">
+              <span className="font-medium text-gray-700">Bản quyền hình ảnh:</span> Một số hình ảnh sử dụng trong website được lấy từ nguồn <a href="https://www.pexels.com" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:underline font-semibold">www.pexels.com</a> theo giấy phép miễn phí bản quyền.
             </div>
           </div>
         </div>

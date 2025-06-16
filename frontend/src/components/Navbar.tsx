@@ -268,8 +268,8 @@ const Navbar = () => {
                       <span className="text-gray-800 text-sm font-medium">{item.TenSanPham}</span>
                     </div>
                   ))
-                )}
-              </div>
+              )}
+            </div>
             )}
           </div>
         )}

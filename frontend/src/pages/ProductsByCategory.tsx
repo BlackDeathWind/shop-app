@@ -25,6 +25,15 @@ interface Category {
   TenDanhMuc: string;
 }
 
+// Move priceRanges outside the component
+const priceRanges = [
+  { label: 'Tất cả', min: 0, max: null },
+  { label: 'Dưới 100.000đ', min: 0, max: 100000 },
+  { label: '100.000đ - 300.000đ', min: 100000, max: 300000 },
+  { label: '300.000đ - 500.000đ', min: 300000, max: 500000 },
+  { label: 'Trên 500.000đ', min: 500000, max: null },
+];
+
 const ProductsByCategory = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,10 +44,10 @@ const ProductsByCategory = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number | null }>({ min: 0, max: null });
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { addToast } = useToast();
   const { addItem } = useCart();
+  const [selectedPriceRange, setSelectedPriceRange] = useState<{ label: string; min: number; max: number | null }>(priceRanges[0]);
 
   // Giả lập dữ liệu đánh giá sản phẩm
   const getRandomRating = () => {
@@ -56,16 +65,13 @@ const ProductsByCategory = () => {
         const categoryResponse = await api.get(API_ENDPOINTS.CATEGORY.GET_BY_ID(parseInt(categoryId || '0')));
         setCategory(categoryResponse.data);
 
-        // Fetch products by category
+        // Fetch products by category (no price filter at backend)
         const productsResponse = await api.get(API_ENDPOINTS.PRODUCT.GET_BY_CATEGORY(parseInt(categoryId || '0')), {
           params: {
             page,
-            limit: 12,
-            min_price: priceRange.min > 0 ? priceRange.min : undefined,
-            max_price: priceRange.max ? priceRange.max : undefined
+            limit: 100, // fetch more to allow frontend filtering
           }
         });
-
         setProducts(productsResponse.data.products);
         setTotalPages(productsResponse.data.totalPages);
       } catch (err) {
@@ -77,7 +83,7 @@ const ProductsByCategory = () => {
     };
 
     fetchCategoryAndProducts();
-  }, [categoryId, searchParams, priceRange]);
+  }, [categoryId, searchParams]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -122,6 +128,12 @@ const ProductsByCategory = () => {
     addToast(`Đã thêm ${product.TenSanPham} vào giỏ hàng!`, 'success');
   };
 
+  const filteredProducts = products.filter((product) => {
+    if (selectedPriceRange.min !== null && product.GiaSanPham < selectedPriceRange.min) return false;
+    if (selectedPriceRange.max !== null && product.GiaSanPham >= selectedPriceRange.max) return false;
+    return true;
+  });
+
   return (
     <MainLayout>
       {/* Hero Section */}
@@ -148,27 +160,6 @@ const ProductsByCategory = () => {
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar Filters */}
             <div className="md:w-1/4 lg:w-1/5">
-              <div className="bg-white p-5 rounded-lg shadow mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-lg">Tìm kiếm</h3>
-                </div>
-                <form onSubmit={handleSearch} className="flex mb-4">
-                  <input
-                    type="text"
-                    placeholder="Tìm kiếm sản phẩm..."
-                    className="px-4 py-2 border rounded-l-lg w-full focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button
-                    type="submit"
-                    className="bg-pink-500 px-4 py-2 rounded-r-lg hover:bg-pink-600 transition"
-                  >
-                    <Search size={18} className="text-white" />
-                  </button>
-                </form>
-              </div>
-
               {/* Price Filter */}
               <div className="bg-white p-5 rounded-lg shadow mb-6">
                 <div 
@@ -181,36 +172,17 @@ const ProductsByCategory = () => {
                     size={20} 
                   />
                 </div>
-                
                 {showFilters && (
-                  <div className="mt-4 space-y-4">
-                    <div>
-                      <label className="block mb-2 text-sm">Từ giá:</label>
-                      <input
-                        type="number"
-                        min="0"
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-500"
-                        value={priceRange.min}
-                        onChange={(e) => setPriceRange({ ...priceRange, min: parseInt(e.target.value) || 0 })}
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-2 text-sm">Đến giá:</label>
-                      <input
-                        type="number"
-                        min="0"
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-500"
-                        value={priceRange.max || ''}
-                        onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value ? parseInt(e.target.value) : null })}
-                      />
-                    </div>
-                    <button
-                      onClick={applyFilters}
-                      className="w-full bg-pink-500 text-white py-2 rounded hover:bg-pink-600 transition flex items-center justify-center"
-                    >
-                      <Filter size={16} className="mr-2" />
-                      Áp dụng
-                    </button>
+                  <div className="mt-4 space-y-2">
+                    {priceRanges.map((range, idx) => (
+                      <button
+                        key={idx}
+                        className={`w-full text-left px-4 py-2 rounded transition font-medium border border-gray-200 hover:bg-pink-50 focus:outline-none ${selectedPriceRange.label === range.label ? 'bg-pink-500 text-white border-pink-500' : 'bg-white text-gray-700'}`}
+                        onClick={() => setSelectedPriceRange(range)}
+                      >
+                        {range.label}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
@@ -227,14 +199,14 @@ const ProductsByCategory = () => {
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center">
                   <span className="block sm:inline">{error}</span>
                 </div>
-              ) : products.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative text-center">
-                  <span className="block sm:inline">Không có sản phẩm nào trong danh mục này.</span>
+                  <span className="block sm:inline">Không có sản phẩm nào trong khoảng giá này.</span>
                 </div>
               ) : (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {products.map((product) => {
+                    {filteredProducts.map((product) => {
                       const rating = getRandomRating();
                       return (
                         <div key={product.MaSanPham} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
