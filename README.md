@@ -1,4 +1,3 @@
-```markdown
 # 🛍️ Shop App - React Native E-commerce Solution
 
 ![React Native](https://img.shields.io/badge/react_native-%2320232a.svg?logo=react&logoColor=%2361DAFB)
