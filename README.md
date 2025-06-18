@@ -37,8 +37,7 @@
 - React 19 (TypeScript)
 - Vite (cho phát triển React + TypeScript)
 
-**Backend & Database**
-Backend:
+**Backend**
 - Node.js – Nền tảng chạy server-side JavaScript.
 - Express.js – Framework xây dựng chính cho backend, tổ chức theo mô hình MVC.
 - TypeScript – Dễ bảo trì, phát triển lâu dài.
@@ -47,7 +46,8 @@ Backend:
 - Multer – Xử lý upload file (hình ảnh sản phẩm).
 - Bcrypt – Mã hoá mật khẩu người dùng vào SQL Server.
 - CORS, Helmet, v.v. – Bảo mật API.
-Database:
+
+**Database**
 - Microsoft SQL Server – Lưu trữ dữ liệu.
 - Sequelize – ORM mapping giữa các model TypeScript và bảng dữ liệu.
 
@@ -149,7 +149,6 @@ JWT_EXPIRES_IN=7d
 ## 📜 Giấy Phép
 Dự án được cấp phép theo [MIT License](LICENSE)
 ```
-
 ## 💡 Lưu Ý Quan Trọng
 Bước Cài đặt dependencies và bước thiết lập Biến Môi Trường
 ```
