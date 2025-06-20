@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '../constants/api';
 import { useToast } from '../contexts/ToastContext';
 import { useCart } from '../contexts/CartContext';
 import type { ProductResponse } from '../services/product.service';
+import { formatPrice } from '../utils/format';
 
 interface Product {
   MaSanPham: number;
@@ -90,13 +91,6 @@ const ProductDetail = () => {
     // Sử dụng hàm addItem từ CartContext
     addItem(productForCart, quantity);
     addToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, 'success');
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
   };
 
   if (loading) {

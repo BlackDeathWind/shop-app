@@ -4,6 +4,7 @@ import MainLayout from '../layouts/MainLayout';
 import { ChevronRight, Loader } from 'lucide-react';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
+import { getCategoryImage } from '../utils/image';
 
 interface Category {
   MaDanhMuc: number;
@@ -15,9 +16,6 @@ const Categories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Hình ảnh mặc định cho danh mục không có ảnh
-  const defaultImage = 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -35,10 +33,6 @@ const Categories = () => {
 
     fetchCategories();
   }, []);
-
-  const getCategoryImage = (category: Category) => {
-    return category.HinhAnh || defaultImage;
-  };
 
   return (
     <MainLayout>

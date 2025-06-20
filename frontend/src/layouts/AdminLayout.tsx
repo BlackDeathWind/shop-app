@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { useClickOutside } from '../hooks/useClickOutside';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -21,17 +22,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { addToast } = useToast();
 
   // Đóng dropdown khi click ra ngoài
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  useClickOutside<HTMLDivElement>(dropdownRef, () => setDropdownOpen(false));
 
   const handleLogout = async () => {
     try {
@@ -208,15 +199,6 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
       >
         <Home className="h-5 w-5 mr-3" />
         <span>Tổng quan</span>
-      </Link>
-
-      {/* Link quay về shop */}
-      <Link
-        to="/"
-        className="flex items-center px-4 py-2 rounded-md text-gray-700 hover:bg-pink-50 hover:text-pink-600"
-      >
-        <Store className="h-5 w-5 mr-3" />
-        <span>Về cửa hàng</span>
       </Link>
 
       <Link

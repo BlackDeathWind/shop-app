@@ -5,6 +5,8 @@ import { ChevronRight, Loader, Package, Calendar, CreditCard, Clock, ChevronDown
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
+import { formatPrice, formatDate } from '../utils/format';
+import { getStatusColor } from '../utils/order';
 
 interface OrderDetail {
   MaSanPham: number;
@@ -78,39 +80,6 @@ const Orders = () => {
       setError('Chỉ tài khoản khách hàng mới có thể xem đơn hàng của họ, Admin và nhân viên vui lòng sử dụng trang quản lý đơn hàng');
     }
   }, [isAuthenticated, navigate, user]);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString('vi-VN', options);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Đang xử lý':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Đang giao hàng':
-        return 'bg-blue-100 text-blue-800';
-      case 'Đã giao hàng':
-        return 'bg-green-100 text-green-800';
-      case 'Đã hủy':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   const toggleOrderDetails = (orderId: number) => {
     if (expandedOrder === orderId) {

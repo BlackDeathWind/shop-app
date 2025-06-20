@@ -351,35 +351,89 @@ const UserManagement = () => {
       {/* Modal chi tiết tài khoản */}
       {showDetailModal && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
-            <button onClick={handleCloseDetail} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 relative animate-fade-in">
+            <button onClick={handleCloseDetail} className="absolute top-3 right-3 text-gray-400 hover:text-pink-500 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <h2 className="text-xl font-bold mb-4">Chi tiết tài khoản</h2>
-            <div className="mb-2"><b>Tên:</b> {selectedUser.TenKhachHang || selectedUser.TenNhanVien}</div>
-            <div className="mb-2"><b>Số điện thoại:</b> {selectedUser.SoDienThoai}</div>
-            <div className="mb-2"><b>Địa chỉ:</b> {selectedUser.DiaChi || 'Không có'}</div>
-            <div className="mb-2"><b>Vai trò:</b> {selectedUser.VaiTro?.TenVaiTro || (selectedUser.MaVaiTro === 0 ? 'Quản trị viên' : selectedUser.MaVaiTro === 1 ? 'Nhân viên' : 'Khách hàng')}</div>
+            <div className="flex flex-col md:flex-row gap-6 items-center mb-6">
+              {/* Avatar */}
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 to-rose-400 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-white">
+                  {(selectedUser.TenKhachHang || selectedUser.TenNhanVien || 'U').charAt(0)}
+                </div>
+              </div>
+              {/* Thông tin tài khoản */}
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-700 flex items-center gap-1">
+                    <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    Tên:
+                  </span>
+                  <span>{selectedUser.TenKhachHang || selectedUser.TenNhanVien}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-700 flex items-center gap-1">
+                    <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35 2.7A2 2 0 007.48 19h9.04a2 2 0 001.83-1.3L21 13M7 13V6a1 1 0 011-1h5a1 1 0 011 1v7" /></svg>
+                    Số điện thoại:
+                  </span>
+                  <span>{selectedUser.SoDienThoai}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-700 flex items-center gap-1">
+                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 000 7.75" /></svg>
+                    Địa chỉ:
+                  </span>
+                  <span>{selectedUser.DiaChi || 'Không có'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-700 flex items-center gap-1">
+                    <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 19v-7m0 0V5m0 7h7m-7 0H5" /></svg>
+                    Vai trò:
+                  </span>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${selectedUser.MaVaiTro === 0 ? 'bg-blue-100 text-blue-700' : selectedUser.MaVaiTro === 1 ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
+                    {selectedUser.VaiTro?.TenVaiTro || (selectedUser.MaVaiTro === 0 ? 'Quản trị viên' : selectedUser.MaVaiTro === 1 ? 'Nhân viên' : 'Khách hàng')}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {/* Đơn hàng của khách hàng */}
             {selectedUser.MaKhachHang && (
-              <div className="mt-4">
-                <h3 className="font-semibold mb-2">Đơn hàng của tài khoản này:</h3>
+              <div className="mt-6">
+                <h3 className="font-semibold mb-3 text-gray-800 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" /></svg>
+                  Đơn hàng của tài khoản này
+                </h3>
                 {ordersLoading ? (
-                  <div>Đang tải đơn hàng...</div>
+                  <div className="text-gray-500">Đang tải đơn hàng...</div>
                 ) : userOrders.length === 0 ? (
-                  <div>Chưa có đơn hàng nào.</div>
+                  <div className="text-gray-400 italic">Chưa có đơn hàng nào.</div>
                 ) : (
-                  <ul className="divide-y divide-gray-200">
+                  <div className="overflow-x-auto rounded-lg shadow mt-2">
+                    <table className="min-w-full bg-white divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Mã đơn</th>
+                          <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Ngày lập</th>
+                          <th className="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase">Tổng tiền</th>
+                          <th className="px-4 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Trạng thái</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
                     {userOrders.map(order => (
-                      <li key={order.MaHoaDon} className="py-2">
-                        <div><b>Mã đơn hàng:</b> {order.MaHoaDon}</div>
-                        <div><b>Ngày lập:</b> {order.NgayLap}</div>
-                        <div><b>Tổng tiền:</b> {order.TongTien.toLocaleString('vi-VN')} VND</div>
-                        <div><b>Trạng thái:</b> {order.TrangThai}</div>
-                      </li>
+                          <tr key={order.MaHoaDon} className="hover:bg-pink-50 transition">
+                            <td className="px-4 py-2 font-medium text-gray-800">#{order.MaHoaDon}</td>
+                            <td className="px-4 py-2 text-gray-600">{new Date(order.NgayLap).toLocaleString('vi-VN')}</td>
+                            <td className="px-4 py-2 text-right text-pink-600 font-semibold">{order.TongTien.toLocaleString('vi-VN')} ₫</td>
+                            <td className="px-4 py-2 text-center">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.TrangThai === 'Đã giao hàng' ? 'bg-green-100 text-green-700' : order.TrangThai === 'Đã hủy' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{order.TrangThai}</span>
+                            </td>
+                          </tr>
                     ))}
-                  </ul>
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
             )}

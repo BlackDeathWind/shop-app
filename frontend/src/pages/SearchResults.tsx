@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import { Loader, Search } from 'lucide-react';
 import { searchProducts } from '../services/product.service';
-
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+import { useQuery } from '../hooks/useQuery';
 
 const SearchResults = () => {
   const query = useQuery().get('q') || '';

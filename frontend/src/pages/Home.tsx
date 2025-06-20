@@ -10,6 +10,9 @@ import type { ProductResponse } from '../services/product.service';
 import type { CategoryResponse } from '../services/category.service';
 import { useToast } from '../contexts/ToastContext';
 import { useCart } from '../contexts/CartContext';
+import { formatPrice } from '../utils/format';
+import { getCategoryImage } from '../utils/image';
+import { getRandomRating } from '../utils/random';
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -45,11 +48,6 @@ const Home = () => {
     }
   ];
 
-  // Giả lập dữ liệu đánh giá sản phẩm
-  const getRandomRating = () => {
-    return Math.floor(Math.random() * 2) + 4; // Rating từ 4-5 sao
-  };
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
@@ -81,20 +79,6 @@ const Home = () => {
 
     fetchData();
   }, []);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
-  };
-
-  // Hình ảnh mặc định cho danh mục không có ảnh
-  const defaultImage = 'https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
-
-  const getCategoryImage = (category: CategoryResponse) => {
-    return category.HinhAnh || defaultImage;
-  };
 
   const addToCart = (e: React.MouseEvent, product: ProductResponse) => {
     e.preventDefault();

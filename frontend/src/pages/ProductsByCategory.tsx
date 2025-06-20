@@ -7,6 +7,8 @@ import { API_ENDPOINTS } from '../constants/api';
 import { useToast } from '../contexts/ToastContext';
 import { useCart } from '../contexts/CartContext';
 import type { ProductResponse } from '../services/product.service';
+import { formatPrice } from '../utils/format';
+import { getRandomRating } from '../utils/random';
 
 interface Product {
   MaSanPham: number;
@@ -48,11 +50,6 @@ const ProductsByCategory = () => {
   const { addToast } = useToast();
   const { addItem } = useCart();
   const [selectedPriceRange, setSelectedPriceRange] = useState<{ label: string; min: number; max: number | null }>(priceRanges[0]);
-
-  // Giả lập dữ liệu đánh giá sản phẩm
-  const getRandomRating = () => {
-    return Math.floor(Math.random() * 2) + 4; // Rating từ 4-5 sao
-  };
 
   useEffect(() => {
     const page = parseInt(searchParams.get('page') || '1');
@@ -99,13 +96,6 @@ const ProductsByCategory = () => {
     if (searchQuery.trim()) {
       window.location.href = `/products/search?q=${encodeURIComponent(searchQuery)}`;
     }
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(price);
   };
 
   const addToCart = (e: React.MouseEvent, product: Product) => {
