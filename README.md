@@ -1,7 +1,7 @@
 # 🛍️ Shop App - React E-commerce Solution
 
-[![Release](https://img.shields.io/badge/release-v2.7-blue)](https://github.com/BlackDeathWind/shop-app/releases)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Release](https://img.shields.io/badge/GitHub-Release_v2.7-2088FF?logo=github&logoColor=white)](https://github.com/BlackDeathWind/shop-app/releases)
+[![License](https://img.shields.io/badge/License-MIT-A31F34?logo=open-source-initiative&logoColor=white)](LICENSE)
 
 **Ứng dụng web giao hoa và quà tặng**.
 
