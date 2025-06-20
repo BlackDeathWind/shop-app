@@ -1,10 +1,7 @@
 # 🛍️ Shop App - React E-commerce Solution
 
-![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+[![Release](https://img.shields.io/badge/release-v2.7-blue)](https://github.com/BlackDeathWind/shop-app/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Ứng dụng web giao hoa và quà tặng**.
 
@@ -32,7 +29,11 @@
 | ![Checkout](demo/checkout.jpg) | ![Profile](demo/profile.jpg) |
 
 ## 🛠 Công Nghệ Sử Dụng
-
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 **Frontend Framework**  
 - React 19 (TypeScript)
 - Vite (cho phát triển React + TypeScript)
