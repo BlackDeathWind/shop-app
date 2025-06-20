@@ -180,19 +180,35 @@ const Navbar = () => {
                 </div>
               ) : suggestions.length > 0 ? (
                 suggestions.map((item) => (
-                  <div
+                  <button
                     key={item.MaSanPham}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-rose-50 cursor-pointer transition-colors"
-                    onClick={() => handleSuggestionClick(item.MaSanPham)}
+                    type="button"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-rose-50 cursor-pointer transition-colors w-full text-left"
+                    onMouseDown={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleSuggestionClick(item.MaSanPham);
+                    }}
                   >
-                    <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
+                    {item.HinhAnh ? (
+                      <img
+                        src={item.HinhAnh}
+                        alt={item.TenSanPham}
+                        className="w-12 h-12 object-cover rounded-xl border"
+                        onError={e => (e.currentTarget.src = '/vite.svg')}
+                      />
+                    ) : (
+                      <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12 flex items-center justify-center text-gray-400">
+                        <Package size={24} />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 truncate">{item.TenSanPham}</p>
                       <p className="text-xs text-rose-600 font-semibold">
                         {item.GiaSanPham?.toLocaleString('vi-VN')}₫
                       </p>
                     </div>
-                  </div>
+                  </button>
                 ))
               ) : (
                 <div className="p-4 text-center text-gray-500 text-sm">
@@ -332,19 +348,35 @@ const Navbar = () => {
                   </div>
                 ) : suggestions.length > 0 ? (
                   suggestions.map((item) => (
-                    <div
+                    <button
                       key={item.MaSanPham}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-rose-50 cursor-pointer transition-colors"
-                      onClick={() => handleSuggestionClick(item.MaSanPham)}
+                      type="button"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-rose-50 cursor-pointer transition-colors w-full text-left"
+                      onMouseDown={e => e.stopPropagation()}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleSuggestionClick(item.MaSanPham);
+                      }}
                     >
-                      <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
+                      {item.HinhAnh ? (
+                        <img
+                          src={item.HinhAnh}
+                          alt={item.TenSanPham}
+                          className="w-12 h-12 object-cover rounded-xl border"
+                          onError={e => (e.currentTarget.src = '/vite.svg')}
+                        />
+                      ) : (
+                        <div className="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12 flex items-center justify-center text-gray-400">
+                          <Package size={24} />
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-800 truncate">{item.TenSanPham}</p>
                         <p className="text-xs text-rose-600 font-semibold">
                           {item.GiaSanPham?.toLocaleString('vi-VN')}₫
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ))
                 ) : (
                   <div className="p-4 text-center text-gray-500 text-sm">
