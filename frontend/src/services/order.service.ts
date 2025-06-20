@@ -102,7 +102,7 @@ export const getAllOrders = async (page = 1, limit = 10): Promise<{
 };
 
 export const updateOrderStatus = async (id: number, status: string): Promise<OrderResponse> => {
-  const response = await api.put(API_ENDPOINTS.ADMIN.ORDERS.UPDATE_STATUS(id), { TrangThai: status });
+  const response = await api.put(API_ENDPOINTS.ADMIN.ORDERS.UPDATE_STATUS(id), { trangThai: status });
   return response.data;
 }; 
 

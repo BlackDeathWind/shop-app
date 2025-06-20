@@ -44,7 +44,7 @@ export default class OrderService {
       const result = await sequelize.query(`
         INSERT INTO HoaDon (MaKhachHang, MaNhanVien, NgayLap, TongTien, PhuongThucTT, DiaChi, TrangThai)
         OUTPUT INSERTED.*
-        VALUES (:makhachhang, :manhanvien, GETDATE(), :tongtien, :phuongthuctt, :diachi, N'Đang xử lý')
+        VALUES (:makhachhang, :manhanvien, GETDATE(), :tongtien, :phuongthuctt, :diachi, N'Đã đặt hàng')
       `, {
         replacements: {
           makhachhang: orderData.MaKhachHang,
@@ -269,6 +269,25 @@ export default class OrderService {
       
       if (!order) {
         throw new Error('Đơn hàng không tồn tại');
+      }
+
+      // Kiểm tra luồng chuyển trạng thái hợp lệ
+      const validTransitions: { [key: string]: string[] } = {
+        'Đã đặt hàng': ['Đang xử lý', 'Đã hủy'],
+        'Đang xử lý': ['Đang giao hàng', 'Đã hủy'],
+        'Đang giao hàng': ['Đã giao hàng', 'Đã hủy'],
+        'Đã giao hàng': [],
+        'Đã hủy': []
+      };
+
+      const currentStatus = order.TrangThai;
+      if (!currentStatus) {
+        throw new Error('Trạng thái hiện tại của đơn hàng không hợp lệ');
+      }
+      const allowedNextStatuses = validTransitions[currentStatus] || [];
+
+      if (!allowedNextStatuses.includes(trangThai)) {
+        throw new Error(`Không thể chuyển trạng thái từ "${currentStatus}" sang "${trangThai}"`);
       }
 
       await order.update({ TrangThai: trangThai });

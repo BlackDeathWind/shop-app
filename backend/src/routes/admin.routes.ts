@@ -58,7 +58,7 @@ const roleValidation = [
 const orderStatusValidation = [
   body('trangThai')
     .notEmpty().withMessage('Trạng thái không được để trống')
-    .isIn(['Đang xử lý', 'Đang giao hàng', 'Đã giao hàng', 'Đã hủy'])
+    .isIn(['Đã đặt hàng', 'Đang xử lý', 'Đang giao hàng', 'Đã giao hàng', 'Đã hủy'])
     .withMessage('Trạng thái không hợp lệ')
 ];
 
