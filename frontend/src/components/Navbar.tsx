@@ -55,7 +55,6 @@ const Navbar = () => {
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSuggestions([]);
-      setShowSuggestions(false);
       return;
     }
 
@@ -159,7 +158,9 @@ const Navbar = () => {
               placeholder="Tìm kiếm sản phẩm..."
               className="px-4 py-3 rounded-lg text-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-rose-300 shadow-sm"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {setSearchQuery(e.target.value);
+                  if (e.target.value.trim()) setShowSuggestions(true);
+                }}
               onFocus={() => setShowSuggestions(true)}
               autoComplete="off"
             />
@@ -171,7 +172,7 @@ const Navbar = () => {
             </button>
           </form>
           
-          {showSuggestions && (
+          {showSuggestions && searchQuery.trim() && (
             <div className="absolute top-full left-0 w-full bg-white shadow-xl rounded-b-xl z-30 border border-gray-200 mt-1 max-h-60 overflow-y-auto">
               {searchLoading ? (
                 <div className="p-4 flex justify-center">
@@ -308,7 +309,9 @@ const Navbar = () => {
                 placeholder="Tìm kiếm sản phẩm..."
                 className="px-4 py-2.5 rounded-l-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-300 w-full shadow-sm"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {setSearchQuery(e.target.value);
+                  if (e.target.value.trim()) setShowSuggestions(true);
+                }}
                 onFocus={() => setShowSuggestions(true)}
                 autoComplete="off"
               />
@@ -321,7 +324,7 @@ const Navbar = () => {
               </button>
             </form>
             
-            {showSuggestions && (
+            {showSuggestions && searchQuery.trim() && (
               <div className="absolute top-full left-0 w-full bg-white shadow-2xl rounded-b-xl z-30 border border-gray-200 mt-1 max-h-60 overflow-y-auto">
                 {searchLoading ? (
                   <div className="p-4 flex justify-center">
