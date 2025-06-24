@@ -1,6 +1,6 @@
 # 🛍️ Shop App - React E-commerce Solution
 
-[![Release](https://img.shields.io/badge/GitHub-Release_v2.7-2088FF?logo=github&logoColor=white)](https://github.com/BlackDeathWind/shop-app/releases)
+[![Release](https://img.shields.io/badge/GitHub-Release_v3.2.1-2088FF?logo=github&logoColor=white)](https://github.com/BlackDeathWind/shop-app/releases)
 [![License](https://img.shields.io/badge/License-MIT-A31F34?logo=open-source-initiative&logoColor=white)](LICENSE)
 
 **Ứng dụng web giao hoa và quà tặng**.
@@ -146,7 +146,7 @@ JWT_EXPIRES_IN=7d
 ## 👨‍💻 Tác Giả
 **Phạm Nguyễn Chu Nguyên - 21050043**  
 [![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github)](https://github.com/BlackDeathWind)
-[![LinkedIn](hiện chưa có)
+[![LinkedIn](https://img.shields.io/badge/GitHub-181717?logo=github)](https://github.com/BlackDeathWind)(hiện chưa có)
 
 ## 📜 Giấy Phép
 Dự án được cấp phép theo [MIT License](LICENSE)
