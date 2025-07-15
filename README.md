@@ -18,15 +18,19 @@
 | **Hồ sơ**      | Theo dõi đơn hàng, Lịch sử mua hàng, Cập nhật thông tin cá nhân          |
 | **Quản trị**   | CRUD sản phẩm (Admin Dashboard + Nhân viên Dashboard - riêng biệt)       |
 
-## 📱 Hình Ảnh Demo (Hiện chưa có)
+## 📱 Hình Ảnh Demo
 
-| Đăng Nhập            | Trang Chủ           | Giỏ Hàng          |
+| Đăng Nhập            | Trang Chủ           | Hồ Sơ             |
 |----------------------|---------------------|-------------------|
-| ![Login](demo/login.png) | ![Home](demo/home.png) | ![Cart](demo/cart.png) |
+| ![Login](demo/login.png) | ![Home](demo/home.png) | ![Profile](demo/profile.png) |
 
-| Thanh Toán          | Hồ Sơ               |
-|---------------------|---------------------|
-| ![Checkout](demo/payment.png) | ![Profile](demo/profile.png) |
+| Thanh Toán          | Giỏ Hàng            | Hoá đơn            |
+|---------------------|---------------------|--------------------|
+| ![Checkout](demo/payment.png) | ![Cart](demo/cart.png) | ![Order](demo/order.png) |
+
+| Admin Dashboard     | Quản lý sản phẩm    | Quản lý đơn hàng   |
+|---------------------|---------------------|--------------------|
+| ![Dashboard](demo/payment.png) | ![Product_management](demo/product_management.png) | ![Order_management](demo/order_management.png) |
 
 ## 🛠 Công Nghệ Sử Dụng
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
