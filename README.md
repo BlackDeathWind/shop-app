@@ -22,11 +22,11 @@
 
 | Đăng Nhập            | Trang Chủ           | Giỏ Hàng          |
 |----------------------|---------------------|-------------------|
-| ![Login](demo/login.jpg) | ![Home](demo/home.jpg) | ![Cart](demo/cart.jpg) |
+| ![Login](demo/login.png) | ![Home](demo/home.png) | ![Cart](demo/cart.png) |
 
 | Thanh Toán          | Hồ Sơ               |
 |---------------------|---------------------|
-| ![Checkout](demo/checkout.jpg) | ![Profile](demo/profile.jpg) |
+| ![Checkout](demo/payment.png) | ![Profile](demo/profile.png) |
 
 ## 🛠 Công Nghệ Sử Dụng
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
