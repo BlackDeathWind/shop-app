@@ -1,4 +1,4 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/04a18f17-4ee8-45af-95b0-f88ef071bc93" /># 🛍️ Shop App - React E-commerce Solution
+# 🛍️ Shop App - React E-commerce Solution
 
 [![Release](https://img.shields.io/badge/GitHub-Release_v3.2.1-2088FF?logo=github&logoColor=white)](https://github.com/BlackDeathWind/shop-app/releases)
 [![License](https://img.shields.io/badge/License-MIT-A31F34?logo=open-source-initiative&logoColor=white)](LICENSE)
