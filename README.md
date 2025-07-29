@@ -150,7 +150,7 @@ JWT_EXPIRES_IN=7d
 ## 👨‍💻 Tác Giả
 **Phạm Nguyễn Chu Nguyên - 21050043**  
 [![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github)](https://github.com/BlackDeathWind)
-[![LinkedIn]()(hiện chưa có)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/ph%E1%BA%A1m-nguy%E1%BB%85n-chu-nguy%C3%AAn-822204375/)
 
 ## 📜 Giấy Phép
 Dự án được cấp phép theo [MIT License](LICENSE)
