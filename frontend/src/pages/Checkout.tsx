@@ -30,6 +30,48 @@ const Checkout = () => {
     phuongThucTT: 'Tiền mặt',
   });
   const [orderError, setOrderError] = useState<string | null>(null);
+  // Dropdown cho địa chỉ
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
+  const [wards, setWards] = useState<any[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<any>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
+  const [selectedWard, setSelectedWard] = useState<any>(null);
+  const [addressDetail, setAddressDetail] = useState('');
+  const [searchProvince, setSearchProvince] = useState('');
+  const [searchDistrict, setSearchDistrict] = useState('');
+  const [searchWard, setSearchWard] = useState('');
+  const [focusProvince, setFocusProvince] = useState(false);
+  const [focusDistrict, setFocusDistrict] = useState(false);
+  const [focusWard, setFocusWard] = useState(false);
+  // Fetch Provinces
+  useEffect(() => {
+    fetch('https://provinces.open-api.vn/api/?depth=1')
+      .then(res => res.json())
+      .then(data => setProvinces(data));
+  }, []);
+
+  // Fetch Districts
+  useEffect(() => {
+    if (selectedProvince) {
+      fetch(`https://provinces.open-api.vn/api/p/${selectedProvince.code}?depth=2`)
+        .then(res => res.json())
+        .then(data => setDistricts(data.districts || []));
+      setSelectedDistrict(null);
+      setWards([]);
+      setSelectedWard(null);
+    }
+  }, [selectedProvince]);
+
+  // Fetch Wards
+  useEffect(() => {
+    if (selectedDistrict) {
+      fetch(`https://provinces.open-api.vn/api/d/${selectedDistrict.code}?depth=2`)
+        .then(res => res.json())
+        .then(data => setWards(data.wards || []));
+      setSelectedWard(null);
+    }
+  }, [selectedDistrict]);
   
   const { user, isAuthenticated } = useAuth();
   const { cart: cartItems, clearAll } = useCart();
@@ -91,8 +133,9 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.diaChi) {
-      alert('Vui lòng nhập địa chỉ giao hàng');
+
+    if (!addressDetail || !selectedProvince || !selectedDistrict || !selectedWard) {
+      alert('Vui lòng nhập đầy đủ địa chỉ giao hàng');
       return;
     }
 
@@ -100,10 +143,12 @@ const Checkout = () => {
       setSubmitting(true);
       setOrderError(null);
 
-      // Chuẩn bị dữ liệu đơn hàng
+
+      // Gộp địa chỉ thành một dòng
+      const fullAddress = `${addressDetail}, ${selectedWard.name}, ${selectedDistrict.name}, ${selectedProvince.name}`;
       const orderData = {
         PhuongThucTT: formData.phuongThucTT,
-        DiaChi: formData.diaChi,
+        DiaChi: fullAddress,
         TongTien: calculateTotalPrice(),
         items: cart.map(item => ({
           MaSanPham: item.productId,
@@ -181,17 +226,141 @@ const Checkout = () => {
                   
                   <div className="mb-4">
                     <label className="block text-gray-700 mb-2">
-                      Địa chỉ chi tiết <span className="text-red-500">*</span>
+                      Địa chỉ nhà, đường <span className="text-red-500">*</span>
                     </label>
-                    <textarea
-                      name="diaChi"
-                      value={formData.diaChi}
-                      onChange={handleInputChange}
+                    <input
+                      type="text"
+                      value={addressDetail}
+                      onChange={e => setAddressDetail(e.target.value)}
                       className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      rows={3}
-                      placeholder="Nhập địa chỉ giao hàng đầy đủ"
+                      placeholder="Nhập số nhà, tên đường..."
                       required
-                    ></textarea>
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 mb-2">Tỉnh/Thành phố <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2 border rounded-md"
+                        placeholder="Tìm kiếm Tỉnh/Thành phố"
+                        value={searchProvince}
+                        onChange={e => setSearchProvince(e.target.value)}
+                        onFocus={() => setFocusProvince(true)}
+                        onBlur={() => setTimeout(() => setFocusProvince(false), 200)}
+                        autoComplete="off"
+                      />
+                      {(focusProvince && (searchProvince.length > 0 || searchProvince.length === 0)) && (
+                        <ul className="absolute z-10 w-full bg-white border rounded-md max-h-60 overflow-y-auto shadow-lg mt-1">
+                          {(searchProvince.length === 0
+                            ? provinces
+                            : provinces.filter(p => {
+                                const terms = searchProvince.toLowerCase().split(/\s+/).filter(Boolean);
+                                return terms.every(term => p.name.toLowerCase().includes(term));
+                              })
+                          ).map(p => (
+                            <li
+                              key={p.code}
+                              className={`px-4 py-2 cursor-pointer hover:bg-pink-100 ${selectedProvince?.code === p.code ? 'bg-pink-200' : ''}`}
+                              onMouseDown={() => {
+                                setSelectedProvince(p);
+                                setSearchProvince(p.name);
+                              }}
+                            >{p.name}</li>
+                          ))}
+                          {(searchProvince.length > 0 && provinces.filter(p => {
+                            const terms = searchProvince.toLowerCase().split(/\s+/).filter(Boolean);
+                            return terms.every(term => p.name.toLowerCase().includes(term));
+                          }).length === 0) && (
+                            <li className="px-4 py-2 text-gray-400">Không tìm thấy</li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 mb-2">Quận/Huyện <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2 border rounded-md"
+                        placeholder="Tìm kiếm Quận/Huyện"
+                        value={searchDistrict}
+                        onChange={e => setSearchDistrict(e.target.value)}
+                        onFocus={() => setFocusDistrict(true)}
+                        onBlur={() => setTimeout(() => setFocusDistrict(false), 200)}
+                        disabled={!selectedProvince}
+                        autoComplete="off"
+                      />
+                      {(focusDistrict && (searchDistrict.length > 0 || searchDistrict.length === 0)) && (
+                        <ul className="absolute z-10 w-full bg-white border rounded-md max-h-60 overflow-y-auto shadow-lg mt-1">
+                          {(searchDistrict.length === 0
+                            ? districts
+                            : districts.filter(d => {
+                                const terms = searchDistrict.toLowerCase().split(/\s+/).filter(Boolean);
+                                return terms.every(term => d.name.toLowerCase().includes(term));
+                              })
+                          ).map(d => (
+                            <li
+                              key={d.code}
+                              className={`px-4 py-2 cursor-pointer hover:bg-pink-100 ${selectedDistrict?.code === d.code ? 'bg-pink-200' : ''}`}
+                              onMouseDown={() => {
+                                setSelectedDistrict(d);
+                                setSearchDistrict(d.name);
+                              }}
+                            >{d.name}</li>
+                          ))}
+                          {(searchDistrict.length > 0 && districts.filter(d => {
+                            const terms = searchDistrict.toLowerCase().split(/\s+/).filter(Boolean);
+                            return terms.every(term => d.name.toLowerCase().includes(term));
+                          }).length === 0) && (
+                            <li className="px-4 py-2 text-gray-400">Không tìm thấy</li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 mb-2">Phường/Xã <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2 border rounded-md"
+                        placeholder="Tìm kiếm Phường/Xã"
+                        value={searchWard}
+                        onChange={e => setSearchWard(e.target.value)}
+                        onFocus={() => setFocusWard(true)}
+                        onBlur={() => setTimeout(() => setFocusWard(false), 200)}
+                        disabled={!selectedDistrict}
+                        autoComplete="off"
+                      />
+                      {(focusWard && (searchWard.length > 0 || searchWard.length === 0)) && (
+                        <ul className="absolute z-10 w-full bg-white border rounded-md max-h-60 overflow-y-auto shadow-lg mt-1">
+                          {(searchWard.length === 0
+                            ? wards
+                            : wards.filter(w => {
+                                const terms = searchWard.toLowerCase().split(/\s+/).filter(Boolean);
+                                return terms.every(term => w.name.toLowerCase().includes(term));
+                              })
+                          ).map(w => (
+                            <li
+                              key={w.code}
+                              className={`px-4 py-2 cursor-pointer hover:bg-pink-100 ${selectedWard?.code === w.code ? 'bg-pink-200' : ''}`}
+                              onMouseDown={() => {
+                                setSelectedWard(w);
+                                setSearchWard(w.name);
+                              }}
+                            >{w.name}</li>
+                          ))}
+                          {(searchWard.length > 0 && wards.filter(w => {
+                            const terms = searchWard.toLowerCase().split(/\s+/).filter(Boolean);
+                            return terms.every(term => w.name.toLowerCase().includes(term));
+                          }).length === 0) && (
+                            <li className="px-4 py-2 text-gray-400">Không tìm thấy</li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 </div>
 
