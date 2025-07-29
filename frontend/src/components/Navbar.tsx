@@ -314,7 +314,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/" icon={<Home size={18} />} label="Trang chủ" />
             <NavLink to="/categories" icon={<Package size={18} />} label="Danh mục" />
-            <NavLink to="/about" icon={<Info size={18} />} label="Về chúng tôi" />
+            {/* <NavLink to="/about" icon={<Info size={18} />} label="Về chúng tôi" /> */}
           </div>
 
           {/* Search Bar */}
