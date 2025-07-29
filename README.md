@@ -1,4 +1,4 @@
-# 🛍️ Shop App - React E-commerce Solution
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/04a18f17-4ee8-45af-95b0-f88ef071bc93" /># 🛍️ Shop App - React E-commerce Solution
 
 [![Release](https://img.shields.io/badge/GitHub-Release_v3.2.1-2088FF?logo=github&logoColor=white)](https://github.com/BlackDeathWind/shop-app/releases)
 [![License](https://img.shields.io/badge/License-MIT-A31F34?logo=open-source-initiative&logoColor=white)](LICENSE)
@@ -150,7 +150,7 @@ JWT_EXPIRES_IN=7d
 ## 👨‍💻 Tác Giả
 **Phạm Nguyễn Chu Nguyên - 21050043**  
 [![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github)](https://github.com/BlackDeathWind)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat-square&logo=linkedin)]([https://www.linkedin.com/in/your-profile/](https://www.linkedin.com/in/ph%E1%BA%A1m-nguy%E1%BB%85n-chu-nguy%C3%AAn-822204375/))
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/ph%E1%BA%A1m-nguy%E1%BB%85n-chu-nguy%C3%AAn-822204375/)
 
 ## 📜 Giấy Phép
 Dự án được cấp phép theo [MIT License](LICENSE)
