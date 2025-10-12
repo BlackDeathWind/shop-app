@@ -143,11 +143,11 @@ DB_USER=root # <--- nếu tên instance của các bạn không phải root thì
 DB_PASSWORD=<mật_khẩu_mysql> # <--- Phần điều chỉnh
 
 # JWT
-JWT_SECRET=shopapp_secret_key <--- Phần điều chỉnh (đặt tuỳ ý)
-JWT_REFRESH_SECRET=shopapp_refresh_secret <--- Phần điều chỉnh (đặt tuỳ ý)
+JWT_SECRET=shopapp_secret_key # <--- Phần điều chỉnh (đặt tuỳ ý)
+JWT_REFRESH_SECRET=shopapp_refresh_secret # <--- Phần điều chỉnh (đặt tuỳ ý)
 
 # Frontend URL (cho CORS/cookie)
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:5173 # <--- Chỉnh nếu giao diện frontend trên server từ xa (hosting, cloud)
 ```
 
 ## 🗄️ Cơ sở dữ liệu (MySQL 8) – Khởi tạo dữ liệu mẫu
