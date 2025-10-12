@@ -3,7 +3,6 @@ import { ISanPham } from '../interfaces/models.interface';
 import { sequelize } from '../config/db.config';
 import DanhMuc from './DanhMuc.model';
 import ChiTietHoaDon from './ChiTietHoaDon.model';
-import { formatDateForSqlServer } from '../utils/helpers';
 
 // Interface cho các thuộc tính SanPham khi tạo mới
 interface SanPhamCreationAttributes extends Optional<ISanPham, 'MaSanPham' | 'Ngaytao' | 'NgayCapNhat' | 'HinhAnh'> {}

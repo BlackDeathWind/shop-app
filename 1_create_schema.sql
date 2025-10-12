@@ -1,16 +1,3 @@
--- Tạo database
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'shop')
-BEGIN
-    CREATE DATABASE shop;
-END;
-GO
-
-USE shop;
-GO
-
--- Kiểm tra và tạo schema nếu chưa tồn tại
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'dbo')
-BEGIN
-    EXEC('CREATE SCHEMA dbo');
-END;
-GO 
+-- Create database and use it (MySQL 8)
+CREATE DATABASE IF NOT EXISTS `shop` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `shop`;

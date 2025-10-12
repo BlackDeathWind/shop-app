@@ -67,6 +67,4 @@ export const isStrongPassword = (password: string): boolean => {
  * Định dạng ngày tháng phù hợp với SQL Server
  * Trả về chuỗi định dạng YYYY-MM-DD HH:MM:SS
  */
-export const formatDateForSqlServer = (date: Date = new Date()): string => {
-  return date.toISOString().slice(0, 19).replace('T', ' ');
-}; 
+// Removed SQL Server-specific date formatter; MySQL can use JS Date directly

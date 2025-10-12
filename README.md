@@ -11,7 +11,7 @@
 
 | Module         | Chi Tiết                                                                 |
 |----------------|--------------------------------------------------------------------------|
-| **Xác thực**   | Đăng nhập/Đăng ký với API backend truy vấn tới SQL Server                |
+| **Xác thực**   | Đăng nhập/Đăng ký với API backend truy vấn tới MySQL 8                   |
 | **Sản phẩm**   | Danh sách sản phẩm đa danh mục, Tìm kiếm, Lọc,                           |
 | **Giỏ hàng**   | Quản lý giỏ hàng bằng weblocal (không phải lưu trong cơ sở dữ liệu)      |
 | **Thanh toán** | Hoá đơn, Cập nhật số lượng sản phẩm khi thanh toán thành công            |
@@ -50,11 +50,11 @@
 - Sequelize ORM – Quản lý truy vấn và ánh xạ dữ liệu giữa Node.js và cơ sở dữ liệu.
 - JWT (JSON Web Token) – Xác thực và phân quyền người dùng (Admin - Nhân viên - Khách hàng).
 - Multer – Xử lý upload file (hình ảnh sản phẩm).
-- Bcrypt – Mã hoá mật khẩu người dùng vào SQL Server.
+- Bcrypt – Mã hoá mật khẩu người dùng trong MySQL.
 - CORS, Helmet, v.v. – Bảo mật API.
 
 **Database**
-- Microsoft SQL Server – Lưu trữ dữ liệu.
+- MySQL 8 – Lưu trữ dữ liệu (driver `mysql2`).
 - Sequelize – ORM mapping giữa các model TypeScript và bảng dữ liệu.
 
 **UI/UX Libraries**  
@@ -129,23 +129,43 @@ npm run dev
     └── utils/           # Hàm tiện ích, helper, logger, ...
 ```
 
-## 🔧 Biến Môi Trường (3 tệp .sql mình đã chuẩn bị xẵn trong dự án, lưu ý chạy từng câu lệnh trong tệp đó trong SQL Server)
-Tạo file mới ghi là `.env` tại thư mục backend (Lưu ý điền thông tin của SQL Server theo hướng dẫn):
+## 🔧 Biến Môi Trường (MySQL 8)
+Trong thư mục `backend`, tạo file `.env` với nội dung mẫu sau (điều chỉnh theo máy của các bạn):
 ```env
 PORT=5000
 NODE_ENV=development
 
-# Database
-DB_HOST=Điền server name
-DB_PORT=1433
-DB_NAME=tên data base
-DB_USER=sa
-DB_PASSWORD=mật khẩu ghi ở đây
+# Database (MySQL 8)
+DB_HOST=127.0.0.1 (localhost) # <--- DB_HOST=db.example.com: MySQL trên server từ xa (hosting, cloud)
+DB_PORT=3306 # <--- Chỉnh nếu MySQL trên server từ xa (hosting, cloud)
+DB_NAME=shop
+DB_USER=root # <--- nếu tên instance của các bạn không phải root thì điều chỉnh
+DB_PASSWORD=<mật_khẩu_mysql> # <--- Phần điều chỉnh
 
 # JWT
-JWT_SECRET=shopapp_secret_key
-JWT_EXPIRES_IN=7d
+JWT_SECRET=shopapp_secret_key <--- Phần điều chỉnh (đặt tuỳ ý)
+JWT_REFRESH_SECRET=shopapp_refresh_secret <--- Phần điều chỉnh (đặt tuỳ ý)
+
+# Frontend URL (cho CORS/cookie)
+FRONTEND_URL=http://localhost:5173
 ```
+
+## 🗄️ Cơ sở dữ liệu (MySQL 8) – Khởi tạo dữ liệu mẫu
+Trong thư mục gốc dự án shop-app mình đã để sẵn 3 tệp SQL cho MySQL 8:
+- `1_create_schema.sql`
+- `2_create_tables.sql`
+- `3_insert_sample_data.sql`
+
+Chạy tệp theo thứ tự 1 → 2 → 3 ở Workbench hoặc bằng MySQL client (ví dụ dòng lệnh):
+```bash
+mysql -u root -p < 1_create_schema.sql
+mysql -u root -p shop < 2_create_tables.sql
+mysql -u root -p shop < 3_insert_sample_data.sql
+```
+
+Sau đó chạy backend và frontend như ở phần Cài Đặt Dự Án. Khi đăng nhập admin/staff, các bạn có thể CRUD sản phẩm, đơn hàng, người dùng; dữ liệu sẽ được ghi/đọc từ MySQL 8.
+
+> Đã chuyển đổi thành công từ SQL Server sang MySQL 8. Toàn bộ CRUD đã hoạt động ổn định, không còn lỗi.
 
 ## 👨‍💻 Tác Giả
 **Phạm Nguyễn Chu Nguyên - 21050043**  

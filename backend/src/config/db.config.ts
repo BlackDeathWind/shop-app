@@ -5,12 +5,12 @@ import { logger } from '../utils/logger';
 dotenv.config();
 
 const dbConfig = {
-  server: process.env.DB_HOST || 'DELL5580\\SQLEXPRESS',
-  port: parseInt(process.env.DB_PORT || '1433'),
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: parseInt(process.env.DB_PORT || '3306'),
   database: process.env.DB_NAME || 'shop',
-  username: process.env.DB_USER || 'sa',
+  username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '21050043',
-  dialect: 'mssql',
+  dialect: 'mysql' as const,
   logging: process.env.NODE_ENV === 'development' ? (sql: string) => logger.db.query(sql) : false,
   pool: {
     max: 5,
@@ -20,21 +20,18 @@ const dbConfig = {
   }
 };
 
-const sequelize = new Sequelize({
-  dialect: 'mssql',
-  username: dbConfig.username,
-  password: dbConfig.password,
-  database: dbConfig.database,
-  dialectOptions: {
-    options: {
-      encrypt: false,
-      trustServerCertificate: true,
-      server: dbConfig.server
-    }
-  },
-  logging: dbConfig.logging,
-  pool: dbConfig.pool
-});
+const sequelize = new Sequelize(
+  dbConfig.database,
+  dbConfig.username,
+  dbConfig.password,
+  {
+    host: dbConfig.host,
+    port: dbConfig.port,
+    dialect: dbConfig.dialect,
+    logging: dbConfig.logging,
+    pool: dbConfig.pool
+  }
+);
 
 const testConnection = async (): Promise<void> => {
   try {
@@ -46,4 +43,4 @@ const testConnection = async (): Promise<void> => {
   }
 };
 
-export { sequelize, testConnection }; 
+export { sequelize, testConnection };

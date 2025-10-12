@@ -1,4 +1,4 @@
-import { Transaction } from 'sequelize';
+import { Transaction, QueryTypes } from 'sequelize';
 import { sequelize } from '../config/db.config';
 import HoaDon from '../models/HoaDon.model';
 import ChiTietHoaDon from '../models/ChiTietHoaDon.model';
@@ -6,7 +6,6 @@ import SanPham from '../models/SanPham.model';
 import KhachHang from '../models/KhachHang.model';
 import NhanVien from '../models/NhanVien.model';
 import { IHoaDon } from '../interfaces/models.interface';
-import { QueryTypes } from 'sequelize';
 
 interface OrderItem {
   MaSanPham: number;
@@ -40,96 +39,49 @@ export default class OrderService {
     const t: Transaction = await sequelize.transaction();
 
     try {
-      // Tạo hóa đơn sử dụng raw query
-      const result = await sequelize.query(`
-        INSERT INTO HoaDon (MaKhachHang, MaNhanVien, NgayLap, TongTien, PhuongThucTT, DiaChi, TrangThai)
-        OUTPUT INSERTED.*
-        VALUES (:makhachhang, :manhanvien, GETDATE(), :tongtien, :phuongthuctt, :diachi, N'Đã đặt hàng')
-      `, {
-        replacements: {
-          makhachhang: orderData.MaKhachHang,
-          manhanvien: orderData.MaNhanVien || null,
-          tongtien: orderData.TongTien,
-          phuongthuctt: orderData.PhuongThucTT,
-          diachi: orderData.DiaChi
+      // Tạo hóa đơn bằng Sequelize (MySQL)
+      const order = await HoaDon.create(
+        {
+          MaKhachHang: orderData.MaKhachHang,
+          MaNhanVien: orderData.MaNhanVien || null,
+          NgayLap: new Date(),
+          TongTien: orderData.TongTien,
+          PhuongThucTT: orderData.PhuongThucTT,
+          DiaChi: orderData.DiaChi,
+          TrangThai: 'Đã đặt hàng'
         },
-        type: QueryTypes.INSERT,
-        transaction: t
-      });
-      
-      // Kiểm tra kết quả trả về và lấy MaHoaDon
-      const insertedRows = result[0] as unknown as any[];
-      
-      if (!Array.isArray(insertedRows) || insertedRows.length === 0) {
-        throw new Error('Không thể tạo hóa đơn: Không có dữ liệu trả về');
-      }
-      
-      const maHoaDon = insertedRows[0].MaHoaDon;
-      
-      if (!maHoaDon) {
-        throw new Error('Không thể tạo hóa đơn: Không có mã hóa đơn');
-      }
-      
+        { transaction: t }
+      );
+
       // Xử lý từng sản phẩm trong đơn hàng
       for (const item of orderData.items) {
-        // Kiểm tra số lượng sản phẩm
-        const productResult = await sequelize.query(`
-          SELECT * FROM SanPham WHERE MaSanPham = :masanpham
-        `, {
-          replacements: {
-            masanpham: item.MaSanPham
-          },
-          type: QueryTypes.SELECT,
-          transaction: t
-        });
-        
-        const productRows = productResult as unknown as any[];
-        
-        if (!Array.isArray(productRows) || productRows.length === 0) {
+        const product = await SanPham.findByPk(item.MaSanPham, { transaction: t, lock: t.LOCK.UPDATE });
+        if (!product) {
           throw new Error(`Sản phẩm với mã ${item.MaSanPham} không tồn tại`);
         }
-        
-        const product = productRows[0];
         if (product.SoLuong < item.SoLuong) {
           throw new Error(`Sản phẩm ${product.TenSanPham} không đủ số lượng`);
         }
 
-        // Thêm chi tiết hóa đơn
-        await sequelize.query(`
-          INSERT INTO ChiTietHoaDon (MaHoaDon, MaSanPham, SoLuong, DonGia, ThanhTien)
-          VALUES (:mahoadon, :masanpham, :soluong, :dongia, :thanhtien)
-        `, {
-          replacements: {
-            mahoadon: maHoaDon,
-            masanpham: item.MaSanPham,
-            soluong: item.SoLuong,
-            dongia: item.DonGia,
-            thanhtien: item.ThanhTien
+        await ChiTietHoaDon.create(
+          {
+            MaHoaDon: order.MaHoaDon,
+            MaSanPham: item.MaSanPham,
+            SoLuong: item.SoLuong,
+            DonGia: item.DonGia,
+            ThanhTien: item.ThanhTien
           },
-          type: QueryTypes.INSERT,
-          transaction: t
-        });
+          { transaction: t }
+        );
 
-        // Cập nhật số lượng sản phẩm
-        await sequelize.query(`
-          UPDATE SanPham
-          SET SoLuong = SoLuong - :soluong
-          WHERE MaSanPham = :masanpham
-        `, {
-          replacements: {
-            soluong: item.SoLuong,
-            masanpham: item.MaSanPham
-          },
-          type: QueryTypes.UPDATE,
-          transaction: t
-        });
+        await product.update({ SoLuong: product.SoLuong - item.SoLuong }, { transaction: t });
       }
 
       await t.commit();
-      
-      // Trả về đầy đủ thông tin hóa đơn
-      const order = await HoaDon.findByPk(maHoaDon);
-      return order;
+
+      // Trả về hóa đơn đã tạo (kèm associations nếu cần)
+      const created = await HoaDon.findByPk(order.MaHoaDon);
+      return created;
     } catch (error) {
       try {
         await t.rollback();
@@ -142,72 +94,19 @@ export default class OrderService {
 
   public async getOrdersByCustomerId(customerId: number) {
     try {
-      // Sử dụng raw query để đảm bảo lấy chính xác dữ liệu từ SQL Server
-      const sql = `
-        SELECT 
-          hd.MaHoaDon, hd.MaKhachHang, hd.MaNhanVien, hd.NgayLap, 
-          hd.TongTien, hd.PhuongThucTT, hd.DiaChi, hd.TrangThai
-        FROM 
-          HoaDon hd
-        WHERE 
-          hd.MaKhachHang = :customerId
-        ORDER BY 
-          hd.NgayLap DESC
-      `;
-      
-      const orders = await sequelize.query(sql, {
-        replacements: { customerId },
-        type: QueryTypes.SELECT
-      });
-      
-      // Nếu không có đơn hàng, trả về mảng rỗng
-      if (!Array.isArray(orders) || orders.length === 0) {
-        return [];
-      }
-      
-      // Lấy thông tin chi tiết cho từng đơn hàng
-      const ordersWithDetails = await Promise.all(orders.map(async (order: any) => {
-        const detailsSql = `
-          SELECT 
-            ct.MaChiTiet, ct.MaHoaDon, ct.MaSanPham, ct.SoLuong, 
-            ct.DonGia, ct.ThanhTien,
-            sp.TenSanPham, sp.HinhAnh, sp.GiaSanPham
-          FROM 
-            ChiTietHoaDon ct
-          JOIN 
-            SanPham sp ON ct.MaSanPham = sp.MaSanPham
-          WHERE 
-            ct.MaHoaDon = :orderId
-        `;
-        
-        const details = await sequelize.query(detailsSql, {
-          replacements: { orderId: order.MaHoaDon },
-          type: QueryTypes.SELECT
-        });
-        
-        // Định dạng lại chi tiết để phù hợp với cấu trúc dữ liệu cần thiết
-        const formattedDetails = details.map((detail: any) => ({
-          MaChiTiet: detail.MaChiTiet,
-          MaHoaDon: detail.MaHoaDon,
-          MaSanPham: detail.MaSanPham,
-          SoLuong: detail.SoLuong,
-          DonGia: detail.DonGia,
-          ThanhTien: detail.ThanhTien,
-          SanPham: {
-            MaSanPham: detail.MaSanPham,
-            TenSanPham: detail.TenSanPham,
-            GiaSanPham: detail.GiaSanPham,
-            HinhAnh: detail.HinhAnh
+      // Dùng Sequelize để truy vấn thay vì SQL Server raw
+      const orders = await HoaDon.findAll({
+        where: { MaKhachHang: customerId },
+        order: [['NgayLap', 'DESC']],
+        include: [
+          {
+            model: ChiTietHoaDon,
+            as: 'ChiTietHoaDons',
+            include: [{ model: SanPham, as: 'SanPham' }]
           }
-        }));
-        
-        return {
-          ...order,
-          ChiTietHoaDons: formattedDetails
-        };
-      }));
-      
-      return ordersWithDetails;
+        ]
+      });
+      return orders as unknown as any[];
     } catch (error) {
       console.error('Error in getOrdersByCustomerId:', error);
       throw error;
