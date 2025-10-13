@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Package, Users, ShoppingBag, Settings, LogOut, Menu, X, ChevronDown,
-  User, Store, ExternalLink, UserCog
+  User, Store, ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -225,7 +225,7 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
         <span>Đơn hàng</span>
       </Link>
 
-      {/* Quản lý người dùng - chỉ admin mới thấy */}
+      {/* Quản lý người dùng - chỉ admin */}
       {isAdmin && (
         <div>
           <button
@@ -234,13 +234,11 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
           >
             <div className="flex items-center">
               <Users className="h-5 w-5 mr-3" />
-              <span>Người dùng</span>
+              <span>Quản lý người dùng</span>
             </div>
-            <ChevronDown 
-              className={`h-5 w-5 transition-transform ${userManagementOpen ? 'transform rotate-180' : ''}`}
-            />
+            <ChevronDown className={`h-5 w-5 transition-transform ${userManagementOpen ? 'transform rotate-180' : ''}`} />
           </button>
-          
+
           {userManagementOpen && (
             <div className="ml-9 mt-2 space-y-1">
               <Link
@@ -252,6 +250,16 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
                 }`}
               >
                 Khách hàng
+              </Link>
+              <Link
+                to={{ pathname: '/admin/users', search: '?tab=vendors' }}
+                className={`block px-4 py-2 rounded-md ${
+                  location.pathname === '/admin/users' && new URLSearchParams(location.search).get('tab') === 'vendors'
+                    ? 'bg-pink-100 text-pink-600'
+                    : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600'
+                }`}
+              >
+                Người bán
               </Link>
               <Link
                 to={{ pathname: '/admin/users', search: '?tab=staff' }}

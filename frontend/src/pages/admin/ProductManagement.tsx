@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { PlusCircle, Edit, Trash, Search, RefreshCw, AlertCircle, X, Eye } from 'lucide-react';
+// import { Link } from 'react-router-dom';
+import { PlusCircle, Search, RefreshCw, AlertCircle, X, Eye } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
-import {
-  getAllProducts,
-  deleteProduct,
-  searchProducts,
-} from '../../services/product.service';
+import { getAllProducts, searchProducts } from '../../services/product.service';
 import type { ProductResponse, ProductListResponse } from '../../services/product.service';
 import { getAllCategories } from '../../services/category.service';
 import type { CategoryResponse } from '../../services/category.service';
 import { API_BASE_URL } from '../../constants/api';
-import { useToast } from '../../contexts/ToastContext';
-import { useAuth } from '../../contexts/AuthContext';
+// import { useToast } from '../../contexts/ToastContext';
+// import { useAuth } from '../../contexts/AuthContext';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -24,13 +20,12 @@ const ProductManagement = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const { addToast } = useToast();
-  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+  // const { addToast } = useToast();
   const [showOutOfStock, setShowOutOfStock] = useState(false);
   const outOfStockProducts = products.filter(p => p.SoLuong === 0);
-  const { user } = useAuth();
-  const isAdmin = user?.MaVaiTro === 0;
-  const isStaff = user?.MaVaiTro === 1;
+  // const { user } = useAuth();
+  // const isAdmin = user?.MaVaiTro === 0;
+  // const isStaff = user?.MaVaiTro === 1;
   const [showDetail, setShowDetail] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductResponse | null>(null);
   const [sortType, setSortType] = useState('newest');
@@ -74,28 +69,7 @@ const ProductManagement = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
-  const handleDelete = async (id: number) => {
-    setPendingDeleteId(id);
-    addToast(
-      <span>Bạn có chắc chắn muốn xóa sản phẩm này không?
-        <button onClick={() => confirmDelete(id)} className="ml-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Xác nhận xóa</button>
-        <button onClick={() => setPendingDeleteId(null)} className="ml-2 px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Hủy</button>
-      </span>,
-      'warning'
-    );
-  };
-
-  const confirmDelete = async (id: number) => {
-      try {
-        await deleteProduct(id);
-      addToast('Đã xóa sản phẩm thành công!', 'success');
-        handleRefresh();
-      } catch (error) {
-      addToast('Đã xảy ra lỗi khi xóa sản phẩm. Vui lòng thử lại sau.', 'error');
-    } finally {
-      setPendingDeleteId(null);
-    }
-  };
+  // Admin/Staff are read-only; deletion is disabled
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -148,13 +122,13 @@ const ProductManagement = () => {
               )}
             </button>
           </div>
-          <Link
-            to="/admin/products/new"
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+          <button
+            className="flex items-center gap-2 bg-gray-200 text-gray-600 px-4 py-2 rounded-md cursor-not-allowed"
+            title="Chỉ người bán (Vendor) mới có thể thêm sản phẩm"
           >
             <PlusCircle size={18} />
-            <span>Thêm sản phẩm mới</span>
-          </Link>
+            <span>Thêm sản phẩm (Vendor)</span>
+          </button>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -299,24 +273,7 @@ const ProductManagement = () => {
                               >
                                 <Eye size={16} />
                               </button>
-                              {isAdmin && (
-                                <>
-                              <Link
-                                to={`/admin/products/edit/${product.MaSanPham}`}
-                                className="p-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
-                                title="Chỉnh sửa"
-                              >
-                                <Edit size={16} />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(product.MaSanPham)}
-                                className="p-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
-                                title="Xóa"
-                              >
-                                <Trash size={16} />
-                              </button>
-                                </>
-                              )}
+                              <div className="text-xs text-gray-500" title="Chỉ người bán có thể chỉnh sửa/xóa sản phẩm">Dành cho Vendor</div>
                             </div>
                           </td>
                         </tr>

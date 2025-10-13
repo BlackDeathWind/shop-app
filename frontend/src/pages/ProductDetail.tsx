@@ -20,6 +20,11 @@ interface Product {
     MaDanhMuc: number;
     TenDanhMuc: string;
   };
+  NguoiBan?: {
+    MaNguoiBan: number;
+    TenCuaHang?: string;
+    SoDienThoaiLienHe: string;
+  };
 }
 
 const ProductDetail = () => {
@@ -163,7 +168,15 @@ const ProductDetail = () => {
 
             {/* Product Info */}
             <div className="md:w-1/2 px-4">
-              <h1 className="text-3xl font-bold text-gray-800 mb-4">{product.TenSanPham}</h1>
+              <h1 className="text-3xl font-bold text-gray-800 mb-1">{product.TenSanPham}</h1>
+              {product.NguoiBan && (
+                <div className="mb-3 p-3 rounded-lg border border-rose-100 bg-rose-50/50">
+                  <span className="text-sm text-gray-600">Người bán:</span>{' '}
+                  <span className="font-medium text-gray-800">{product.NguoiBan.TenCuaHang || 'Người bán'}</span>
+                  <span className="ml-2 text-sm text-gray-600">Liên hệ:</span>{' '}
+                  <span className="text-sm text-gray-800">{product.NguoiBan.SoDienThoaiLienHe}</span>
+                </div>
+              )}
               
               {/* Rating */}
               <div className="flex items-center mb-4">

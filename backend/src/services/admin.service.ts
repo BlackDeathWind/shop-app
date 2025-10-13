@@ -7,6 +7,8 @@ import VaiTro from '../models/VaiTro.model';
 import { Op } from 'sequelize';
 import { sequelize } from '../config/db.config';
 import bcrypt from 'bcrypt';
+import NguoiBan from '../models/NguoiBan.model';
+import { Transaction } from 'sequelize';
 
 export default class AdminService {
   /**
@@ -18,6 +20,7 @@ export default class AdminService {
       const totalCategories = await DanhMuc.count();
       const totalCustomers = await KhachHang.count();
       const totalOrders = await HoaDon.count();
+      const pendingVendors = await NguoiBan.count({ where: { TrangThai: 'PENDING' } });
       
       // Tính tổng doanh thu
       const revenue = await HoaDon.sum('TongTien', {
@@ -33,7 +36,8 @@ export default class AdminService {
         totalCategories,
         totalCustomers,
         totalOrders,
-        revenue: revenue || 0
+        revenue: revenue || 0,
+        pendingVendors
       };
     } catch (error) {
       throw error;
@@ -66,6 +70,97 @@ export default class AdminService {
         currentPage: page,
         customers: rows
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Danh sách người bán (role = 3)
+   */
+  public async getAllVendors(page = 1, limit = 10) {
+    try {
+      const offset = (page - 1) * limit;
+
+      const { count, rows } = await KhachHang.findAndCountAll({
+        attributes: { exclude: ['MatKhau'] },
+        where: { MaVaiTro: 3 },
+        include: [{ model: VaiTro, as: 'VaiTro' }],
+        limit,
+        offset,
+        order: [['MaKhachHang', 'ASC']]
+      });
+
+      return {
+        total: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        users: rows
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Vendor applications list/approve/reject
+   */
+  public async listVendorApplications(status: 'PENDING' | 'APPROVED' | 'REJECTED', page = 1, limit = 10) {
+    try {
+      const offset = (page - 1) * limit;
+      const { count, rows } = await NguoiBan.findAndCountAll({
+        where: { TrangThai: status },
+        include: [
+          { model: KhachHang, as: 'KhachHang', include: [{ model: VaiTro, as: 'VaiTro' }] },
+        ],
+        limit,
+        offset,
+        order: [['MaNguoiBan', 'DESC']]
+      });
+      return {
+        total: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        applications: rows
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async approveVendorApplication(maNguoiBan: number) {
+    const t: Transaction = await sequelize.transaction();
+    try {
+      const app = await NguoiBan.findByPk(maNguoiBan, { transaction: t });
+      if (!app) throw new Error('Hồ sơ người bán không tồn tại');
+      if (app.TrangThai === 'APPROVED') return app;
+
+      await app.update({ TrangThai: 'APPROVED', LyDoTuChoi: null, NgayDuyet: new Date() }, { transaction: t });
+
+      // Update user role to vendor (3)
+      // Ensure role 3 exists in VaiTro
+      const vendorRole = await VaiTro.findByPk(3, { transaction: t });
+      if (!vendorRole) {
+        await VaiTro.create({ MaVaiTro: 3, TenVaiTro: 'Người bán' } as any, { transaction: t });
+      }
+      const customer = await KhachHang.findByPk(app.MaKhachHang, { transaction: t });
+      if (!customer) throw new Error('Khách hàng không tồn tại');
+      await customer.update({ MaVaiTro: 3 }, { transaction: t });
+
+      await t.commit();
+      return app;
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  }
+
+  public async rejectVendorApplication(maNguoiBan: number, reason: string) {
+    try {
+      const app = await NguoiBan.findByPk(maNguoiBan);
+      if (!app) throw new Error('Hồ sơ người bán không tồn tại');
+      await app.update({ TrangThai: 'REJECTED', LyDoTuChoi: reason, NgayDuyet: null });
+      return app;
     } catch (error) {
       throw error;
     }

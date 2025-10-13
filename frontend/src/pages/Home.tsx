@@ -153,6 +153,35 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Ornate Quote Section (below banner) */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="relative max-w-5xl mx-auto bg-white shadow-xl border border-rose-100 rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute -top-6 -left-6 h-24 w-24 rounded-full bg-rose-100 blur-2xl opacity-60"></div>
+              <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-pink-100 blur-2xl opacity-60"></div>
+            </div>
+            <div className="p-8 md:p-12">
+              <div className="flex items-center justify-center mb-4">
+                <span className="h-px w-10 bg-rose-200" />
+                <span className="mx-3 text-rose-600 font-semibold tracking-wider text-xs uppercase">Về chúng tôi</span>
+                <span className="h-px w-10 bg-rose-200" />
+              </div>
+              <blockquote className="text-center">
+                <p className="text-xl md:text-2xl text-gray-700 leading-relaxed">
+                  “Florist's D.E.P (Florist's delivery e-commerce platform) là nền tảng thương mại dành cho các nghệ nhân florists và cửa hàng hoa,
+                  kết nối người bán và khách hàng qua trải nghiệm mua sắm tinh tế, giao hàng nhanh chóng, và hệ sinh thái quản trị sản phẩm thân thiện.
+                  Chúng tôi tạo điều kiện để người bán phát triển thương hiệu, còn khách hàng tận hưởng những bó hoa được cá nhân hoá với chất lượng vượt trội.”
+                </p>
+              </blockquote>
+            </div>
+            <div className="border-t border-rose-100 p-4 bg-rose-50/40 text-center text-sm text-rose-700">
+              Florist's D.E.P — Florist's delivery e-commerce platform
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Categories Section */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">

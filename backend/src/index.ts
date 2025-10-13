@@ -21,6 +21,7 @@ import userRoutes from './routes/user.routes';
 import adminRoutes from './routes/admin.routes';
 import orderDetailRoutes from './routes/order-detail.routes';
 import uploadRoutes from './routes/upload.routes';
+import vendorRoutes from './routes/vendor.routes';
 
 // Load environment variables
 dotenv.config();
@@ -80,6 +81,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/order-details', orderDetailRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/vendor', vendorRoutes);
 
 // Thêm route trực tiếp cho việc cập nhật sản phẩm
 const productController = new ProductController();

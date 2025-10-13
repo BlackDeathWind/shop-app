@@ -9,6 +9,8 @@ import DanhMuc from './DanhMuc.model';
 import SanPham from './SanPham.model';
 import HoaDon from './HoaDon.model';
 import ChiTietHoaDon from './ChiTietHoaDon.model';
+import NguoiBan from './NguoiBan.model';
+import { Model, DataTypes } from 'sequelize';
 
 // Thiết lập các mối quan hệ giữa các model
 
@@ -23,6 +25,34 @@ KhachHang.belongsTo(VaiTro, { foreignKey: 'MaVaiTro', as: 'VaiTro' });
 // DanhMuc - SanPham
 DanhMuc.hasMany(SanPham, { foreignKey: 'MaDanhMuc', as: 'SanPhams' });
 SanPham.belongsTo(DanhMuc, { foreignKey: 'MaDanhMuc', as: 'DanhMuc' });
+
+// KhachHang - NguoiBan (1-1 vendor profile)
+KhachHang.hasOne(NguoiBan, { foreignKey: 'MaKhachHang', as: 'NguoiBan' });
+NguoiBan.belongsTo(KhachHang, { foreignKey: 'MaKhachHang', as: 'KhachHang' });
+
+// NguoiBan - SanPham (vendor owns products)
+NguoiBan.hasMany(SanPham, { foreignKey: 'MaNguoiBan', as: 'SanPhams' });
+SanPham.belongsTo(NguoiBan, { foreignKey: 'MaNguoiBan', as: 'NguoiBan' });
+
+// NguoiBan - DanhMuc (many-to-many via NguoiBanDanhMuc)
+const NguoiBanDanhMuc = sequelize.define('NguoiBanDanhMuc', {
+  MaNguoiBan: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    primaryKey: true,
+  },
+  MaDanhMuc: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    primaryKey: true,
+  },
+}, {
+  tableName: 'NguoiBanDanhMuc',
+  timestamps: false,
+});
+
+NguoiBan.belongsToMany(DanhMuc, { through: NguoiBanDanhMuc, foreignKey: 'MaNguoiBan', otherKey: 'MaDanhMuc', as: 'DanhMucs' });
+DanhMuc.belongsToMany(NguoiBan, { through: NguoiBanDanhMuc, foreignKey: 'MaDanhMuc', otherKey: 'MaNguoiBan', as: 'NguoiBans' });
 
 // KhachHang - HoaDon
 KhachHang.hasMany(HoaDon, { foreignKey: 'MaKhachHang', as: 'HoaDons' });
@@ -61,5 +91,7 @@ export {
   SanPham,
   HoaDon,
   ChiTietHoaDon,
+  NguoiBan,
+  NguoiBanDanhMuc,
   initializeModels
 }; 

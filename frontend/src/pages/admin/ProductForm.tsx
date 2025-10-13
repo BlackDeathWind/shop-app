@@ -3,12 +3,12 @@ import type { FormEvent, ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Save, ArrowLeft, Upload, Trash } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
-import { createProduct, getProductById, updateProduct } from '../../services/product.service';
+import { getProductById } from '../../services/product.service';
 import { getAllCategories } from '../../services/category.service';
-import type { ProductResponse } from '../../services/product.service';
+// import type { ProductResponse } from '../../services/product.service';
 import type { CategoryResponse } from '../../services/category.service';
 import { API_BASE_URL } from '../../constants/api';
-import api from '../../services/api';
+// import api from '../../services/api';
 import { useToast } from '../../contexts/ToastContext';
 
 const ProductForm = () => {
@@ -102,27 +102,8 @@ const ProductForm = () => {
     
     try {
       setLoading(true);
-      
-      const formDataToSend = new FormData();
-      formDataToSend.append('TenSanPham', formData.TenSanPham);
-      formDataToSend.append('MaDanhMuc', formData.MaDanhMuc);
-      formDataToSend.append('MoTa', formData.MoTa);
-      formDataToSend.append('SoLuong', formData.SoLuong);
-      formDataToSend.append('GiaSanPham', formData.GiaSanPham);
-      
-      if (formData.imageFile) {
-        formDataToSend.append('image', formData.imageFile);
-      }
-
-      // Gọi API thông qua service
-      if (isEditMode && productId) {
-        console.log('Calling updateProduct for ID:', productId);
-        await updateProduct(parseInt(productId), formDataToSend);
-      } else {
-        console.log('Calling createProduct');
-        await createProduct(formDataToSend);
-      }
-      
+      // Admin/Staff UI is read-only. Prevent create/update here.
+      addToast('Chỉ người bán (Vendor) mới có thể tạo/cập nhật sản phẩm. Vui lòng dùng Khu vực người bán.', 'info');
       navigate('/admin/products');
     } catch (error: any) {
       console.error('Lỗi khi lưu sản phẩm:', error);
@@ -130,7 +111,7 @@ const ProductForm = () => {
         console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
       }
-      addToast('Đã xảy ra lỗi khi lưu sản phẩm. Vui lòng thử lại sau.', 'error');
+      // keep info-only behavior
     } finally {
       setLoading(false);
     }

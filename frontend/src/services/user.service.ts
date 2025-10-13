@@ -28,6 +28,30 @@ export interface UserResponse {
   };
 }
 
+export interface VendorApplicationRequest {
+  LoaiHinh: 'CA_NHAN' | 'DOANH_NGHIEP';
+  TenCuaHang?: string;
+  DiaChiKinhDoanh: string;
+  EmailLienHe?: string;
+  MaDanhMucChinh: number;
+  SoDienThoaiLienHe: string;
+  agreed: boolean;
+}
+
+export interface VendorProfileResponse {
+  MaNguoiBan: number;
+  MaKhachHang: number;
+  LoaiHinh: 'CA_NHAN' | 'DOANH_NGHIEP';
+  TenCuaHang?: string;
+  DiaChiKinhDoanh: string;
+  EmailLienHe?: string;
+  MaDanhMucChinh: number;
+  SoDienThoaiLienHe: string;
+  TrangThai: 'PENDING' | 'APPROVED' | 'REJECTED';
+  LyDoTuChoi?: string;
+  NgayDuyet?: string | null;
+}
+
 export const getUserProfile = async (): Promise<UserResponse> => {
   const response = await api.get(API_ENDPOINTS.USER.GET_PROFILE);
   return response.data;
@@ -40,6 +64,37 @@ export const updateUserProfile = async (profileData: ProfileUpdateRequest): Prom
 
 export const changePassword = async (passwordData: PasswordChangeRequest): Promise<{ message: string }> => {
   const response = await api.post(API_ENDPOINTS.USER.CHANGE_PASSWORD, passwordData);
+  return response.data;
+};
+
+// Vendor APIs
+export const applyVendor = async (data: VendorApplicationRequest): Promise<{ message: string; application: VendorProfileResponse }> => {
+  const response = await api.post(API_ENDPOINTS.VENDOR.APPLY, data);
+  return response.data;
+};
+
+export const getMyVendorProfile = async (): Promise<VendorProfileResponse | null> => {
+  const response = await api.get(API_ENDPOINTS.VENDOR.ME);
+  return response.data;
+};
+
+// Admin: vendor applications
+export const listVendorApplications = async (
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' = 'PENDING',
+  page = 1,
+  limit = 10
+): Promise<{ total: number; totalPages: number; currentPage: number; applications: VendorProfileResponse[] }> => {
+  const response = await api.get(API_ENDPOINTS.VENDOR.APPLICATIONS.LIST(status, page, limit));
+  return response.data;
+};
+
+export const approveVendorApplication = async (id: number): Promise<{ message: string }> => {
+  const response = await api.put(API_ENDPOINTS.VENDOR.APPLICATIONS.APPROVE(id));
+  return response.data;
+};
+
+export const rejectVendorApplication = async (id: number, reason: string): Promise<{ message: string }> => {
+  const response = await api.put(API_ENDPOINTS.VENDOR.APPLICATIONS.REJECT(id), { reason });
   return response.data;
 };
 
@@ -62,6 +117,16 @@ export const getAllStaff = async (page = 1, limit = 10): Promise<{
 }> => {
   const response = await api.get(`${API_ENDPOINTS.ADMIN.USERS.GET_ALL_STAFF}?page=${page}&limit=${limit}`);
   return { ...response.data, users: response.data.staff };
+};
+
+export const getAllVendors = async (page = 1, limit = 10): Promise<{
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  users: UserResponse[];
+}> => {
+  const response = await api.get(`${API_ENDPOINTS.ADMIN.USERS.GET_ALL_CUSTOMERS.replace('/customers','/vendors')}?page=${page}&limit=${limit}`);
+  return { ...response.data, users: response.data.users };
 };
 
 export const getUserById = async (id: number): Promise<UserResponse> => {

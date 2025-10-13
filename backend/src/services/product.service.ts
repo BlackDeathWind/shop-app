@@ -1,5 +1,6 @@
 import SanPham from '../models/SanPham.model';
 import DanhMuc from '../models/DanhMuc.model';
+import NguoiBan from '../models/NguoiBan.model';
 import { Op } from 'sequelize';
 import { ISanPham } from '../interfaces/models.interface';
 
@@ -9,7 +10,30 @@ export default class ProductService {
       const offset = (page - 1) * limit;
       
       const { count, rows } = await SanPham.findAndCountAll({
-        include: [{ model: DanhMuc, as: 'DanhMuc' }],
+        include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }],
+        limit,
+        offset,
+        order: [['NgayCapNhat', 'DESC']]
+      });
+
+      return {
+        total: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        products: rows
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async getProductsByVendor(vendorId: number, page = 1, limit = 10) {
+    try {
+      const offset = (page - 1) * limit;
+
+      const { count, rows } = await SanPham.findAndCountAll({
+        where: { MaNguoiBan: vendorId },
+        include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }],
         limit,
         offset,
         order: [['NgayCapNhat', 'DESC']]
@@ -29,7 +53,7 @@ export default class ProductService {
   public async getProductById(id: number) {
     try {
       const product = await SanPham.findByPk(id, {
-        include: [{ model: DanhMuc, as: 'DanhMuc' }]
+        include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }]
       });
 
       if (!product) {
@@ -48,7 +72,7 @@ export default class ProductService {
       
       const { count, rows } = await SanPham.findAndCountAll({
         where: { MaDanhMuc: categoryId },
-        include: [{ model: DanhMuc, as: 'DanhMuc' }],
+        include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }],
         limit,
         offset,
         order: [['NgayCapNhat', 'DESC']]
@@ -76,7 +100,7 @@ export default class ProductService {
             { MoTa: { [Op.like]: `%${query}%` } }
           ]
         },
-        include: [{ model: DanhMuc, as: 'DanhMuc' }],
+        include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }],
         limit,
         offset,
         order: [['NgayCapNhat', 'DESC']]
@@ -110,6 +134,7 @@ export default class ProductService {
         SoLuong: productData.SoLuong,
         GiaSanPham: productData.GiaSanPham,
         HinhAnh: productData.HinhAnh ?? undefined,
+        MaNguoiBan: productData.MaNguoiBan ?? undefined,
         Ngaytao: new Date(),
         NgayCapNhat: new Date()
       });
@@ -125,7 +150,7 @@ export default class ProductService {
     }
   }
 
-  public async updateProduct(id: number, productData: Partial<ISanPham>) {
+  public async updateProduct(id: number, productData: Partial<ISanPham>, user?: { id: number; role: number }) {
     try {
       console.log('=== Service: updateProduct ===');
       console.log('Product ID:', id);
@@ -137,6 +162,14 @@ export default class ProductService {
       if (!product) {
         console.log('Product not found with ID:', id);
         throw new Error('Sản phẩm không tồn tại');
+      }
+
+      // Nếu là vendor, bắt buộc là chủ sở hữu
+      if (user && user.role === 3) {
+        const ownerId = productData.MaNguoiBan;
+        if (!ownerId || product.MaNguoiBan !== ownerId) {
+          throw new Error('Bạn không có quyền cập nhật sản phẩm này');
+        }
       }
 
       // Cập nhật bằng Sequelize (tương thích MySQL)

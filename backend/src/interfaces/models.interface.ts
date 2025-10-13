@@ -42,6 +42,7 @@ export interface ISanPham {
   Ngaytao?: Date;
   NgayCapNhat?: Date;
   HinhAnh?: string;
+  MaNguoiBan?: number;
 }
 
 // Interface cho HoaDon
@@ -65,3 +66,18 @@ export interface IChiTietHoaDon {
   DonGia: number;
   ThanhTien: number;
 } 
+
+// Interface cho NguoiBan (Vendor)
+export interface INguoiBan {
+  MaNguoiBan?: number;
+  MaKhachHang: number;
+  LoaiHinh: 'CA_NHAN' | 'DOANH_NGHIEP';
+  TenCuaHang?: string | null;
+  DiaChiKinhDoanh: string;
+  EmailLienHe?: string | null;
+  MaDanhMucChinh: number;
+  SoDienThoaiLienHe: string;
+  TrangThai?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  LyDoTuChoi?: string | null;
+  NgayDuyet?: Date | null;
+}

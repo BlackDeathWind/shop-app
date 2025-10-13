@@ -21,6 +21,24 @@ export default class ProductController {
     }
   };
 
+  public getVendorProducts = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      if (req.user?.role !== 3) {
+        return res.status(403).json({ message: 'Chỉ người bán mới được truy cập' });
+      }
+      const ownerId = await this.getVendorIdByCustomerId(req.user.id);
+      if (!ownerId) {
+        return res.status(400).json({ message: 'Không tìm thấy hồ sơ người bán' });
+      }
+      const result = await this.productService.getProductsByVendor(ownerId, page, limit);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message || 'Lỗi khi lấy danh sách sản phẩm người bán' });
+    }
+  };
+
   public getProductById = async (req: Request, res: Response): Promise<Response> => {
     try {
       const id = parseInt(req.params.id);
@@ -92,10 +110,12 @@ export default class ProductController {
         imagePath = `/uploads/${fileName}`;
       }
 
+      // Gán owner là vendor hiện tại nếu có
       const productData = {
         ...req.body,
-        HinhAnh: imagePath || req.body.HinhAnh
-      };
+        HinhAnh: imagePath || req.body.HinhAnh,
+        MaNguoiBan: req.user?.role === 3 ? (await this.getVendorIdByCustomerId(req.user!.id)) : undefined
+      } as any;
 
       const product = await this.productService.createProduct(productData);
       return res.status(201).json({
@@ -170,8 +190,15 @@ export default class ProductController {
 
       console.log('Product data to update:', productData);
 
+      // Kiểm tra quyền sở hữu (vendor chỉ được sửa sản phẩm của mình)
+      if (req.user?.role === 3) {
+        const ownerId = await this.getVendorIdByCustomerId(req.user.id);
+        // Service sẽ kiểm tra lại ownership khi cập nhật
+        productData.MaNguoiBan = ownerId;
+      }
+
       // Cập nhật sản phẩm
-      const product = await this.productService.updateProduct(id, productData);
+      const product = await this.productService.updateProduct(id, productData, req.user);
       console.log('Product updated successfully:', product.MaSanPham);
       
       return res.status(200).json({
@@ -187,9 +214,27 @@ export default class ProductController {
     }
   };
 
+  private async getVendorIdByCustomerId(customerId: number): Promise<number | undefined> {
+    try {
+      const { NguoiBan } = await import('../models');
+      const profile = await NguoiBan.findOne({ where: { MaKhachHang: customerId } });
+      return profile?.MaNguoiBan;
+    } catch {
+      return undefined;
+    }
+  }
+
   public deleteProduct = async (req: Request, res: Response): Promise<Response> => {
     try {
       const id = parseInt(req.params.id);
+      // Vendor ownership check
+      if (req.user?.role === 3) {
+        const ownerId = await this.getVendorIdByCustomerId(req.user.id);
+        const product = await this.productService.getProductById(id);
+        if (!ownerId || product.MaNguoiBan !== ownerId) {
+          return res.status(403).json({ message: 'Bạn không có quyền xóa sản phẩm này' });
+        }
+      }
       await this.productService.deleteProduct(id);
       return res.status(200).json({
         message: 'Xóa sản phẩm thành công'

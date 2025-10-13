@@ -117,6 +117,16 @@ const Navbar = () => {
             <span>Quản trị</span>
           </Link>
         )}
+        {user?.MaVaiTro === 3 && (
+          <Link
+            to="/vendor"
+            className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-rose-50 transition-colors"
+            onClick={() => setIsDropdownOpen(false)}
+          >
+            <Package size={16} className="mr-3 text-rose-600" />
+            <span>Khu vực người bán</span>
+          </Link>
+        )}
         
         <Link
           to="/account"
@@ -307,7 +317,7 @@ const Navbar = () => {
             <div className="bg-white p-2 rounded-full">
               <Package size={24} className="text-rose-600" />
             </div>
-            <span className="text-xl font-bold tracking-tight">Hoa & Quà tặng</span>
+            <span className="text-xl font-bold tracking-tight">Florist's D.E.P</span>
           </Link>
 
           {/* Desktop Navigation */}

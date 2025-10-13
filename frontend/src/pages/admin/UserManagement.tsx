@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { UserPlus, Edit, Trash, Search, RefreshCw } from 'lucide-react';
+import { UserPlus, Edit, Trash, Search, RefreshCw, Bell, X } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
 import {
   getAllCustomers,
   getAllStaff,
+  getAllVendors,
   getUserById,
-  createUser
+  createUser,
+  listVendorApplications,
+  approveVendorApplication,
+  rejectVendorApplication,
 } from '../../services/user.service';
 import type { UserResponse } from '../../services/user.service';
 import { useToast } from '../../contexts/ToastContext';
@@ -20,7 +24,7 @@ const UserManagement = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
-  const [activeTab, setActiveTab] = useState<'customers' | 'staff'>('customers');
+  const [activeTab, setActiveTab] = useState<'customers' | 'vendors' | 'staff'>('customers');
   const { addToast } = useToast();
   const location = useLocation();
   const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
@@ -36,11 +40,14 @@ const UserManagement = () => {
     DiaChi: ''
   });
   const [addLoading, setAddLoading] = useState(false);
+  const [showVendorModal, setShowVendorModal] = useState(false);
+  const [vendorApps, setVendorApps] = useState<any[]>([]);
+  const [vendorLoading, setVendorLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tab = params.get('tab');
-    if (tab === 'staff' || tab === 'customers') {
+    if (tab === 'staff' || tab === 'customers' || tab === 'vendors') {
       setActiveTab(tab);
     }
   }, [location.search]);
@@ -53,6 +60,9 @@ const UserManagement = () => {
         let response;
         if (activeTab === 'customers') {
           response = await getAllCustomers(currentPage, 10);
+          setUsers(response.users || []);
+        } else if (activeTab === 'vendors') {
+          response = await getAllVendors(currentPage, 10);
           setUsers(response.users || []);
         } else {
           response = await getAllStaff(currentPage, 10);
@@ -75,11 +85,45 @@ const UserManagement = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
+  const openVendorApps = async () => {
+    try {
+      setVendorLoading(true);
+      const data = await listVendorApplications('PENDING', 1, 20);
+      setVendorApps(data.applications || []);
+      setShowVendorModal(true);
+    } catch (e) {
+      addToast('Không thể tải danh sách đăng ký vendor', 'error');
+    } finally {
+      setVendorLoading(false);
+    }
+  };
+
+  const approveVendor = async (id: number) => {
+    try {
+      await approveVendorApplication(id);
+      setVendorApps(prev => prev.filter(a => a.MaNguoiBan !== id));
+      addToast('Đã phê duyệt hồ sơ', 'success');
+    } catch (e: any) {
+      addToast(e?.response?.data?.message || 'Không thể phê duyệt', 'error');
+    }
+  };
+
+  const rejectVendor = async (id: number) => {
+    const reason = prompt('Lý do từ chối (tuỳ chọn):') || '';
+    try {
+      await rejectVendorApplication(id, reason);
+      setVendorApps(prev => prev.filter(a => a.MaNguoiBan !== id));
+      addToast('Đã từ chối hồ sơ', 'success');
+    } catch (e: any) {
+      addToast(e?.response?.data?.message || 'Không thể từ chối', 'error');
+    }
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const handleTabChange = (tab: 'customers' | 'staff') => {
+  const handleTabChange = (tab: 'customers' | 'vendors' | 'staff') => {
     setActiveTab(tab);
     setCurrentPage(1);
   };
@@ -186,7 +230,16 @@ const UserManagement = () => {
     <AdminLayout>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">Quản lý người dùng</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold text-gray-800">Quản lý người dùng</h1>
+            <button
+              className="relative focus:outline-none"
+              onClick={openVendorApps}
+              title="Đăng ký vendor chờ duyệt"
+            >
+              <Bell className="w-7 h-7 text-blue-600" />
+            </button>
+          </div>
           <button
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
             onClick={handleOpenAddModal}
@@ -208,6 +261,16 @@ const UserManagement = () => {
                 onClick={() => handleTabChange('customers')}
               >
                 Khách hàng
+              </button>
+              <button
+                className={`pb-3 px-2 ${
+                  activeTab === 'vendors'
+                    ? 'border-b-2 border-blue-500 text-blue-600 font-medium'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                onClick={() => handleTabChange('vendors')}
+              >
+                Người bán
               </button>
               <button
                 className={`pb-3 px-2 ${
@@ -347,6 +410,52 @@ const UserManagement = () => {
           )}
         </div>
       </div>
+
+      {showVendorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-8 relative">
+            <button onClick={() => setShowVendorModal(false)} className="absolute top-3 right-3 text-gray-400 hover:text-pink-500 transition">
+              <X className="w-7 h-7" />
+            </button>
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-blue-600">
+              <Bell className="w-6 h-6" /> Đăng ký vendor chờ duyệt
+            </h2>
+            {vendorLoading ? (
+              <div className="text-center py-10">Đang tải...</div>
+            ) : vendorApps.length === 0 ? (
+              <div className="text-gray-500 italic">Không có hồ sơ nào.</div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg shadow mt-2">
+                <table className="min-w-full bg-white divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Tên cửa hàng</th>
+                      <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Loại hình</th>
+                      <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Danh mục chính</th>
+                      <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">SĐT liên hệ</th>
+                      <th className="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {vendorApps.map((app) => (
+                      <tr key={app.MaNguoiBan} className="hover:bg-pink-50 transition">
+                        <td className="px-4 py-2">{app.TenCuaHang || '—'}</td>
+                        <td className="px-4 py-2">{app.LoaiHinh === 'CA_NHAN' ? 'Cá nhân' : 'Doanh nghiệp'}</td>
+                        <td className="px-4 py-2">{app.DanhMuc?.TenDanhMuc || app.MaDanhMucChinh}</td>
+                        <td className="px-4 py-2">{app.SoDienThoaiLienHe}</td>
+                        <td className="px-4 py-2 text-right">
+                          <button onClick={() => approveVendor(app.MaNguoiBan)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 mr-2">Duyệt</button>
+                          <button onClick={() => rejectVendor(app.MaNguoiBan)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Từ chối</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Modal chi tiết tài khoản */}
       {showDetailModal && selectedUser && (

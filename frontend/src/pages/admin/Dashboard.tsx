@@ -12,6 +12,7 @@ interface DashboardSummary {
   totalCustomers: number;
   totalOrders: number;
   revenue: number;
+  pendingVendors?: number;
 }
 
 interface OrderStatus {
@@ -197,7 +198,13 @@ const Dashboard = () => {
                 <Users className="h-6 w-6 mr-2" />
                 <h2 className="text-xl font-semibold">Quản lý người dùng</h2>
               </div>
-              <p className="mb-4 opacity-90">Quản lý tài khoản khách hàng và nhân viên của hệ thống</p>
+              <p className="mb-4 opacity-90 flex items-center gap-2">Quản lý tài khoản khách hàng và nhân viên của hệ thống
+                {typeof summary.pendingVendors === 'number' && summary.pendingVendors > 0 && (
+                  <span className="inline-flex items-center justify-center text-xs font-semibold bg-white text-blue-600 rounded-full h-6 px-2">
+                    {summary.pendingVendors} đăng ký vendor mới
+                  </span>
+                )}
+              </p>
               <a 
                 href="/admin/users" 
                 className="inline-block bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-all"

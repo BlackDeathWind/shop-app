@@ -54,6 +54,19 @@ export default class AdminController {
     }
   };
 
+  public getAllVendors = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const vendors = await this.adminService.getAllVendors(page, limit);
+      return res.status(200).json(vendors);
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || 'Lỗi khi lấy danh sách người bán'
+      });
+    }
+  };
+
   public getUserById = async (req: Request, res: Response): Promise<Response> => {
     try {
       const id = parseInt(req.params.id);

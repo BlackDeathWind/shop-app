@@ -38,20 +38,12 @@ router.get('/search', productController.searchProducts);
 router.get('/category/:categoryId', productController.getProductsByCategory);
 router.get('/:id', productController.getProductById);
 
-// Protected routes (chỉ admin và nhân viên)
-router.post(
-  '/',
-  authMiddleware,
-  roleMiddleware([0, 1]), // Admin và nhân viên
-  upload.single('image'),
-  productValidation,
-  productController.createProduct
-);
-
+// Protected routes (chỉ vendor mới được CRUD)
+router.post('/', authMiddleware, roleMiddleware([3]), upload.single('image'), productValidation, productController.createProduct);
 router.put(
   '/:id',
   authMiddleware,
-  roleMiddleware([0, 1]),
+  roleMiddleware([3]),
   upload.single('image'),
   (req: Request, res: Response, next: NextFunction) => {
     console.log('=== Product update route hit ===');
@@ -62,12 +54,6 @@ router.put(
   productValidation,
   productController.updateProduct
 );
-
-router.delete(
-  '/:id',
-  authMiddleware,
-  roleMiddleware([0, 1]),
-  productController.deleteProduct
-);
+router.delete('/:id', authMiddleware, roleMiddleware([3]), productController.deleteProduct);
 
 export default router; 

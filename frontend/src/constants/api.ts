@@ -49,6 +49,7 @@ export const API_ENDPOINTS = {
     USERS: {
       GET_ALL_CUSTOMERS: `${API_BASE_URL}/admin/users/customers`,
       GET_ALL_STAFF: `${API_BASE_URL}/admin/users/staff`,
+      GET_ALL_VENDORS: `${API_BASE_URL}/admin/users/vendors`,
       GET_BY_ID: (id: number) => `${API_BASE_URL}/admin/users/${id}`,
       CREATE: `${API_BASE_URL}/admin/users`,
       UPDATE: (id: number) => `${API_BASE_URL}/admin/users/${id}`,
@@ -66,6 +67,22 @@ export const API_ENDPOINTS = {
       GET_ALL: `${API_BASE_URL}/admin/orders`,
       GET_BY_ID: (id: number) => `${API_BASE_URL}/admin/orders/${id}`,
       UPDATE_STATUS: (id: number) => `${API_BASE_URL}/admin/orders/${id}/status`
+    }
+  },
+  VENDOR: {
+    APPLY: `${API_BASE_URL}/vendor/apply`,
+    ME: `${API_BASE_URL}/vendor/me`,
+    PRODUCTS: {
+      LIST: `${API_BASE_URL}/vendor/products`,
+      CREATE: `${API_BASE_URL}/vendor/products`,
+      UPDATE: (id: number) => `${API_BASE_URL}/vendor/products/${id}`,
+      DELETE: (id: number) => `${API_BASE_URL}/vendor/products/${id}`
+    },
+    APPLICATIONS: {
+      LIST: (status: 'PENDING' | 'APPROVED' | 'REJECTED' = 'PENDING', page = 1, limit = 10) =>
+        `${API_BASE_URL}/vendor/applications?status=${status}&page=${page}&limit=${limit}`,
+      APPROVE: (id: number) => `${API_BASE_URL}/vendor/applications/${id}/approve`,
+      REJECT: (id: number) => `${API_BASE_URL}/vendor/applications/${id}/reject`
     }
   },
 }; 

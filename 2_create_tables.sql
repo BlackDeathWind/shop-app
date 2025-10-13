@@ -74,3 +74,34 @@ CREATE TABLE IF NOT EXISTS ChiTietHoaDon (
     CONSTRAINT FK_ChiTietHoaDon_HoaDon FOREIGN KEY (MaHoaDon) REFERENCES HoaDon(MaHoaDon),
     CONSTRAINT FK_ChiTietHoaDon_SanPham FOREIGN KEY (MaSanPham) REFERENCES SanPham(MaSanPham)
 );
+
+-- Create table NguoiBan (Vendor)
+CREATE TABLE IF NOT EXISTS NguoiBan (
+    MaNguoiBan INT AUTO_INCREMENT PRIMARY KEY,
+    MaKhachHang INT NOT NULL,
+    LoaiHinh ENUM('CA_NHAN','DOANH_NGHIEP') NOT NULL,
+    TenCuaHang VARCHAR(150),
+    DiaChiKinhDoanh VARCHAR(255) NOT NULL,
+    EmailLienHe VARCHAR(150),
+    MaDanhMucChinh INT NOT NULL,
+    SoDienThoaiLienHe VARCHAR(15) NOT NULL,
+    TrangThai ENUM('PENDING','APPROVED','REJECTED') DEFAULT 'PENDING',
+    LyDoTuChoi VARCHAR(255),
+    NgayDuyet DATETIME NULL,
+    CONSTRAINT FK_NguoiBan_KhachHang FOREIGN KEY (MaKhachHang) REFERENCES KhachHang(MaKhachHang),
+    CONSTRAINT FK_NguoiBan_DanhMuc FOREIGN KEY (MaDanhMucChinh) REFERENCES DanhMuc(MaDanhMuc)
+);
+
+-- Bridge table: NguoiBan <-> DanhMuc (many-to-many business categories)
+CREATE TABLE IF NOT EXISTS NguoiBanDanhMuc (
+    MaNguoiBan INT NOT NULL,
+    MaDanhMuc INT NOT NULL,
+    PRIMARY KEY (MaNguoiBan, MaDanhMuc),
+    CONSTRAINT FK_NBDM_NguoiBan FOREIGN KEY (MaNguoiBan) REFERENCES NguoiBan(MaNguoiBan) ON DELETE CASCADE,
+    CONSTRAINT FK_NBDM_DanhMuc FOREIGN KEY (MaDanhMuc) REFERENCES DanhMuc(MaDanhMuc) ON DELETE CASCADE
+);
+
+-- Alter SanPham: add owner MaNguoiBan
+-- Note: MySQL does not support IF NOT EXISTS here; run once or guard externally
+ALTER TABLE SanPham ADD COLUMN MaNguoiBan INT NULL;
+ALTER TABLE SanPham ADD CONSTRAINT FK_SanPham_NguoiBan FOREIGN KEY (MaNguoiBan) REFERENCES NguoiBan(MaNguoiBan);

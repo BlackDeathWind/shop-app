@@ -3,6 +3,7 @@ import { ISanPham } from '../interfaces/models.interface';
 import { sequelize } from '../config/db.config';
 import DanhMuc from './DanhMuc.model';
 import ChiTietHoaDon from './ChiTietHoaDon.model';
+import NguoiBan from './NguoiBan.model';
 
 // Interface cho các thuộc tính SanPham khi tạo mới
 interface SanPhamCreationAttributes extends Optional<ISanPham, 'MaSanPham' | 'Ngaytao' | 'NgayCapNhat' | 'HinhAnh'> {}
@@ -18,6 +19,7 @@ class SanPham extends Model<ISanPham, SanPhamCreationAttributes> implements ISan
   public Ngaytao?: Date;
   public NgayCapNhat?: Date;
   public HinhAnh?: string;
+  public MaNguoiBan?: number;
 }
 
 // Khởi tạo model
@@ -66,6 +68,14 @@ SanPham.init(
     HinhAnh: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    MaNguoiBan: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'NguoiBan',
+        key: 'MaNguoiBan',
+      },
     },
   },
   {
