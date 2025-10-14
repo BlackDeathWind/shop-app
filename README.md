@@ -136,7 +136,7 @@ PORT=5000
 NODE_ENV=development
 
 # Database (MySQL 8)
-DB_HOST=127.0.0.1 (localhost) # <--- DB_HOST=db.example.com: MySQL trên server từ xa (hosting, cloud)
+DB_HOST=127.0.0.1 # <--- 127.0.0.1 là localhost. DB_HOST=db.example.com: MySQL trên server từ xa (hosting, cloud)
 DB_PORT=3306 # <--- Chỉnh nếu MySQL trên server từ xa (hosting, cloud)
 DB_NAME=shop
 DB_USER=root # <--- nếu tên instance của các bạn không phải root thì điều chỉnh

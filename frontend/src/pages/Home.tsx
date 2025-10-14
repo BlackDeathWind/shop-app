@@ -169,9 +169,9 @@ const Home = () => {
               </div>
               <blockquote className="text-center">
                 <p className="text-xl md:text-2xl text-gray-700 leading-relaxed">
-                  “Florist's D.E.P (Florist's delivery e-commerce platform) là nền tảng thương mại dành cho các nghệ nhân florists và cửa hàng hoa,
-                  kết nối người bán và khách hàng qua trải nghiệm mua sắm tinh tế, giao hàng nhanh chóng, và hệ sinh thái quản trị sản phẩm thân thiện.
-                  Chúng tôi tạo điều kiện để người bán phát triển thương hiệu, còn khách hàng tận hưởng những bó hoa được cá nhân hoá với chất lượng vượt trội.”
+                  “Florist's D.E.P là nền tảng sàn thương mại điện tử dành cho các đối tác và cửa hàng hoa,
+                  kết nối người bán và khách hàng qua trải nghiệm mua sắm đơn giản, giao hàng nhanh chóng.
+                  Tạo điều kiện để người bán phát triển thương hiệu, còn khách hàng tận hưởng những bó hoa được cá nhân hoá với chất lượng vượt trội.”
                 </p>
               </blockquote>
             </div>
