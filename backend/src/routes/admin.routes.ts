@@ -59,7 +59,7 @@ const orderStatusValidation = [
 router.get(
   '/dashboard',
   authMiddleware,
-  roleMiddleware([0, 1]), // Admin và nhân viên
+  roleMiddleware([0, 1, 3]), // Admin, nhân viên và vendor
   adminController.getDashboardSummary
 );
 
@@ -123,18 +123,18 @@ router.put(
   adminController.changeUserRole
 );
 
-// Product management - Admin và nhân viên
+// Product management - Admin, nhân viên và vendor
 router.get(
   '/products',
   authMiddleware,
-  roleMiddleware([0, 1]),
+  roleMiddleware([0, 1, 3]),
   adminController.getAllProducts
 );
 
 router.get(
   '/products/:id',
   authMiddleware,
-  roleMiddleware([0, 1]),
+  roleMiddleware([0, 1, 3]),
   adminController.getProductById
 );
 
@@ -142,25 +142,25 @@ router.get(
 
 // Vendor applications endpoints moved to /api/vendor (mounted with admin role)
 
-// Order management - Admin và nhân viên
+// Order management - Admin, nhân viên và vendor
 router.get(
   '/orders',
   authMiddleware,
-  roleMiddleware([0, 1]),
+  roleMiddleware([0, 1, 3]),
   adminController.getAllOrders
 );
 
 router.get(
   '/orders/:id',
   authMiddleware,
-  roleMiddleware([0, 1]),
+  roleMiddleware([0, 1, 3]),
   adminController.getOrderById
 );
 
 router.put(
   '/orders/:id/status',
   authMiddleware,
-  roleMiddleware([0, 1]),
+  roleMiddleware([0, 1, 3]),
   orderStatusValidation,
   adminController.updateOrderStatus
 );
@@ -168,7 +168,7 @@ router.put(
 router.get(
   '/orders/by-customer/:customerId',
   authMiddleware,
-  roleMiddleware([0, 1]),
+  roleMiddleware([0, 1, 3]),
   adminController.getOrdersByCustomerId
 );
 

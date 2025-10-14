@@ -4,7 +4,7 @@ import SanPham from '../models/SanPham.model';
 import DanhMuc from '../models/DanhMuc.model';
 import HoaDon from '../models/HoaDon.model';
 import VaiTro from '../models/VaiTro.model';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { sequelize } from '../config/db.config';
 import bcrypt from 'bcrypt';
 import NguoiBan from '../models/NguoiBan.model';
@@ -12,7 +12,65 @@ import { Transaction } from 'sequelize';
 
 export default class AdminService {
   /**
-   * Lấy thông tin tổng quan cho dashboard
+   * Lấy thông tin tổng quan cho dashboard của vendor
+   */
+  public async getVendorDashboardSummary(vendorCustomerId: number) {
+    try {
+      // Tìm vendor profile từ customer ID
+      const vendorProfile = await NguoiBan.findOne({ 
+        where: { MaKhachHang: vendorCustomerId } 
+      });
+      
+      if (!vendorProfile) {
+        throw new Error('Không tìm thấy hồ sơ người bán');
+      }
+
+      // Đếm sản phẩm của vendor
+      const totalProducts = await SanPham.count({ 
+        where: { MaNguoiBan: vendorProfile.MaNguoiBan } 
+      });
+
+      // Đếm đơn hàng có sản phẩm của vendor này
+      const totalOrders = await HoaDon.count({
+        include: [{
+          model: sequelize.models.ChiTietHoaDon,
+          as: 'ChiTietHoaDons',
+          include: [{
+            model: SanPham,
+            as: 'SanPham',
+            where: { MaNguoiBan: vendorProfile.MaNguoiBan }
+          }]
+        }]
+      });
+
+      // Tính doanh thu từ sản phẩm của vendor
+      const revenue = await sequelize.query(`
+        SELECT COALESCE(SUM(ct.ThanhTien), 0) as revenue
+        FROM ChiTietHoaDon ct
+        JOIN SanPham sp ON ct.MaSanPham = sp.MaSanPham
+        JOIN HoaDon hd ON ct.MaHoaDon = hd.MaHoaDon
+        WHERE sp.MaNguoiBan = :vendorId 
+        AND hd.TrangThai != 'Đã hủy'
+      `, {
+        replacements: { vendorId: vendorProfile.MaNguoiBan },
+        type: QueryTypes.SELECT
+      });
+
+      return {
+        totalProducts,
+        totalCategories: 0, // Vendors don't see categories
+        totalCustomers: 0,  // Vendors don't see customers
+        totalOrders,
+        revenue: (revenue[0] as any)?.revenue || 0,
+        pendingVendors: 0   // Vendors don't see pending vendors
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Lấy thông tin tổng quan cho dashboard (Admin/Staff)
    */
   public async getDashboardSummary() {
     try {

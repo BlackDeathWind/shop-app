@@ -119,7 +119,7 @@ const Navbar = () => {
         )}
         {user?.MaVaiTro === 3 && (
           <Link
-            to="/vendor"
+            to="/admin"
             className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-rose-50 transition-colors"
             onClick={() => setIsDropdownOpen(false)}
           >

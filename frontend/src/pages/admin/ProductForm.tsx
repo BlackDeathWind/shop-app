@@ -7,9 +7,10 @@ import { getProductById } from '../../services/product.service';
 import { getAllCategories } from '../../services/category.service';
 // import type { ProductResponse } from '../../services/product.service';
 import type { CategoryResponse } from '../../services/category.service';
-import { API_BASE_URL } from '../../constants/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../../constants/api';
 // import api from '../../services/api';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ProductForm = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -37,6 +38,16 @@ const ProductForm = () => {
   });
 
   const { addToast } = useToast();
+  const { user } = useAuth();
+  const isVendor = user?.MaVaiTro === 3;
+
+  // Role-based access check
+  useEffect(() => {
+    if (user && !isVendor) {
+      addToast('Chỉ người bán mới có thể tạo/cập nhật sản phẩm', 'error');
+      navigate('/admin/products');
+    }
+  }, [user, isVendor, navigate, addToast]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,16 +113,42 @@ const ProductForm = () => {
     
     try {
       setLoading(true);
-      // Admin/Staff UI is read-only. Prevent create/update here.
-      addToast('Chỉ người bán (Vendor) mới có thể tạo/cập nhật sản phẩm. Vui lòng dùng Khu vực người bán.', 'info');
+      
+      const formDataToSend = new FormData();
+      formDataToSend.append('TenSanPham', formData.TenSanPham);
+      formDataToSend.append('MaDanhMuc', formData.MaDanhMuc);
+      formDataToSend.append('MoTa', formData.MoTa);
+      formDataToSend.append('SoLuong', formData.SoLuong);
+      formDataToSend.append('GiaSanPham', formData.GiaSanPham);
+      
+      if (formData.imageFile) {
+        formDataToSend.append('image', formData.imageFile);
+      }
+      
+      const url = isEditMode 
+        ? API_ENDPOINTS.VENDOR.PRODUCTS.UPDATE(parseInt(productId!))
+        : API_ENDPOINTS.VENDOR.PRODUCTS.CREATE;
+      
+      const method = isEditMode ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+        body: formDataToSend,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Lỗi khi lưu sản phẩm');
+      }
+      
+      addToast(isEditMode ? 'Cập nhật sản phẩm thành công' : 'Tạo sản phẩm thành công', 'success');
       navigate('/admin/products');
     } catch (error: any) {
       console.error('Lỗi khi lưu sản phẩm:', error);
-      if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', error.response.data);
-      }
-      // keep info-only behavior
+      addToast(error.message || 'Có lỗi xảy ra khi lưu sản phẩm', 'error');
     } finally {
       setLoading(false);
     }

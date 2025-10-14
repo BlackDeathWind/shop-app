@@ -51,7 +51,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <Menu size={24} />
             </button>
             <Link to="/admin" className="font-semibold text-xl">
-              Flower Shop Admin
+              {user?.MaVaiTro === 3 ? 'Khu vực người bán' : 'Flower Shop Admin'}
             </Link>
           </div>
           
@@ -75,7 +75,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <div className="mr-2">
                   <div className="text-sm">{user?.TenKhachHang || user?.TenNhanVien}</div>
                   <div className="text-xs opacity-75 text-right">
-                    {user?.MaVaiTro === 0 ? 'Quản trị viên' : 'Nhân viên'}
+                    {user?.MaVaiTro === 0 ? 'Quản trị viên' : 
+                     user?.MaVaiTro === 1 ? 'Nhân viên' : 
+                     user?.MaVaiTro === 3 ? 'Người bán' : 'Khách hàng'}
                   </div>
                 </div>
                 
@@ -166,6 +168,7 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
   const { user, logout } = useAuth();
   const { addToast } = useToast();
   const isAdmin = user?.MaVaiTro === 0;
+  const isVendor = user?.MaVaiTro === 3;
   
   const [userManagementOpen, setUserManagementOpen] = useState(false);
   const location = useLocation();
@@ -226,7 +229,7 @@ function SidebarContent({ isActive }: { isActive: (path: string) => boolean }) {
       </Link>
 
       {/* Quản lý người dùng - chỉ admin */}
-      {isAdmin && (
+      {isAdmin && !isVendor && (
         <div>
           <button
             className={`w-full flex items-center justify-between px-4 py-2 rounded-md text-gray-700 hover:bg-pink-50 hover:text-pink-600`}

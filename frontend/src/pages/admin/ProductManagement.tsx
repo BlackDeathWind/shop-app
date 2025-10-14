@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-// import { Link } from 'react-router-dom';
-import { PlusCircle, Search, RefreshCw, AlertCircle, X, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { PlusCircle, Search, RefreshCw, AlertCircle, X, Eye, Edit, Trash } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
-import { getAllProducts, searchProducts } from '../../services/product.service';
+import { getAllProducts, searchProducts, getVendorProducts } from '../../services/product.service';
 import type { ProductResponse, ProductListResponse } from '../../services/product.service';
 import { getAllCategories } from '../../services/category.service';
 import type { CategoryResponse } from '../../services/category.service';
-import { API_BASE_URL } from '../../constants/api';
-// import { useToast } from '../../contexts/ToastContext';
-// import { useAuth } from '../../contexts/AuthContext';
+import { API_ENDPOINTS, API_BASE_URL } from '../../constants/api';
+import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -20,12 +20,11 @@ const ProductManagement = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  // const { addToast } = useToast();
+  const { addToast } = useToast();
   const [showOutOfStock, setShowOutOfStock] = useState(false);
   const outOfStockProducts = products.filter(p => p.SoLuong === 0);
-  // const { user } = useAuth();
-  // const isAdmin = user?.MaVaiTro === 0;
-  // const isStaff = user?.MaVaiTro === 1;
+  const { user } = useAuth();
+  const isVendor = user?.MaVaiTro === 3;
   const [showDetail, setShowDetail] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductResponse | null>(null);
   const [sortType, setSortType] = useState('newest');
@@ -40,7 +39,10 @@ const ProductManagement = () => {
         setCategories(categoriesData);
 
         let productsData: ProductListResponse;
-        if (searchTerm.trim()) {
+        if (isVendor) {
+          // Vendor chỉ thấy sản phẩm của mình
+          productsData = await getVendorProducts(currentPage, 10);
+        } else if (searchTerm.trim()) {
           productsData = await searchProducts(searchTerm, currentPage, 10);
         } else {
           productsData = await getAllProducts(currentPage, 10);
@@ -67,6 +69,30 @@ const ProductManagement = () => {
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+      try {
+        const response = await fetch(API_ENDPOINTS.VENDOR.PRODUCTS.DELETE(id), {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          addToast('Xóa sản phẩm thành công', 'success');
+          setRefreshTrigger(prev => prev + 1);
+        } else {
+          const error = await response.json();
+          addToast(error.message || 'Không thể xóa sản phẩm', 'error');
+        }
+      } catch (error) {
+        addToast('Có lỗi xảy ra khi xóa sản phẩm', 'error');
+      }
+    }
   };
 
   // Admin/Staff are read-only; deletion is disabled
@@ -122,13 +148,23 @@ const ProductManagement = () => {
               )}
             </button>
           </div>
-          <button
-            className="flex items-center gap-2 bg-gray-200 text-gray-600 px-4 py-2 rounded-md cursor-not-allowed"
-            title="Chỉ người bán (Vendor) mới có thể thêm sản phẩm"
-          >
-            <PlusCircle size={18} />
-            <span>Thêm sản phẩm (Vendor)</span>
-          </button>
+          {isVendor ? (
+            <Link
+              to="/admin/products/new"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <PlusCircle size={18} />
+              <span>Thêm sản phẩm</span>
+            </Link>
+          ) : (
+            <button
+              className="flex items-center gap-2 bg-gray-200 text-gray-600 px-4 py-2 rounded-md cursor-not-allowed"
+              title="Chỉ người bán (Vendor) mới có thể thêm sản phẩm"
+            >
+              <PlusCircle size={18} />
+              <span>Thêm sản phẩm (Vendor)</span>
+            </button>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -273,7 +309,24 @@ const ProductManagement = () => {
                               >
                                 <Eye size={16} />
                               </button>
-                              <div className="text-xs text-gray-500" title="Chỉ người bán có thể chỉnh sửa/xóa sản phẩm">Dành cho Vendor</div>
+                              {isVendor && (
+                                <>
+                                  <Link
+                                    to={`/admin/products/edit/${product.MaSanPham}`}
+                                    className="p-2 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
+                                    title="Chỉnh sửa sản phẩm"
+                                  >
+                                    <Edit size={16} />
+                                  </Link>
+                                  <button
+                                    className="p-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
+                                    title="Xóa sản phẩm"
+                                    onClick={() => handleDelete(product.MaSanPham)}
+                                  >
+                                    <Trash size={16} />
+                                  </button>
+                                </>
+                              )}
                             </div>
                           </td>
                         </tr>

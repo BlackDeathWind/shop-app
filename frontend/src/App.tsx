@@ -22,10 +22,6 @@ import OrderManagement from './pages/admin/OrderManagement';
 import ProductForm from './pages/admin/ProductForm';
 import NotFound from './pages/NotFound';
 import SearchResults from './pages/SearchResults';
-// Vendor
-import VendorDashboard from './pages/vendor/Dashboard';
-import VendorProductManagement from './pages/vendor/ProductManagement';
-import VendorProductForm from './pages/vendor/ProductForm';
 import './App.css'
 
 function App() {
@@ -63,24 +59,24 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Admin Routes - chỉ cho Admin và Staff */}
+              {/* Admin Routes - cho Admin, Staff và Vendor */}
               <Route path="/admin" element={
-                <ProtectedRoute requiredRoles={[0, 1]}>
+                <ProtectedRoute requiredRoles={[0, 1, 3]}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/admin/products" element={
-                <ProtectedRoute requiredRoles={[0, 1]}>
+                <ProtectedRoute requiredRoles={[0, 1, 3]}>
                   <ProductManagement />
                 </ProtectedRoute>
               } />
               <Route path="/admin/products/new" element={
-                <ProtectedRoute requiredRoles={[0, 1]}>
+                <ProtectedRoute requiredRoles={[0, 1, 3]}>
                   <ProductForm />
                 </ProtectedRoute>
               } />
               <Route path="/admin/products/edit/:productId" element={
-                <ProtectedRoute requiredRoles={[0, 1]}>
+                <ProtectedRoute requiredRoles={[0, 1, 3]}>
                   <ProductForm />
                 </ProtectedRoute>
               } />
@@ -90,7 +86,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/admin/orders" element={
-                <ProtectedRoute requiredRoles={[0, 1]}>
+                <ProtectedRoute requiredRoles={[0, 1, 3]}>
                   <OrderManagement />
                 </ProtectedRoute>
               } />
@@ -100,28 +96,6 @@ function App() {
 
               {/* New route for search results */}
               <Route path="/products/search" element={<SearchResults />} />
-
-              {/* Vendor Routes */}
-              <Route path="/vendor" element={
-                <ProtectedRoute requiredRoles={[3]}>
-                  <VendorDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/vendor/products" element={
-                <ProtectedRoute requiredRoles={[3]}>
-                  <VendorProductManagement />
-                </ProtectedRoute>
-              } />
-              <Route path="/vendor/products/new" element={
-                <ProtectedRoute requiredRoles={[3]}>
-                  <VendorProductForm />
-                </ProtectedRoute>
-              } />
-              <Route path="/vendor/products/edit/:productId" element={
-                <ProtectedRoute requiredRoles={[3]}>
-                  <VendorProductForm />
-                </ProtectedRoute>
-              } />
             </Routes>
           </Router>
         </CartProvider>

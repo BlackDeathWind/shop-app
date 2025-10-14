@@ -53,8 +53,8 @@ const Dashboard = () => {
       return;
     }
 
-    // Kiểm tra role (chỉ admin và nhân viên mới có quyền truy cập)
-    if (user && user.MaVaiTro !== 0 && user.MaVaiTro !== 1) {
+    // Kiểm tra role (admin, nhân viên và vendor mới có quyền truy cập)
+    if (user && user.MaVaiTro !== 0 && user.MaVaiTro !== 1 && user.MaVaiTro !== 3) {
       navigate('/', { state: { message: 'Bạn không có quyền truy cập trang quản trị' } });
       return;
     }
@@ -122,7 +122,8 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Thống kê danh mục */}
+            {/* Thống kê danh mục - chỉ hiển thị cho admin và staff */}
+            {user?.MaVaiTro !== 3 && (
             <div className="bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105">
               <div className="flex items-center">
                 <div className="bg-yellow-100 p-3 rounded-full">
@@ -134,8 +135,10 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+            )}
 
-            {/* Thống kê khách hàng */}
+            {/* Thống kê khách hàng - chỉ hiển thị cho admin và staff */}
+            {user?.MaVaiTro !== 3 && (
             <div className="bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105">
               <div className="flex items-center">
                 <div className="bg-green-100 p-3 rounded-full">
@@ -147,6 +150,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Thống kê đơn hàng */}
             <div className="bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105">

@@ -12,10 +12,19 @@ export default class AdminController {
   /**
    * Lấy thông tin tổng quan cho dashboard
    */
-  public getDashboardSummary = async (_req: Request, res: Response): Promise<Response> => {
+  public getDashboardSummary = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const summary = await this.adminService.getDashboardSummary();
-      return res.status(200).json(summary);
+      const userRole = req.user?.role;
+      
+      if (userRole === 3) {
+        // Vendor dashboard - chỉ hiển thị dữ liệu của vendor
+        const summary = await this.adminService.getVendorDashboardSummary(req.user!.id);
+        return res.status(200).json(summary);
+      } else {
+        // Admin/Staff dashboard - hiển thị dữ liệu tổng quan
+        const summary = await this.adminService.getDashboardSummary();
+        return res.status(200).json(summary);
+      }
     } catch (error: any) {
       return res.status(500).json({
         message: error.message || 'Lỗi khi lấy thông tin tổng quan'
