@@ -272,4 +272,56 @@ export default class AdminController {
       });
     }
   };
+
+  /**
+   * Tạm dừng sản phẩm
+   */
+  public suspendProduct = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const productId = parseInt(req.params.id);
+      const { lyDoTamDung } = req.body;
+      const adminId = req.user!.id;
+
+      if (!lyDoTamDung || lyDoTamDung.trim().length === 0) {
+        return res.status(400).json({
+          message: 'Lý do tạm dừng không được để trống'
+        });
+      }
+
+      const product = await this.productService.suspendProduct(productId, lyDoTamDung, adminId);
+      
+      return res.status(200).json({
+        message: 'Tạm dừng sản phẩm thành công',
+        product
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || 'Lỗi khi tạm dừng sản phẩm'
+      });
+    }
+  };
+
+  /**
+   * Hủy tạm dừng sản phẩm
+   */
+  public unsuspendProduct = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const productId = parseInt(req.params.id);
+      const product = await this.productService.unsuspendProduct(productId);
+      
+      return res.status(200).json({
+        message: 'Hủy tạm dừng sản phẩm thành công',
+        product
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || 'Lỗi khi hủy tạm dừng sản phẩm'
+      });
+    }
+  };
 } 

@@ -5,11 +5,17 @@ import { Op } from 'sequelize';
 import { ISanPham } from '../interfaces/models.interface';
 
 export default class ProductService {
-  public async getAllProducts(page = 1, limit = 10) {
+  public async getAllProducts(page = 1, limit = 10, includeSuspended = false) {
     try {
       const offset = (page - 1) * limit;
       
+      const whereClause: any = {};
+      if (!includeSuspended) {
+        whereClause.TrangThaiKiemDuyet = 'ACTIVE';
+      }
+      
       const { count, rows } = await SanPham.findAndCountAll({
+        where: whereClause,
         include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }],
         limit,
         offset,
@@ -50,9 +56,15 @@ export default class ProductService {
     }
   }
 
-  public async getProductById(id: number) {
+  public async getProductById(id: number, includeSuspended = false) {
     try {
-      const product = await SanPham.findByPk(id, {
+      const whereClause: any = { MaSanPham: id };
+      if (!includeSuspended) {
+        whereClause.TrangThaiKiemDuyet = 'ACTIVE';
+      }
+      
+      const product = await SanPham.findOne({
+        where: whereClause,
         include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }]
       });
 
@@ -66,12 +78,17 @@ export default class ProductService {
     }
   }
 
-  public async getProductsByCategory(categoryId: number, page = 1, limit = 10) {
+  public async getProductsByCategory(categoryId: number, page = 1, limit = 10, includeSuspended = false) {
     try {
       const offset = (page - 1) * limit;
       
+      const whereClause: any = { MaDanhMuc: categoryId };
+      if (!includeSuspended) {
+        whereClause.TrangThaiKiemDuyet = 'ACTIVE';
+      }
+      
       const { count, rows } = await SanPham.findAndCountAll({
-        where: { MaDanhMuc: categoryId },
+        where: whereClause,
         include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }],
         limit,
         offset,
@@ -89,17 +106,23 @@ export default class ProductService {
     }
   }
 
-  public async searchProducts(query: string, page = 1, limit = 10) {
+  public async searchProducts(query: string, page = 1, limit = 10, includeSuspended = false) {
     try {
       const offset = (page - 1) * limit;
       
+      const whereClause: any = {
+        [Op.or]: [
+          { TenSanPham: { [Op.like]: `%${query}%` } },
+          { MoTa: { [Op.like]: `%${query}%` } }
+        ]
+      };
+      
+      if (!includeSuspended) {
+        whereClause.TrangThaiKiemDuyet = 'ACTIVE';
+      }
+      
       const { count, rows } = await SanPham.findAndCountAll({
-        where: {
-          [Op.or]: [
-            { TenSanPham: { [Op.like]: `%${query}%` } },
-            { MoTa: { [Op.like]: `%${query}%` } }
-          ]
-        },
+        where: whereClause,
         include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }],
         limit,
         offset,
@@ -212,6 +235,56 @@ export default class ProductService {
 
       await product.destroy();
       return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async suspendProduct(id: number, reason: string, adminId: number) {
+    try {
+      const product = await SanPham.findByPk(id);
+      
+      if (!product) {
+        throw new Error('Sản phẩm không tồn tại');
+      }
+
+      if (product.TrangThaiKiemDuyet === 'SUSPENDED') {
+        throw new Error('Sản phẩm đã bị tạm dừng');
+      }
+
+      await product.update({
+        TrangThaiKiemDuyet: 'SUSPENDED',
+        LyDoTamDung: reason,
+        NgayTamDung: new Date(),
+        NguoiTamDung: adminId
+      });
+
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async unsuspendProduct(id: number) {
+    try {
+      const product = await SanPham.findByPk(id);
+      
+      if (!product) {
+        throw new Error('Sản phẩm không tồn tại');
+      }
+
+      if (product.TrangThaiKiemDuyet === 'ACTIVE') {
+        throw new Error('Sản phẩm không bị tạm dừng');
+      }
+
+      await product.update({
+        TrangThaiKiemDuyet: 'ACTIVE',
+        LyDoTamDung: null,
+        NgayTamDung: null,
+        NguoiTamDung: null
+      });
+
+      return product;
     } catch (error) {
       throw error;
     }

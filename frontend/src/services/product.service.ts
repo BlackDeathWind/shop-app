@@ -11,6 +11,10 @@ export interface ProductResponse {
   HinhAnh?: string;
   Ngaytao?: string;
   NgayCapNhat?: string;
+  TrangThaiKiemDuyet?: 'ACTIVE' | 'SUSPENDED';
+  LyDoTamDung?: string | null;
+  NgayTamDung?: string | null;
+  NguoiTamDung?: number | null;
   DanhMuc?: {
     MaDanhMuc: number;
     TenDanhMuc: string;
@@ -68,4 +72,16 @@ export const vendorUpdateProduct = async (id: number, productData: FormData): Pr
 
 export const vendorDeleteProduct = async (id: number): Promise<void> => {
   await api.delete(API_ENDPOINTS.VENDOR.PRODUCTS.DELETE(id));
+};
+
+export const suspendProduct = async (id: number, reason: string): Promise<ProductResponse> => {
+  const response = await api.put(API_ENDPOINTS.ADMIN.PRODUCTS.SUSPEND(id), {
+    lyDoTamDung: reason
+  });
+  return response.data.product;
+};
+
+export const unsuspendProduct = async (id: number): Promise<ProductResponse> => {
+  const response = await api.put(API_ENDPOINTS.ADMIN.PRODUCTS.UNSUSPEND(id));
+  return response.data.product;
 };

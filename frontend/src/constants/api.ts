@@ -61,7 +61,9 @@ export const API_ENDPOINTS = {
       GET_BY_ID: (id: number) => `${API_BASE_URL}/admin/products/${id}`,
       CREATE: `${API_BASE_URL}/admin/products`,
       UPDATE: (id: number) => `${API_BASE_URL}/admin/products/${id}`,
-      DELETE: (id: number) => `${API_BASE_URL}/admin/products/${id}`
+      DELETE: (id: number) => `${API_BASE_URL}/admin/products/${id}`,
+      SUSPEND: (id: number) => `${API_BASE_URL}/admin/products/${id}/suspend`,
+      UNSUSPEND: (id: number) => `${API_BASE_URL}/admin/products/${id}/unsuspend`
     },
     ORDERS: {
       GET_ALL: `${API_BASE_URL}/admin/orders`,

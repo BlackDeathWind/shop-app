@@ -20,6 +20,10 @@ class SanPham extends Model<ISanPham, SanPhamCreationAttributes> implements ISan
   public NgayCapNhat?: Date;
   public HinhAnh?: string;
   public MaNguoiBan?: number;
+  public TrangThaiKiemDuyet?: 'ACTIVE' | 'SUSPENDED';
+  public LyDoTamDung?: string | null;
+  public NgayTamDung?: Date | null;
+  public NguoiTamDung?: number | null;
 }
 
 // Khởi tạo model
@@ -75,6 +79,27 @@ SanPham.init(
       references: {
         model: 'NguoiBan',
         key: 'MaNguoiBan',
+      },
+    },
+    TrangThaiKiemDuyet: {
+      type: DataTypes.ENUM('ACTIVE', 'SUSPENDED'),
+      allowNull: true,
+      defaultValue: 'ACTIVE',
+    },
+    LyDoTamDung: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    NgayTamDung: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    NguoiTamDung: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'NhanVien',
+        key: 'MaNhanVien',
       },
     },
   },

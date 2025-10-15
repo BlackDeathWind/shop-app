@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PlusCircle, Search, RefreshCw, AlertCircle, X, Eye, Edit, Trash } from 'lucide-react';
+import { PlusCircle, Search, RefreshCw, AlertCircle, X, Eye, Edit, Trash, Shield, ShieldOff } from 'lucide-react';
 import AdminLayout from '../../layouts/AdminLayout';
-import { getAllProducts, searchProducts, getVendorProducts } from '../../services/product.service';
+import { getAllProducts, searchProducts, getVendorProducts, suspendProduct, unsuspendProduct } from '../../services/product.service';
 import type { ProductResponse, ProductListResponse } from '../../services/product.service';
 import { getAllCategories } from '../../services/category.service';
 import type { CategoryResponse } from '../../services/category.service';
@@ -25,9 +25,19 @@ const ProductManagement = () => {
   const outOfStockProducts = products.filter(p => p.SoLuong === 0);
   const { user } = useAuth();
   const isVendor = user?.MaVaiTro === 3;
+  const isAdmin = user?.MaVaiTro === 0;
+  const isStaff = user?.MaVaiTro === 1;
   const [showDetail, setShowDetail] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductResponse | null>(null);
   const [sortType, setSortType] = useState('newest');
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [suspendReason, setSuspendReason] = useState('');
+  const [productToSuspend, setProductToSuspend] = useState<ProductResponse | null>(null);
+  const [isAdminOrStaff, setIsAdminOrStaff] = useState(false);
+
+  useEffect(() => {
+    setIsAdminOrStaff(isAdmin || isStaff);
+  }, [isAdmin, isStaff]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,8 +81,13 @@ const ProductManagement = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+  const handleDelete = async (id: number, product?: ProductResponse) => {
+    const isSuspended = product?.TrangThaiKiemDuyet === 'SUSPENDED';
+    const confirmMessage = isSuspended 
+      ? 'Bạn có chắc chắn muốn xóa sản phẩm đã bị tạm dừng này? Hành động này không thể hoàn tác.'
+      : 'Bạn có chắc chắn muốn xóa sản phẩm này?';
+    
+    if (window.confirm(confirmMessage)) {
       try {
         const response = await fetch(API_ENDPOINTS.VENDOR.PRODUCTS.DELETE(id), {
           method: 'DELETE',
@@ -83,7 +98,10 @@ const ProductManagement = () => {
         });
 
         if (response.ok) {
-          addToast('Xóa sản phẩm thành công', 'success');
+          addToast(
+            isSuspended ? 'Xóa sản phẩm bị tạm dừng thành công' : 'Xóa sản phẩm thành công', 
+            'success'
+          );
           setRefreshTrigger(prev => prev + 1);
         } else {
           const error = await response.json();
@@ -99,6 +117,48 @@ const ProductManagement = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleSuspendProduct = (product: ProductResponse) => {
+    setProductToSuspend(product);
+    setSuspendReason('');
+    setShowSuspendModal(true);
+  };
+
+  const handleUnsuspendProduct = async (product: ProductResponse) => {
+    if (window.confirm(`Bạn có chắc chắn muốn hủy tạm dừng sản phẩm "${product.TenSanPham}"?`)) {
+      try {
+        await unsuspendProduct(product.MaSanPham);
+        addToast('Hủy tạm dừng sản phẩm thành công', 'success');
+        setRefreshTrigger(prev => prev + 1);
+      } catch (error: any) {
+        addToast(error.response?.data?.message || 'Không thể hủy tạm dừng sản phẩm', 'error');
+      }
+    }
+  };
+
+  const handleConfirmSuspend = async () => {
+    if (!productToSuspend || !suspendReason.trim()) {
+      addToast('Vui lòng nhập lý do tạm dừng', 'error');
+      return;
+    }
+
+    try {
+      await suspendProduct(productToSuspend.MaSanPham, suspendReason.trim());
+      addToast('Tạm dừng sản phẩm thành công', 'success');
+      setShowSuspendModal(false);
+      setProductToSuspend(null);
+      setSuspendReason('');
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error: any) {
+      addToast(error.response?.data?.message || 'Không thể tạm dừng sản phẩm', 'error');
+    }
+  };
+
+  const handleCancelSuspend = () => {
+    setShowSuspendModal(false);
+    setProductToSuspend(null);
+    setSuspendReason('');
   };
 
   const formatCurrency = (amount: number) => {
@@ -246,6 +306,9 @@ const ProductManagement = () => {
                         Số lượng
                       </th>
                       <th className="py-3 px-4 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
+                        Trạng thái
+                      </th>
+                      <th className="py-3 px-4 text-center text-sm font-medium text-gray-600 uppercase tracking-wider">
                         Thao tác
                       </th>
                     </tr>
@@ -253,7 +316,7 @@ const ProductManagement = () => {
                   <tbody className="divide-y divide-gray-200">
                     {sortedProducts.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-gray-500">
+                        <td colSpan={7} className="py-8 text-center text-gray-500">
                           Không có sản phẩm nào
                         </td>
                       </tr>
@@ -301,6 +364,17 @@ const ProductManagement = () => {
                             </span>
                           </td>
                           <td className="py-4 px-4 whitespace-nowrap text-center">
+                            {product.TrangThaiKiemDuyet === 'SUSPENDED' ? (
+                              <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-md">
+                                TẠM DỪNG
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-md">
+                                HOẠT ĐỘNG
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 whitespace-nowrap text-center">
                             <div className="flex justify-center space-x-2">
                               <button
                                 className="p-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
@@ -311,20 +385,59 @@ const ProductManagement = () => {
                               </button>
                               {isVendor && (
                                 <>
-                                  <Link
-                                    to={`/admin/products/edit/${product.MaSanPham}`}
-                                    className="p-2 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
-                                    title="Chỉnh sửa sản phẩm"
-                                  >
-                                    <Edit size={16} />
-                                  </Link>
+                                  {product.TrangThaiKiemDuyet === 'SUSPENDED' ? (
+                                    <button
+                                      className="p-2 bg-gray-50 text-gray-400 rounded-md cursor-not-allowed"
+                                      title="Không thể chỉnh sửa sản phẩm đã bị tạm dừng"
+                                      disabled
+                                    >
+                                      <Edit size={16} />
+                                    </button>
+                                  ) : (
+                                    <Link
+                                      to={`/admin/products/edit/${product.MaSanPham}`}
+                                      className="p-2 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
+                                      title="Chỉnh sửa sản phẩm"
+                                    >
+                                      <Edit size={16} />
+                                    </Link>
+                                  )}
                                   <button
-                                    className="p-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
-                                    title="Xóa sản phẩm"
-                                    onClick={() => handleDelete(product.MaSanPham)}
+                                    className={`p-2 rounded-md transition-colors ${
+                                      product.TrangThaiKiemDuyet === 'SUSPENDED'
+                                        ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                                        : 'bg-red-50 text-red-600 hover:bg-red-100'
+                                    }`}
+                                    title={
+                                      product.TrangThaiKiemDuyet === 'SUSPENDED'
+                                        ? 'Xóa sản phẩm bị tạm dừng'
+                                        : 'Xóa sản phẩm'
+                                    }
+                                    onClick={() => handleDelete(product.MaSanPham, product)}
                                   >
                                     <Trash size={16} />
                                   </button>
+                                </>
+                              )}
+                              {isAdminOrStaff && (
+                                <>
+                                  {product.TrangThaiKiemDuyet === 'SUSPENDED' ? (
+                                    <button
+                                      className="p-2 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
+                                      title="Hủy tạm dừng sản phẩm"
+                                      onClick={() => handleUnsuspendProduct(product)}
+                                    >
+                                      <ShieldOff size={16} />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      className="p-2 bg-orange-50 text-orange-600 rounded-md hover:bg-orange-100 transition-colors"
+                                      title="Tạm dừng sản phẩm"
+                                      onClick={() => handleSuspendProduct(product)}
+                                    >
+                                      <Shield size={16} />
+                                    </button>
+                                  )}
                                 </>
                               )}
                             </div>
@@ -458,6 +571,43 @@ const ProductManagement = () => {
                     <span className="font-semibold text-gray-700">Số lượng tồn kho:</span>
                     <span className={`px-2 py-1 text-xs font-medium rounded-md ${selectedProduct.SoLuong > 10 ? 'bg-green-100 text-green-800' : selectedProduct.SoLuong > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>{selectedProduct.SoLuong}</span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-700">Trạng thái:</span>
+                    {selectedProduct.TrangThaiKiemDuyet === 'SUSPENDED' ? (
+                      <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-md">
+                        TẠM DỪNG
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-md">
+                        HOẠT ĐỘNG
+                      </span>
+                    )}
+                  </div>
+                  {selectedProduct.TrangThaiKiemDuyet === 'SUSPENDED' && selectedProduct.LyDoTamDung && (
+                    <div>
+                      <span className="font-semibold text-gray-700">Lý do tạm dừng:</span>
+                      <div className="text-red-600 mt-1 p-2 bg-red-50 rounded-md">{selectedProduct.LyDoTamDung}</div>
+                    </div>
+                  )}
+                  {selectedProduct.TrangThaiKiemDuyet === 'SUSPENDED' && isVendor && (
+                    <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-orange-800">
+                            Thông tin cho người bán
+                          </h3>
+                          <div className="mt-1 text-sm text-orange-700">
+                            <p>Sản phẩm này đã bị tạm dừng bởi quản trị viên. Bạn có thể xóa sản phẩm này nếu không muốn giữ lại.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <span className="font-semibold text-gray-700">Mô tả:</span>
                     <div className="text-gray-600 mt-1 whitespace-pre-line">{selectedProduct.MoTa || 'Không có mô tả.'}</div>
@@ -466,6 +616,63 @@ const ProductManagement = () => {
               </div>
               <div className="flex justify-end">
                 <button onClick={() => setShowDetail(false)} className="px-5 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-pink-100 hover:text-pink-600 font-medium transition">Đóng</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Suspension Modal */}
+        {showSuspendModal && productToSuspend && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative animate-fade-in">
+              <button 
+                onClick={handleCancelSuspend} 
+                className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                  <Shield className="w-6 h-6 text-orange-500" />
+                  Tạm dừng sản phẩm
+                </h2>
+                <p className="text-gray-600">
+                  Bạn đang tạm dừng sản phẩm: <span className="font-semibold">{productToSuspend.TenSanPham}</span>
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Lý do tạm dừng <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={suspendReason}
+                  onChange={(e) => setSuspendReason(e.target.value)}
+                  placeholder="Nhập lý do tạm dừng sản phẩm (tối thiểu 10 ký tự)..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  rows={4}
+                  maxLength={500}
+                />
+                <div className="text-xs text-gray-500 mt-1">
+                  {suspendReason.length}/500 ký tự
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={handleCancelSuspend}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleConfirmSuspend}
+                  disabled={suspendReason.trim().length < 10}
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Tạm dừng sản phẩm
+                </button>
               </div>
             </div>
           </div>

@@ -12,7 +12,10 @@ export default class ProductController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       
-      const result = await this.productService.getAllProducts(page, limit);
+      // For customers (role 2) and unauthenticated users, don't include suspended products
+      // For admin/staff/vendor, include suspended products
+      const includeSuspended = req.user && req.user.role !== 2;
+      const result = await this.productService.getAllProducts(page, limit, includeSuspended);
       return res.status(200).json(result);
     } catch (error: any) {
       return res.status(500).json({
@@ -42,7 +45,10 @@ export default class ProductController {
   public getProductById = async (req: Request, res: Response): Promise<Response> => {
     try {
       const id = parseInt(req.params.id);
-      const product = await this.productService.getProductById(id);
+      // For customers (role 2) and unauthenticated users, don't include suspended products
+      // For admin/staff/vendor, include suspended products
+      const includeSuspended = req.user && req.user.role !== 2;
+      const product = await this.productService.getProductById(id, includeSuspended);
       return res.status(200).json(product);
     } catch (error: any) {
       return res.status(404).json({
@@ -57,7 +63,10 @@ export default class ProductController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       
-      const result = await this.productService.getProductsByCategory(categoryId, page, limit);
+      // For customers (role 2) and unauthenticated users, don't include suspended products
+      // For admin/staff/vendor, include suspended products
+      const includeSuspended = req.user && req.user.role !== 2;
+      const result = await this.productService.getProductsByCategory(categoryId, page, limit, includeSuspended);
       return res.status(200).json(result);
     } catch (error: any) {
       return res.status(500).json({
@@ -78,7 +87,10 @@ export default class ProductController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       
-      const result = await this.productService.searchProducts(query, page, limit);
+      // For customers (role 2) and unauthenticated users, don't include suspended products
+      // For admin/staff/vendor, include suspended products
+      const includeSuspended = req.user && req.user.role !== 2;
+      const result = await this.productService.searchProducts(query, page, limit, includeSuspended);
       return res.status(200).json(result);
     } catch (error: any) {
       return res.status(500).json({
@@ -148,6 +160,21 @@ export default class ProductController {
         console.log('Invalid ID:', req.params.id);
         return res.status(400).json({
           message: 'ID sản phẩm không hợp lệ'
+        });
+      }
+
+      // Kiểm tra sản phẩm có tồn tại và trạng thái tạm dừng
+      const existingProduct = await this.productService.getProductById(id, true); // includeSuspended = true
+      if (!existingProduct) {
+        return res.status(404).json({
+          message: 'Sản phẩm không tồn tại'
+        });
+      }
+
+      // Kiểm tra nếu vendor cố gắng chỉnh sửa sản phẩm đã bị tạm dừng
+      if (req.user?.role === 3 && existingProduct.TrangThaiKiemDuyet === 'SUSPENDED') {
+        return res.status(403).json({
+          message: 'Không thể chỉnh sửa sản phẩm đã bị tạm dừng. Vui lòng liên hệ quản trị viên.'
         });
       }
 
@@ -227,14 +254,30 @@ export default class ProductController {
   public deleteProduct = async (req: Request, res: Response): Promise<Response> => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Get product details including suspended status
+      const product = await this.productService.getProductById(id, true); // includeSuspended = true
+      if (!product) {
+        return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
+      }
+      
       // Vendor ownership check
       if (req.user?.role === 3) {
         const ownerId = await this.getVendorIdByCustomerId(req.user.id);
-        const product = await this.productService.getProductById(id);
         if (!ownerId || product.MaNguoiBan !== ownerId) {
           return res.status(403).json({ message: 'Bạn không có quyền xóa sản phẩm này' });
         }
+        
+        // Allow vendor to delete suspended products
+        if (product.TrangThaiKiemDuyet === 'SUSPENDED') {
+          await this.productService.deleteProduct(id);
+          return res.status(200).json({
+            message: 'Xóa sản phẩm bị tạm dừng thành công'
+          });
+        }
       }
+      
+      // For admin/staff, allow deletion of any product
       await this.productService.deleteProduct(id);
       return res.status(200).json({
         message: 'Xóa sản phẩm thành công'

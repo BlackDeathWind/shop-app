@@ -55,6 +55,13 @@ const orderStatusValidation = [
     .withMessage('Trạng thái không hợp lệ')
 ];
 
+const suspendProductValidation = [
+  body('lyDoTamDung')
+    .notEmpty().withMessage('Lý do tạm dừng không được để trống')
+    .isLength({ min: 10 }).withMessage('Lý do tạm dừng phải có ít nhất 10 ký tự')
+    .isLength({ max: 500 }).withMessage('Lý do tạm dừng không được vượt quá 500 ký tự')
+];
+
 // Dashboard
 router.get(
   '/dashboard',
@@ -170,6 +177,22 @@ router.get(
   authMiddleware,
   roleMiddleware([0, 1, 3]),
   adminController.getOrdersByCustomerId
+);
+
+// Product suspension routes - Admin and staff only
+router.put(
+  '/products/:id/suspend',
+  authMiddleware,
+  roleMiddleware([0, 1]), // Admin and staff only
+  suspendProductValidation,
+  adminController.suspendProduct
+);
+
+router.put(
+  '/products/:id/unsuspend',
+  authMiddleware,
+  roleMiddleware([0, 1]), // Admin and staff only
+  adminController.unsuspendProduct
 );
 
 export default router; 

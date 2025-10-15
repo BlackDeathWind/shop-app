@@ -43,6 +43,10 @@ export interface ISanPham {
   NgayCapNhat?: Date;
   HinhAnh?: string;
   MaNguoiBan?: number;
+  TrangThaiKiemDuyet?: 'ACTIVE' | 'SUSPENDED';
+  LyDoTamDung?: string | null;
+  NgayTamDung?: Date | null;
+  NguoiTamDung?: number | null;
 }
 
 // Interface cho HoaDon

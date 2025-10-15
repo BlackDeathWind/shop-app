@@ -40,6 +40,7 @@ const ProductForm = () => {
   const { addToast } = useToast();
   const { user } = useAuth();
   const isVendor = user?.MaVaiTro === 3;
+  const [productSuspended, setProductSuspended] = useState<boolean>(false);
 
   // Role-based access check
   useEffect(() => {
@@ -61,6 +62,15 @@ const ProductForm = () => {
         // Nếu là chế độ chỉnh sửa, lấy thông tin sản phẩm
         if (isEditMode && productId) {
           const product = await getProductById(parseInt(productId));
+          
+          // Check if product is suspended
+          if (product.TrangThaiKiemDuyet === 'SUSPENDED') {
+            setProductSuspended(true);
+            addToast('Sản phẩm này đã bị tạm dừng. Bạn không thể chỉnh sửa.', 'error');
+            navigate('/admin/products');
+            return;
+          }
+          
           setFormData({
             TenSanPham: product.TenSanPham,
             MaDanhMuc: product.MaDanhMuc.toString(),
@@ -172,6 +182,26 @@ const ProductForm = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
+          {productSuspended && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">
+                    Sản phẩm đã bị tạm dừng
+                  </h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>Sản phẩm này đã bị tạm dừng bởi quản trị viên. Bạn không thể chỉnh sửa sản phẩm đã bị tạm dừng.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {loading && !error ? (
             <div className="flex justify-center items-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -193,7 +223,8 @@ const ProductForm = () => {
                       value={formData.TenSanPham}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={productSuspended}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${productSuspended ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     />
                   </div>
 
@@ -207,7 +238,8 @@ const ProductForm = () => {
                       value={formData.MaDanhMuc}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={productSuspended}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${productSuspended ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     >
                       <option value="">-- Chọn danh mục --</option>
                       {categories.map((category) => (
@@ -231,7 +263,8 @@ const ProductForm = () => {
                         onChange={handleInputChange}
                         min="0"
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={productSuspended}
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${productSuspended ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                       />
                     </div>
                     <div>
@@ -246,7 +279,8 @@ const ProductForm = () => {
                         onChange={handleInputChange}
                         min="0"
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={productSuspended}
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${productSuspended ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                       />
                     </div>
                   </div>
@@ -261,7 +295,8 @@ const ProductForm = () => {
                       value={formData.MoTa}
                       onChange={handleInputChange}
                       rows={5}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={productSuspended}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${productSuspended ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     />
                   </div>
                 </div>
@@ -315,11 +350,15 @@ const ProductForm = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  disabled={loading || productSuspended}
+                  className={`flex items-center gap-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                    productSuspended 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
                 >
                   <Save size={18} />
-                  {loading ? 'Đang lưu...' : 'Lưu sản phẩm'}
+                  {loading ? 'Đang lưu...' : productSuspended ? 'Không thể lưu' : 'Lưu sản phẩm'}
                 </button>
               </div>
             </form>
