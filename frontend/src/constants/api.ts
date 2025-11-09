@@ -74,6 +74,7 @@ export const API_ENDPOINTS = {
   VENDOR: {
     APPLY: `${API_BASE_URL}/vendor/apply`,
     ME: `${API_BASE_URL}/vendor/me`,
+    UPDATE: `${API_BASE_URL}/vendor/me`,
     PRODUCTS: {
       LIST: `${API_BASE_URL}/vendor/products`,
       CREATE: `${API_BASE_URL}/vendor/products`,

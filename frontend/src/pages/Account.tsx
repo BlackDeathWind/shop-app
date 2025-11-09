@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { getAllCategories } from '../services/category.service';
 import type { CategoryResponse } from '../services/category.service';
-import { applyVendor, getMyVendorProfile } from '../services/user.service';
+import { applyVendor, getMyVendorProfile, updateVendorProfile, type VendorProfileResponse } from '../services/user.service';
 import api from '../services/api';
 import { API_ENDPOINTS } from '../constants/api';
 
@@ -14,6 +14,7 @@ interface ProfileForm {
   TenKhachHang: string;
   SoDienThoai: string;
   DiaChi: string;
+  DiaChiKinhDoanh?: string;
   MatKhauCu?: string;
   MatKhauMoi?: string;
   XacNhanMatKhau?: string;
@@ -48,6 +49,7 @@ const Account = () => {
     agreed: false,
   });
   const [vendorStatus, setVendorStatus] = useState<'PENDING' | 'APPROVED' | 'REJECTED' | null>(null);
+  const [vendorProfile, setVendorProfile] = useState<VendorProfileResponse | null>(null);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
 
   useEffect(() => {
@@ -70,7 +72,20 @@ const Account = () => {
     (async () => {
       try {
         const profile = await getMyVendorProfile();
-        setVendorStatus((profile && profile.TrangThai) || null);
+        if (profile) {
+          setVendorStatus(profile.TrangThai);
+          setVendorProfile(profile);
+          // Nếu user là seller (role 3) và có vendor profile, thêm DiaChiKinhDoanh vào formData
+          if (user?.MaVaiTro === 3 && profile.TrangThai === 'APPROVED') {
+            setFormData(prev => ({
+              ...prev,
+              DiaChiKinhDoanh: profile.DiaChiKinhDoanh || ''
+            }));
+          }
+        } else {
+          setVendorStatus(null);
+          setVendorProfile(null);
+        }
       } catch {}
       try {
         const cats = await getAllCategories();
@@ -99,12 +114,29 @@ const Account = () => {
         SoDienThoai: formData.SoDienThoai,
         DiaChi: formData.DiaChi,
       };
-      if (user?.MaVaiTro === 2) {
+      if (user?.MaVaiTro === 2 || user?.MaVaiTro === 3) {
         payload['TenKhachHang'] = formData.TenKhachHang;
       } else {
         payload['TenNhanVien'] = formData.TenKhachHang;
       }
       await api.put(API_ENDPOINTS.USER.UPDATE_PROFILE, payload);
+
+      // Nếu user là seller (role 3) và có vendor profile đã được phê duyệt, cập nhật địa chỉ kinh doanh
+      if (user?.MaVaiTro === 3 && vendorProfile && vendorProfile.TrangThai === 'APPROVED' && formData.DiaChiKinhDoanh) {
+        try {
+          await updateVendorProfile({
+            DiaChiKinhDoanh: formData.DiaChiKinhDoanh
+          });
+          // Refresh vendor profile
+          const updatedProfile = await getMyVendorProfile();
+          if (updatedProfile) {
+            setVendorProfile(updatedProfile);
+          }
+        } catch (vendorErr: any) {
+          console.error('Error updating vendor profile:', vendorErr);
+          // Không throw error, chỉ log vì user profile đã được cập nhật thành công
+        }
+      }
 
       setSuccessMessage('Cập nhật thông tin thành công!');
       addToast('Cập nhật thông tin tài khoản thành công!', 'success');
@@ -377,7 +409,7 @@ const Account = () => {
                         
                         <div>
                           <label className="block text-gray-700 mb-2">
-                            Địa chỉ
+                            Địa chỉ giao hàng
                           </label>
                           <textarea
                             name="DiaChi"
@@ -388,6 +420,23 @@ const Account = () => {
                             required
                           ></textarea>
                         </div>
+
+                        {/* Hiển thị địa chỉ kinh doanh nếu user là seller (role 3) và có vendor profile đã được phê duyệt */}
+                        {user?.MaVaiTro === 3 && vendorProfile && vendorProfile.TrangThai === 'APPROVED' && (
+                          <div>
+                            <label className="block text-gray-700 mb-2">
+                              Địa chỉ kinh doanh
+                            </label>
+                            <textarea
+                              name="DiaChiKinhDoanh"
+                              value={formData.DiaChiKinhDoanh || ''}
+                              onChange={handleInputChange}
+                              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-pink-500"
+                              rows={3}
+                              required
+                            ></textarea>
+                          </div>
+                        )}
                       </div>
                       
                       <button

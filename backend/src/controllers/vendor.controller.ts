@@ -27,6 +27,19 @@ export default class VendorController {
     }
   };
 
+  public updateVendorProfile = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { id } = req.user!;
+      const updatedProfile = await this.vendorService.updateVendorProfile(id, req.body);
+      return res.status(200).json({
+        message: 'Cập nhật thông tin người bán thành công',
+        profile: updatedProfile
+      });
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message || 'Không thể cập nhật thông tin người bán' });
+    }
+  };
+
   public listApplications = async (req: Request, res: Response): Promise<Response> => {
     try {
       const status = (req.query.status as 'PENDING' | 'APPROVED' | 'REJECTED') || 'PENDING';

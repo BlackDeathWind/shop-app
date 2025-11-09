@@ -52,6 +52,13 @@ export interface VendorProfileResponse {
   NgayDuyet?: string | null;
 }
 
+export interface VendorProfileUpdateRequest {
+  DiaChiKinhDoanh?: string;
+  TenCuaHang?: string;
+  EmailLienHe?: string;
+  SoDienThoaiLienHe?: string;
+}
+
 export const getUserProfile = async (): Promise<UserResponse> => {
   const response = await api.get(API_ENDPOINTS.USER.GET_PROFILE);
   return response.data;
@@ -75,6 +82,11 @@ export const applyVendor = async (data: VendorApplicationRequest): Promise<{ mes
 
 export const getMyVendorProfile = async (): Promise<VendorProfileResponse | null> => {
   const response = await api.get(API_ENDPOINTS.VENDOR.ME);
+  return response.data;
+};
+
+export const updateVendorProfile = async (data: VendorProfileUpdateRequest): Promise<{ message: string; profile: VendorProfileResponse }> => {
+  const response = await api.put(API_ENDPOINTS.VENDOR.UPDATE, data);
   return response.data;
 };
 

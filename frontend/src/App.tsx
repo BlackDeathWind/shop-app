@@ -22,6 +22,9 @@ import OrderManagement from './pages/admin/OrderManagement';
 import ProductForm from './pages/admin/ProductForm';
 import NotFound from './pages/NotFound';
 import SearchResults from './pages/SearchResults';
+import BusinessLicense from './pages/BusinessLicense';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfUse from './pages/TermsOfUse';
 import './App.css'
 
 function App() {
@@ -41,6 +44,9 @@ function App() {
               <Route path="/categories/:categoryId" element={<ProductsByCategory />} />
               <Route path="/products/:productId" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/business-license" element={<BusinessLicense />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-use" element={<TermsOfUse />} />
               
               {/* Protected Customer Routes */}
               <Route path="/checkout" element={

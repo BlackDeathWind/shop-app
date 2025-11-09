@@ -23,6 +23,13 @@ router.post(
 );
 
 router.get('/me', authMiddleware, vendorController.getMyVendorProfile);
+router.put(
+  '/me',
+  authMiddleware,
+  body('DiaChiKinhDoanh').optional().notEmpty().withMessage('Địa chỉ kinh doanh không được để trống'),
+  body('SoDienThoaiLienHe').optional().matches(/^[0-9]{10}$/).withMessage('Số điện thoại liên hệ phải có 10 chữ số'),
+  vendorController.updateVendorProfile
+);
 
 // Vendor product management (role 3)
 router.get('/products', authMiddleware, roleMiddleware([3]), productController.getVendorProducts);

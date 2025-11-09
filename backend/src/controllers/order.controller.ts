@@ -43,10 +43,10 @@ export default class OrderController {
         });
       }
       
-      // Xác nhận người dùng là khách hàng
-      if (role !== 2) {
+      // Xác nhận người dùng là khách hàng hoặc người bán
+      if (role !== 2 && role !== 3) {
         return res.status(403).json({
-          message: 'Chỉ tài khoản khách hàng mới có thể xem đơn hàng của họ, Admin và nhân viên vui lòng xử dụng trang quản lý đơn hàng'
+          message: 'Chỉ tài khoản khách hàng và người bán mới có thể xem đơn hàng của họ, Admin và nhân viên vui lòng sử dụng trang quản lý đơn hàng'
         });
       }
       

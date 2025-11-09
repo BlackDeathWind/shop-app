@@ -45,14 +45,14 @@ const Orders = () => {
       return;
     }
 
-    // Kiểm tra vai trò người dùng, chỉ khách hàng (role = 2) mới tải đơn hàng
-    if (user && user.MaVaiTro === 2) {
+    // Kiểm tra vai trò người dùng, cho phép khách hàng (role = 2) và người bán (role = 3) xem đơn hàng
+    if (user && (user.MaVaiTro === 2 || user.MaVaiTro === 3)) {
       const fetchOrders = async () => {
         try {
           setLoading(true);
           setError(null);
           
-          console.log('Đang tải đơn hàng của khách hàng');
+          console.log('Đang tải đơn hàng của khách hàng/người bán');
           const response = await api.get(API_ENDPOINTS.ORDER.GET_MY_ORDERS);
           
           // Kiểm tra dữ liệu trả về
@@ -77,7 +77,7 @@ const Orders = () => {
     } else if (user && (user.MaVaiTro === 0 || user.MaVaiTro === 1)) {
       // Admin hoặc nhân viên
       setLoading(false);
-      setError('Chỉ tài khoản khách hàng mới có thể xem đơn hàng của họ, Admin và nhân viên vui lòng sử dụng trang quản lý đơn hàng');
+      setError('Chỉ tài khoản khách hàng và người bán mới có thể xem đơn hàng của họ, Admin và nhân viên vui lòng sử dụng trang quản lý đơn hàng');
     }
   }, [isAuthenticated, navigate, user]);
 

@@ -1,18 +1,31 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* About Section */}
+          {/* Legal Information Section */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Flower Shop</h3>
-            <p className="text-gray-300 mb-4">
-              Chuyên cung cấp các loại hoa tươi, hoa sinh nhật, hoa khai trương, hoa cưới và quà tặng
-              với chất lượng cao và dịch vụ chuyên nghiệp.
-            </p>
+            <h3 className="text-xl font-bold mb-4">Thông tin pháp lý</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/business-license" className="text-gray-300 hover:text-pink-400 transition">
+                  Giấy phép kinh doanh
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy-policy" className="text-gray-300 hover:text-pink-400 transition">
+                  Chính sách bảo mật
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-of-use" className="text-gray-300 hover:text-pink-400 transition">
+                  Điều khoản sử dụng
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Quick Links */}

@@ -75,6 +75,35 @@ export default class VendorService {
     });
   }
 
+  public async updateVendorProfile(khachHangId: number, data: {
+    DiaChiKinhDoanh?: string;
+    TenCuaHang?: string;
+    EmailLienHe?: string;
+    SoDienThoaiLienHe?: string;
+  }) {
+    const vendor = await NguoiBan.findOne({
+      where: { MaKhachHang: khachHangId }
+    });
+
+    if (!vendor) {
+      throw new Error('Không tìm thấy hồ sơ người bán');
+    }
+
+    // Chỉ cho phép cập nhật nếu đã được phê duyệt
+    if (vendor.TrangThai !== 'APPROVED') {
+      throw new Error('Chỉ có thể cập nhật thông tin khi hồ sơ đã được phê duyệt');
+    }
+
+    const updateData: any = {};
+    if (data.DiaChiKinhDoanh !== undefined) updateData.DiaChiKinhDoanh = data.DiaChiKinhDoanh;
+    if (data.TenCuaHang !== undefined) updateData.TenCuaHang = data.TenCuaHang;
+    if (data.EmailLienHe !== undefined) updateData.EmailLienHe = data.EmailLienHe;
+    if (data.SoDienThoaiLienHe !== undefined) updateData.SoDienThoaiLienHe = data.SoDienThoaiLienHe;
+
+    await vendor.update(updateData);
+    return vendor;
+  }
+
   public async listApplications(status: 'PENDING' | 'APPROVED' | 'REJECTED', page = 1, limit = 10) {
     const offset = (page - 1) * limit;
     const { count, rows } = await NguoiBan.findAndCountAll({
