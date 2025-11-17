@@ -46,7 +46,15 @@ CREATE TABLE IF NOT EXISTS SanPham (
     Ngaytao DATETIME DEFAULT CURRENT_TIMESTAMP,
     NgayCapNhat DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     HinhAnh VARCHAR(255),
-    CONSTRAINT FK_SanPham_DanhMuc FOREIGN KEY (MaDanhMuc) REFERENCES DanhMuc(MaDanhMuc)
+    MaNguoiBan INT NULL,
+    TrangThaiKiemDuyet VARCHAR(20) DEFAULT 'ACTIVE',
+    LyDoTamDung TEXT NULL,
+    NgayTamDung DATETIME NULL,
+    NguoiTamDung INT NULL,
+    CONSTRAINT FK_SanPham_DanhMuc FOREIGN KEY (MaDanhMuc) REFERENCES DanhMuc(MaDanhMuc),
+    CONSTRAINT FK_SanPham_NguoiBan FOREIGN KEY (MaNguoiBan) REFERENCES NguoiBan(MaNguoiBan),
+    CONSTRAINT CHK_TrangThaiKiemDuyet CHECK (TrangThaiKiemDuyet IN ('ACTIVE', 'SUSPENDED')),
+    CONSTRAINT FK_SanPham_NguoiTamDung FOREIGN KEY (NguoiTamDung) REFERENCES NhanVien(MaNhanVien)
 );
 
 -- Create table HoaDon
@@ -100,8 +108,3 @@ CREATE TABLE IF NOT EXISTS NguoiBanDanhMuc (
     CONSTRAINT FK_NBDM_NguoiBan FOREIGN KEY (MaNguoiBan) REFERENCES NguoiBan(MaNguoiBan) ON DELETE CASCADE,
     CONSTRAINT FK_NBDM_DanhMuc FOREIGN KEY (MaDanhMuc) REFERENCES DanhMuc(MaDanhMuc) ON DELETE CASCADE
 );
-
--- Alter SanPham: add owner MaNguoiBan
--- Note: MySQL does not support IF NOT EXISTS here; run once or guard externally
-ALTER TABLE SanPham ADD COLUMN MaNguoiBan INT NULL;
-ALTER TABLE SanPham ADD CONSTRAINT FK_SanPham_NguoiBan FOREIGN KEY (MaNguoiBan) REFERENCES NguoiBan(MaNguoiBan);
