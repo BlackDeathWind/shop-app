@@ -85,3 +85,25 @@ export const unsuspendProduct = async (id: number): Promise<ProductResponse> => 
   const response = await api.put(API_ENDPOINTS.ADMIN.PRODUCTS.UNSUSPEND(id));
   return response.data.product;
 };
+
+export interface VendorShopResponse {
+  vendor: {
+    MaNguoiBan: number;
+    TenCuaHang: string;
+    DiaChiKinhDoanh: string;
+    SoDienThoaiLienHe: string;
+    KhachHang?: {
+      TenKhachHang: string;
+    };
+  };
+  stats: {
+    productCount: number;
+    averageRating: number;
+  };
+  products: ProductResponse[];
+}
+
+export const getVendorShop = async (vendorId: number): Promise<VendorShopResponse> => {
+  const response = await api.get(API_ENDPOINTS.PRODUCT.GET_VENDOR_SHOP(vendorId));
+  return response.data;
+};

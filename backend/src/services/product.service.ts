@@ -1,6 +1,7 @@
 import SanPham from '../models/SanPham.model';
 import DanhMuc from '../models/DanhMuc.model';
 import NguoiBan from '../models/NguoiBan.model';
+import KhachHang from '../models/KhachHang.model';
 import { Op } from 'sequelize';
 import { ISanPham } from '../interfaces/models.interface';
 
@@ -62,10 +63,17 @@ export default class ProductService {
       if (!includeSuspended) {
         whereClause.TrangThaiKiemDuyet = 'ACTIVE';
       }
-      
+
       const product = await SanPham.findOne({
         where: whereClause,
-        include: [{ model: DanhMuc, as: 'DanhMuc' }, { model: NguoiBan, as: 'NguoiBan' }]
+        include: [
+          { model: DanhMuc, as: 'DanhMuc' },
+          {
+            model: NguoiBan,
+            as: 'NguoiBan',
+            include: [{ model: KhachHang, as: 'KhachHang' }]
+          }
+        ]
       });
 
       if (!product) {
@@ -268,7 +276,7 @@ export default class ProductService {
   public async unsuspendProduct(id: number) {
     try {
       const product = await SanPham.findByPk(id);
-      
+
       if (!product) {
         throw new Error('Sản phẩm không tồn tại');
       }
@@ -289,4 +297,59 @@ export default class ProductService {
       throw error;
     }
   }
-} 
+
+  public async getVendorShopInfo(vendorId: number) {
+    try {
+      // Get vendor info with customer details
+      const vendor = await NguoiBan.findOne({
+        where: { MaNguoiBan: vendorId },
+        include: [{ model: KhachHang, as: 'KhachHang' }]
+      });
+
+      if (!vendor) {
+        throw new Error('Người bán không tồn tại');
+      }
+
+      // Count active products
+      const productCount = await SanPham.count({
+        where: {
+          MaNguoiBan: vendorId,
+          TrangThaiKiemDuyet: 'ACTIVE'
+        }
+      });
+
+      // Get products for the shop (limit to recent ones)
+      const products = await SanPham.findAll({
+        where: {
+          MaNguoiBan: vendorId,
+          TrangThaiKiemDuyet: 'ACTIVE'
+        },
+        include: [{ model: DanhMuc, as: 'DanhMuc' }],
+        limit: 20,
+        order: [['NgayCapNhat', 'DESC']]
+      });
+
+      // Mock rating for now (can be replaced with actual rating system later)
+      const averageRating = 4.9;
+
+      return {
+        vendor: {
+          MaNguoiBan: vendor.MaNguoiBan,
+          TenCuaHang: vendor.TenCuaHang,
+          DiaChiKinhDoanh: vendor.DiaChiKinhDoanh,
+          SoDienThoaiLienHe: vendor.SoDienThoaiLienHe,
+          KhachHang: (vendor as any).KhachHang ? {
+            TenKhachHang: (vendor as any).KhachHang.TenKhachHang
+          } : undefined
+        },
+        stats: {
+          productCount,
+          averageRating
+        },
+        products
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+}

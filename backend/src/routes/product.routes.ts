@@ -36,6 +36,7 @@ const productValidation = [
 router.get('/', productController.getAllProducts);
 router.get('/search', productController.searchProducts);
 router.get('/category/:categoryId', productController.getProductsByCategory);
+router.get('/vendor/:vendorId', productController.getVendorShop);
 router.get('/:id', productController.getProductById);
 
 // Protected routes (chỉ vendor mới được CRUD)

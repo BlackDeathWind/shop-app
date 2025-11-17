@@ -11,6 +11,7 @@ import About from './pages/About';
 import Categories from './pages/Categories';
 import ProductsByCategory from './pages/ProductsByCategory';
 import ProductDetail from './pages/ProductDetail';
+import VendorShop from './pages/VendorShop';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
@@ -43,6 +44,7 @@ function App() {
               <Route path="/categories" element={<Categories />} />
               <Route path="/categories/:categoryId" element={<ProductsByCategory />} />
               <Route path="/products/:productId" element={<ProductDetail />} />
+              <Route path="/vendor/:vendorId" element={<VendorShop />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/business-license" element={<BusinessLicense />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />

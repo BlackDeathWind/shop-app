@@ -254,20 +254,20 @@ export default class ProductController {
   public deleteProduct = async (req: Request, res: Response): Promise<Response> => {
     try {
       const id = parseInt(req.params.id);
-      
+
       // Get product details including suspended status
       const product = await this.productService.getProductById(id, true); // includeSuspended = true
       if (!product) {
         return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
       }
-      
+
       // Vendor ownership check
       if (req.user?.role === 3) {
         const ownerId = await this.getVendorIdByCustomerId(req.user.id);
         if (!ownerId || product.MaNguoiBan !== ownerId) {
           return res.status(403).json({ message: 'Bạn không có quyền xóa sản phẩm này' });
         }
-        
+
         // Allow vendor to delete suspended products
         if (product.TrangThaiKiemDuyet === 'SUSPENDED') {
           await this.productService.deleteProduct(id);
@@ -276,7 +276,7 @@ export default class ProductController {
           });
         }
       }
-      
+
       // For admin/staff, allow deletion of any product
       await this.productService.deleteProduct(id);
       return res.status(200).json({
@@ -288,4 +288,16 @@ export default class ProductController {
       });
     }
   };
-} 
+
+  public getVendorShop = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const vendorId = parseInt(req.params.vendorId);
+      const shopInfo = await this.productService.getVendorShopInfo(vendorId);
+      return res.status(200).json(shopInfo);
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || 'Lỗi khi lấy thông tin cửa hàng'
+      });
+    }
+  };
+}
